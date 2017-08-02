@@ -286,6 +286,139 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://ipfans.github.io/2017/08/install-face-recognition-on-osx/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ipfans">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/363344?v=3&s=460">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ipfans's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/08/install-face-recognition-on-osx/" itemprop="url">OSX 下安装 face_recognition</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-02T18:30:00+08:00">
+                2017-08-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/08/install-face-recognition-on-osx/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2017/08/install-face-recognition-on-osx/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>face_recognition 是一个热门的人脸识别库，常年占据 <a href="https://github.com/trending/python" target="_blank" rel="external">Github Trending Python 子类</a>的 Top10。</p>
+<p>在官方文档中，介绍安装 face_recognition 步骤非常简单，只需要执行 <code>pip install face_recognition</code> 就可以了，实际在安装过程中 face_recognition 有一些非 Python 依赖，需要单独安装，本文就对内容进行一个简单介绍，权作记录，方便大家手动安装时提前规避。文章基于 OSX 10.12.6+pyenv+python3.6.2 介绍。</p>
+<h2 id="问题在哪里？"><a href="#问题在哪里？" class="headerlink" title="问题在哪里？"></a>问题在哪里？</h2><p>face_recognition 的依赖大部分都比较好安装，只有一个库例外，那就是 <code>dlib</code> 这个依赖。这个依赖需要安装 <code>boost</code> 和 <code>boost-python</code> 两个非 Python 依赖。</p>
+<h2 id="安装-Boost-和-boost-python"><a href="#安装-Boost-和-boost-python" class="headerlink" title="安装 Boost 和 boost-python"></a>安装 Boost 和 boost-python</h2><p>这两个库可以通过 <code>Homebrew</code> 快速安装，使用如下命令进行安装：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">brew install boost</div><div class="line">brew install boost-python --with-python3</div></pre></td></tr></table></figure>
+<p>需要注意的是，如果是 Python3 使用，需要额外参数，使用源码编译安装。如果使用 Python2 可以使用 Homebrew 的预编译包。</p>
+<h2 id="确认-Python"><a href="#确认-Python" class="headerlink" title="确认 Python"></a>确认 Python</h2><p>dlib 要求 Python 编译时使用 <code>--enable-shared</code> 参数编译，默认情况下，pyenv 未启用该参数，因此编译需要使用下面参数进行 Python 重新编译</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">PYTHON_CONFIGURE_OPTS=&quot;--with-dtrace --enable-shared&quot; pyenv install 3.6.2</div></pre></td></tr></table></figure>
+<p>前面一个参数是我一直编译 Python 3.6 使用的参数，方便使用 DTrace 监控 Python 的执行。具体的作用可以参考我<a href="https://ipfans.github.io/2016/09/tracing-python-program-with-dtrace/">之前的文章</a>。</p>
+<p>这样还没有完，因为 dlib 的代码问题，对默认 Python3.6 的 library 识别有问题，因此需要将 Python 安装目录下的 lib/libpython3.6m.dylib 复制为 lib/libpython3.6.dylib。一般 pyenv 目录为 <code>~/.pyenv/versions/3.6.2/lib/</code></p>
+<h2 id="安装-face-recognition"><a href="#安装-face-recognition" class="headerlink" title="安装 face_recognition"></a>安装 face_recognition</h2><p>接下来就可以使用 pip 正常安装 face_recognition 了，其中 <code>dlib</code> 编译还是需要消耗一些时间的，需要耐心等待。</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="https://ipfans.github.io/2017/07/mongodb-optimizing/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -367,7 +500,7 @@
           
             <p>由于过去的历史原因，我们使用的默认 DB 是 MongoDB 数据库。MongoDB 数据库本身在支持非格式化的数据存储方面有比较大的优势，也不需要额外做很多的 Schema Migration，在我们项目初期，数据存储结构变动频繁时帮助非常大。</p>
 <p>但是，随着我们的业务不断增长，我们也遇到了一些问题，这篇文章总结了一些我们在过去的过程中出现的一些问题或者失误，帮助大家在实践过程中进行规避。</p>
-<h2 id="集合使用不当问题"><a href="#集合使用不当问题" class="headerlink" title="集合使用不当问题"></a>集合使用不当问题</h2><p>在使用 MongoDB 过程中，我们创建了大量的集合。这种情况在 WiredTriger 引擎下创建大量零散文件。这个在使用过程中暂时未对我们造成实际的业务较大影响，但是从实际使用而言，对整体数据库性能、后续主从复制集群同步，都是有一定影响的。在实际应用过程中应该避免：拥有过多 DB、一个 DB 下有过多 Collection，这样都会导致部分指令的性能大幅度下滑。同时，过多的 DB 也会导致主从同步失败(listDatabse 超时导致失败，从库退出)。</p>
+<h2 id="集合使用不当问题"><a href="#集合使用不当问题" class="headerlink" title="集合使用不当问题"></a>集合使用不当问题</h2><p>在使用 MongoDB 过程中，我们创建了大量的集合。这种情况在 WiredTriger 引擎下创建大量零散文件。这个在使用过程中暂时未对我们造成实际的业务较大影响，但是从实际使用而言，对整体数据库性能、后续主从复制集群同步，都是有一定影响的。在实际应用过程中应该避免：拥有过多 DB、一个 DB 下有过多 Collection，这样都会导致部分指令的性能大幅度下滑。同时，过多的 DB 也会导致主从同步失败 (listDatabse 超时导致失败，从库退出)。</p>
 <h2 id="数据库索引建立"><a href="#数据库索引建立" class="headerlink" title="数据库索引建立"></a>数据库索引建立</h2><p>MongoDB Collection 索引建立功能支持前台创建模式与后台创建模式两种。默认模式为前台创建模式。这种模式下会发生：DB 被锁，主库所有读写被禁止、从库无法访问。从另一方面来说，会导致业务系统的数据库访问受到影响。虽然前台创建模式效率更高，但是如果是线上操作，并且有一定数量级，创建索引时需要添加 <code>{background:true}</code> 让创建索引操作转换为后台操作，尽管时间较长，但是对业务影响较小。同时，该操作也应该在业务量小时进行。</p>
 <h2 id="数据库主从切换"><a href="#数据库主从切换" class="headerlink" title="数据库主从切换"></a>数据库主从切换</h2><p>虽然 MongoDB 的 Replica Set 功能可以方便的进行自动主从切换。但是实际使用过程中，我们也会遇到一些需要手工进行主从库切换的情况。比如，进行进行版本升级修复 BUG 或者安全漏洞。但是如果这个时候强行进行 Primary 的重启，则可能会出现未同步至 Secondary 的数据丢失的情况（血泪教训）。这种情况下，重启集群的方式是，优先进行 Secondary 的更新操作，在 Secondary 更新完成后，对 Primary 进行 <a href="https://docs.mongodb.com/manual/reference/method/rs.stepDown/" target="_blank" rel="external">stepDown</a> 操作，等待主节点降级成为 Secondary 节点，之后进行操作。这样的好处是不会丢失数据。但是如果主从数据差异较大时，有可能会造成降级失败，此时可以重复执行 stepDown 直至成功。还有一个值得注意的是，即便 Secondary 可以停机维护，但是仍旧有可能丢数据，这个与 <code>oplog</code> 大小有关，我们放在后面说。</p>
 <h2 id="慢查询问题"><a href="#慢查询问题" class="headerlink" title="慢查询问题"></a>慢查询问题</h2><p>慢查询的记录可以通过 Profiling 进行记录，这部分资料比较多，可以通过 <code>db.setProfilingLevel()</code> 进行管理。同时，主动分析也可以通过 <code>explain</code> 进行预分析。这一部分资料比较多，我这里就不再啰嗦了。但是还有一个问题是，部分慢查询操作不会随着客户端断开中断执行，需要通过 <code>db.currentOp()</code> 和 <code>db.killOp()</code> 功能干掉长时间执行、浪费资源的操作。</p>
@@ -629,8 +762,8 @@
 <hr>
 <p>本周，西雅图的自行车共享系统 Pronto CycleShare 一周岁了。 为了庆祝这一点，Pronto 提供了从第一年的数据缓存，并宣布了 <a href="http://www.prontocycleshare.com/datachallenge" target="_blank" rel="external">Pronto Cycle Share 的数据分析挑战</a>。</p>
 <p>你可以用很多工具分析这些数据，但我的选择工具是 Python。 在这篇文章中，我想展示如何开始分析这些数据，并使用 PyData 技术栈，即 <a href="http://www.numpy.org/" target="_blank" rel="external">NumPy</a>，<a href="http://pandas.pydata.org/" target="_blank" rel="external">Pandas</a>，<a href="http://matplotlib.org/" target="_blank" rel="external">Matplotlib</a> 和 <a href="http://seaborn.pydata.org/index.html" target="_blank" rel="external">Seaborn</a> 与其他可用的数据源。</p>
-<p>这篇文章以 Jupyter Notebook 形式组织，它是一种开放的文档格式。结合了文本、代码、数据和图形，并且通过 Web 浏览器查看。本文中的内容可以下载<a href="http://jakevdp.github.io/downloads/notebooks/ProntoData.ipynb" target="_blank" rel="external">对应的 Notebook 文件</a>，并通过 Jupyter 打开。</p>
-<h2 id="下载-Pronto-的数据"><a href="#下载-Pronto-的数据" class="headerlink" title="下载 Pronto 的数据"></a>下载 Pronto 的数据</h2><p>我们可以从 <a href="http://www.prontocycleshare.com/datachallenge" target="_blank" rel="external">Pronto 官网</a>下载对应的<a href="https://s3.amazonaws.com/pronto-data/open_data_year_one.zip" target="_blank" rel="external">数据文件</a>。总下载大约 70MB，解压缩的文件大约 900MB。</p>
+<p>这篇文章以 Jupyter Notebook 形式组织，它是一种开放的文档格式。结合了文本、代码、数据和图形，并且通过 Web 浏览器查看。本文中的内容可以下载 <a href="http://jakevdp.github.io/downloads/notebooks/ProntoData.ipynb" target="_blank" rel="external">对应的 Notebook 文件</a>，并通过 Jupyter 打开。</p>
+<h2 id="下载-Pronto-的数据"><a href="#下载-Pronto-的数据" class="headerlink" title="下载 Pronto 的数据"></a>下载 Pronto 的数据</h2><p>我们可以从 <a href="http://www.prontocycleshare.com/datachallenge" target="_blank" rel="external">Pronto 官网</a> 下载对应的 <a href="https://s3.amazonaws.com/pronto-data/open_data_year_one.zip" target="_blank" rel="external">数据文件</a>。总下载大约 70MB，解压缩的文件大约 900MB。</p>
 <p>接下来我们需要导入一些 Python 包：</p>
 <p>In [2]:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">%matplotlib inline</div><div class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</div><div class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</div><div class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</div><div class="line"><span class="keyword">import</span> seaborn <span class="keyword">as</span> sns; sns.set()</div></pre></td></tr></table></figure>
@@ -667,14 +800,14 @@
 <p>In [9]:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">fig, ax = plt.subplots(<span class="number">1</span>, <span class="number">2</span>, figsize=(<span class="number">16</span>, <span class="number">6</span>), sharey=<span class="keyword">True</span>)</div><div class="line">by_hour.loc[<span class="string">'weekday'</span>].plot(title=<span class="string">'Average Hourly Use (Mon-Fri)'</span>, ax=ax[<span class="number">0</span>])</div><div class="line">by_hour.loc[<span class="string">'weekend'</span>].plot(title=<span class="string">'Average Hourly Use (Sat-Sun)'</span>, ax=ax[<span class="number">1</span>])</div><div class="line">ax[<span class="number">0</span>].set_ylabel(<span class="string">'Average Trips per Hour'</span>);</div></pre></td></tr></table></figure>
 <p>   <img src="http://ww1.sinaimg.cn/large/69e37fdbgy1fcvtx6xmpqj20q30axgmm" alt=""></p>
-<p>我们看到一个 “通勤” 模式和一个 “娱乐” 模式之间的明显区别:“通勤”模式在早上和晚上急剧上升，而 “娱乐” 模式在下午的时候有一个宽峰。 有趣的是，年费会员在周末的行为似乎与临时用户在周末的行为几乎相同。</p>
+<p>我们看到一个 “通勤” 模式和一个 “娱乐” 模式之间的明显区别:“通勤” 模式在早上和晚上急剧上升，而 “娱乐” 模式在下午的时候有一个宽峰。 有趣的是，年费会员在周末的行为似乎与临时用户在周末的行为几乎相同。</p>
 <h2 id="旅行时间"><a href="#旅行时间" class="headerlink" title="旅行时间"></a>旅行时间</h2><p>接下来，我们来看看旅行的持续时间。 Pronto 免费骑行最长可达 30 分钟; 任何长于此的单次使用，在前半个小时都会产生几美元的使用费，此后每小时大约需要十美元。</p>
 <p>让我们看看年费会员和临时使用者的旅行持续时间的分布：</p>
 <p>In [10]:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">trips[<span class="string">'minutes'</span>] = trips.tripduration / <span class="number">60</span></div><div class="line">trips.groupby(<span class="string">'usertype'</span>)[<span class="string">'minutes'</span>].hist(bins=np.arange(<span class="number">61</span>), alpha=<span class="number">0.5</span>, normed=<span class="keyword">True</span>);</div><div class="line">plt.xlabel(<span class="string">'Duration (minutes)'</span>)</div><div class="line">plt.ylabel(<span class="string">'relative frequency'</span>)</div><div class="line">plt.title(<span class="string">'Trip Durations'</span>)</div><div class="line">plt.text(<span class="number">34</span>, <span class="number">0.09</span>,<span class="string">"Free Trips\n\nAdditional Fee"</span>, ha=<span class="string">'right'</span>,</div><div class="line">         size=<span class="number">18</span>, rotation=<span class="number">90</span>, alpha=<span class="number">0.5</span>, color=<span class="string">'red'</span>)</div><div class="line">plt.legend([<span class="string">'Annual Members'</span>, <span class="string">'Short-term Pass'</span>])</div><div class="line"></div><div class="line">plt.axvline(<span class="number">30</span>, linestyle=<span class="string">'--'</span>, color=<span class="string">'red'</span>, alpha=<span class="number">0.3</span>);</div></pre></td></tr></table></figure>
 <p>   <img src="http://ww1.sinaimg.cn/large/69e37fdbgy1fcvu4jj5p0j20e20a5aab" alt=""></p>
 <p>在这里，我添加了一个红色的虚线，分开免费骑乘（左）和付费骑乘（右）。看来，年费用户对系统规则更加了解：只有行程分布的一小部分超过 30 分钟。另一方面，大约四分之一的临时用户时间超过半小时限制，并收取额外费用。 我的预期是，这些临时用户不能很好理解这种定价结构，并且可能会因为不开心的体验不再使用。</p>
-<h2 id="估计行程距离"><a href="#估计行程距离" class="headerlink" title="估计行程距离"></a>估计行程距离</h2><p>看看旅行的距离也十分有趣。Pronto 发布的数据中不包括行车的距离，因此我们需要通过其他来源来确定。让我们从加载行车数据开始 - 因为一些行程在 Pronto 的服务点之间开始和结束，我们将其添加为一个“车站”：</p>
+<h2 id="估计行程距离"><a href="#估计行程距离" class="headerlink" title="估计行程距离"></a>估计行程距离</h2><p>看看旅行的距离也十分有趣。Pronto 发布的数据中不包括行车的距离，因此我们需要通过其他来源来确定。让我们从加载行车数据开始 - 因为一些行程在 Pronto 的服务点之间开始和结束，我们将其添加为一个 “车站”：</p>
 <p>In [11]:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">stations = pd.read_csv(<span class="string">'2015_station_data.csv'</span>)</div><div class="line">pronto_shop = dict(id=<span class="number">54</span>, name=<span class="string">"Pronto shop"</span>,</div><div class="line">                   terminal=<span class="string">"Pronto shop"</span>,</div><div class="line">                   lat=<span class="number">47.6173156</span>, long=<span class="number">-122.3414776</span>,</div><div class="line">                   dockcount=<span class="number">100</span>, online=<span class="string">'10/13/2014'</span>)</div><div class="line">stations = stations.append(pronto_shop, ignore_index=<span class="keyword">True</span>)</div></pre></td></tr></table></figure>
 <p>现在我们需要找到两对纬度 / 经度坐标之间的骑车距离。幸运的是，Google 地图有一个距离 API，我们可以免费使用。</p>
@@ -876,7 +1009,7 @@
       
         
           
-            <p>Golang 中的错误处理是一个被大家经常拿出来讨论的 <a href="http://www.infoq.com/cn/news/2012/11/go-error-handle" target="_blank" rel="external">话题</a>(另外一个是<a href="http://www.weibo.com/1609119537/CdzJVejwg?type=comment" target="_blank" rel="external">泛型</a>)。其中泛型这个问题，rsc 在最近的计划中也<a href="https://mp.weixin.qq.com/s?__biz=MjM5OTcxMzE0MQ==&amp;mid=2653369836&amp;idx=1&amp;sn=ddff3df7dbf52bb5bcc8b0ace78e0121&amp;chksm=bce4d5f68b935ce0ece41ada8a49bbd33b638d184901ca8a61b5288daaf7c5a2d63af0cc3b34" target="_blank" rel="external">提出</a> 了纳入他今年的考虑计划中，同时，<a href="https://github.com/golang/proposal/blob/master/design/15292-generics.md" target="_blank" rel="external">泛型的提案</a>在 2016 年也进行了一些更新，相信未来会有一些更好的方案提出。这个文章我们讨论一下如何在现行的 Golang 框架下提供更友好和优雅的错误处理。</p>
+            <p>Golang 中的错误处理是一个被大家经常拿出来讨论的 <a href="http://www.infoq.com/cn/news/2012/11/go-error-handle" target="_blank" rel="external">话题</a>(另外一个是 <a href="http://www.weibo.com/1609119537/CdzJVejwg?type=comment" target="_blank" rel="external">泛型</a>)。其中泛型这个问题，rsc 在最近的计划中也<a href="https://mp.weixin.qq.com/s?__biz=MjM5OTcxMzE0MQ==&amp;mid=2653369836&amp;idx=1&amp;sn=ddff3df7dbf52bb5bcc8b0ace78e0121&amp;chksm=bce4d5f68b935ce0ece41ada8a49bbd33b638d184901ca8a61b5288daaf7c5a2d63af0cc3b34" target="_blank" rel="external">提出</a> 了纳入他今年的考虑计划中，同时，<a href="https://github.com/golang/proposal/blob/master/design/15292-generics.md" target="_blank" rel="external">泛型的提案</a> 在 2016 年也进行了一些更新，相信未来会有一些更好的方案提出。这个文章我们讨论一下如何在现行的 Golang 框架下提供更友好和优雅的错误处理。</p>
 <h2 id="从现状谈起"><a href="#从现状谈起" class="headerlink" title="从现状谈起"></a>从现状谈起</h2><p>Golang 中的错误处理原则，开发者曾经之前专门发布了几篇文章 (<a href="https://blog.golang.org/error-handling-and-go" target="_blank" rel="external">Error handling and Go</a> 和 <a href="https://blog.golang.org/defer-panic-and-recover" target="_blank" rel="external">Defer, Panic, and Recover</a>、<a href="https://blog.golang.org/errors-are-values" target="_blank" rel="external">Errors are values</a> ) 介绍。分别介绍了 Golang 中处理一般预知到的错误与遇到崩溃时的错误处理机制。</p>
 <p>一般情况下，我们还是以官方博客中的错误处理例子为例：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;f, err := os.Open(<span class="string">"filename.ext"</span>)</div><div class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;log.Fatal(err)</div><div class="line">        <span class="comment">// 或者更简单的：</span></div><div class="line">        <span class="comment">// return err</span></div><div class="line">    &#125;</div><div class="line">    ...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
@@ -903,159 +1036,6 @@
 <figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">type</span> temporary <span class="keyword">interface</span> &#123;Temporary() <span class="keyword">bool</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// IsTemporary returns true if err is temporary.</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">IsTemporary</span><span class="params">(err error)</span> <span class="title">bool</span></span> &#123;te, ok := errors.Cause(err).(temporary)</div><div class="line">	<span class="keyword">return</span> ok &amp;&amp; te.Temporary()&#125;</div></pre></td></tr></table></figure>
 <p>这样就可以提供更加方便的错误解析和处理。</p>
 <h3 id="广告时间"><a href="#广告时间" class="headerlink" title="广告时间"></a>广告时间</h3><p>我们正在招收新人 Gopher，应届毕业生 or 实习生欢迎投递简历。我们正在努力实现开发流程标准化，如果你想获得提高，相信也是一个非常不错的机会。简历投递 kevin [at] yeeuu [dot] com。</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://ipfans.github.io/2016/09/tracing-python-program-with-dtrace/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="ipfans">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/363344?v=3&s=460">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ipfans's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/09/tracing-python-program-with-dtrace/" itemprop="url">使用 dtrace 跟踪 Python 应用</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-09-15T18:00:00+08:00">
-                2016-09-15
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2016/09/tracing-python-program-with-dtrace/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2016/09/tracing-python-program-with-dtrace/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>今年在 Pycon China 上，来自饿了么的郭浩川分享了 <a href="http://ocgxshkaw.bkt.clouddn.com/4%20%E3%80%8A%E7%94%A8%E9%AB%98%E9%AD%94%E7%9A%84%E5%A7%BF%E5%8A%BF%E8%B0%83%20python%20%E7%A8%8B%E5%BA%8F%E3%80%8B%E9%83%AD%E6%B5%A9%E5%B7%9D.pdf" target="_blank" rel="external">利用 systemtap 进行 Python 执行情况分析</a> 的内容。分享利用 systemtap 在线上环境中实时监控 gevent patch 的 green thread 程序的执行状况。</p>
-<p>dtrace 和 systemtap 均支持在 Linux 上进行分析，在 macOS 系统上则只有 dtrace 使用。在 Python3.5 和之前版本中，需要使用手工 Patch 的方式进行埋点监控。在 Python 3.6 以上中 dtrace 和 systemtap 埋点支持功能可以通过编译参数 –with-dtrace 开启。</p>
-<h2 id="从-dtrace-开始"><a href="#从-dtrace-开始" class="headerlink" title="从 dtrace 开始"></a>从 dtrace 开始</h2><p>dtrace 是一个低开销的成本动态跟踪工具，可以通过埋点 probs 方式监控各项程序运行状态。dtrace 最初内置在 Solaris 系统中，因此我们可以借助 Solaris 系统的相关文档了解 dtrace 的基本操作。<a href="http://wenku.baidu.com/view/adb13ec7f61fb7360b4c65ad.html" target="_blank" rel="external">DTrace 用户指南</a>是 Oracle 提供的基于 Solaris 系统的 dtrace 操作手册，操作基本与其它系统相同，推荐在最初开始阶段阅读该使用手册。</p>
-<p>在 macOS 上，已经很多系统底层功能和 framework 中已经集成了 dtrace 的功能。</p>
-<p>比如说我们需要监控 read 这个 syscall 的入口，可以通过下面这个命令实现：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">➜  ~ sudo dtrace -n syscall::read:entry</div><div class="line"></div><div class="line">dtrace: description &apos;syscall::read:entry&apos; matched 1 probe</div><div class="line"></div><div class="line">CPU     ID                    FUNCTION:NAME</div><div class="line">  0    156                       read:entry</div><div class="line">  0    156                       read:entry</div><div class="line">  0    156                       read:entry</div><div class="line">...</div></pre></td></tr></table></figure>
-<p>其中 <figure class="highlight plain"><figcaption><span>参数表示打印特定的 probs 内容的调用。现在这样仅仅显示了调用，但是调用的信息还是不详细的。这个时候就需要使用 dtrace 的脚本获取更多的信息。</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">## dtrace 的脚本</div><div class="line"></div><div class="line">dtrace 的名字暗示了自己的脚本，dtrace 使用了 D 语言作为脚本语言（WTF）。这个时候就需要学习一下基础的 D 语言内容。dtrace 中 D 语言的使用，可以在上面提到的 dtrace 用户指南中的对应章节。</div><div class="line"></div><div class="line">我们继续上一节中的例子，检测调用 read syscall 的参数内容。在进行操作之前，我们需要了解一下 read 的参数：</div><div class="line"></div><div class="line">```c</div><div class="line">size_t read(int fildes, void *buf, size_t nbyte);</div></pre></td></tr></table></figure></p>
-<p>我们想知道调用来自于哪些进程，读取了多少字节。首先，我们需要创建一个叫 <figure class="highlight plain"><figcaption><span>文件。</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">```d</div><div class="line">syscall::read:entry</div><div class="line">&#123;printf (&quot;%s called read, asking for %d bytes\n&quot;, execname, arg2);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>然后通过命令行执行：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">➜  ~ sudo dtrace -s syscall.d</div><div class="line"></div><div class="line">dtrace: script &apos;syscall.d&apos; matched 1 probe</div><div class="line"></div><div class="line">CPU     ID                    FUNCTION:NAME</div><div class="line">  0    156                       read:entry steam_osx called read, asking for 128 bytes</div><div class="line">  0    156                       read:entry steam_osx called read, asking for 128 bytes</div><div class="line">  0    156                       read:entry steam_osx called read, asking for 128 bytes</div><div class="line">  0    156                       read:entry steam_osx called read, asking for 128 bytes</div><div class="line">  0    156                       read:entry iTerm2 called read, asking for 32 bytes</div><div class="line">  0    156                       read:entry iTerm2 called read, asking for 1024 bytes</div><div class="line">...</div></pre></td></tr></table></figure>
-<h2 id="从-dtrace-到-Python-跟踪"><a href="#从-dtrace-到-Python-跟踪" class="headerlink" title="从 dtrace 到 Python 跟踪"></a>从 dtrace 到 Python 跟踪</h2><p>在 Pycon 上的分享上，提供了一种 CPython 虚拟机代码 Patch 方式进行跟踪的方案，这种方案需要系统支持，比如 REHL 系列系统默认支持，假如你是用了 Ubuntu 系统，除了重新编译 CPython 以外没有其他办法。不过除此之外，还有一种更简单的方式，就是使用 <figure class="highlight python"><figcaption><span>USDT```。但是值得注意的是 ```Python USDT``` 是一种用户态修饰器监控方法，这种方式与 patch CPython 的方式相比差距较大，毕竟 USDT 无法监控一些系统底层的尤其是涉及到比如 gevent 导致的上下文切换时的混乱。同样的，systemtap 也有一个专门的库：[python-systemtap](https://github.com/wooparadog/python-systemtap)。</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">不过还是从 USDT 开始。USDT 可以通过 pip 直接安装：</div></pre></td></tr></table></figure></p>
-<p>pip install usdt<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">接下来用 ipython 演示一下 usdt 的基础使用：</div></pre></td></tr></table></figure></p>
-<p>➜  ~ ipython<br>Python 2.7.12 (default, Jul  4 2016, 11:33:35)<br>Type “copyright”, “credits” or “license” for more information.</p>
-<p>IPython 5.0.0 – An enhanced Interactive Python.<br>?         -&gt; Introduction and overview of IPython’s features.<br>%quickref -&gt; Quick reference.<br>help      -&gt; Python’s own help system.<br>object?   -&gt; Details about ‘object’, use ‘object??’ for extra details.</p>
-<p>In [1]: import os</p>
-<p>In [2]: os.getpid()<br>Out[2]: 7777</p>
-<p>In [3]: from usdt.tracer import fbt</p>
-<p>In [4]: @fbt<br>   …: def example(v):<br>   …:     pass<br>   …:</p>
-<p>In [5]: example(“hello”)<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">我们使用监听进程的方式监控来自于 usdt 的探针：</div></pre></td></tr></table></figure></p>
-<p>➜  ~ sudo dtrace -l -p 7777 -m fbt</p>
-<p>   ID   PROVIDER            MODULE                          FUNCTION NAME<br> 1206 python-fbt7777               fbt                           example entry<br> 1207 python-fbt7777               fbt                           example return<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">其中 ```-p``` 用于指定进程，```-m``` 指定对应的模块。如果不进行模块过滤的话，你很有可能被很多相关的调试信息淹没。</div><div class="line"></div><div class="line">在新版的 Python 3.6 以上版本中通过开启 ```--with-dtrace``` 开关的方式可以获取详细的 Python 运行状态信息，包括：</div><div class="line"></div><div class="line">* 函数调用与返回</div><div class="line">* GC 开始与结束</div><div class="line">* 执行代码行数</div><div class="line"></div><div class="line">首先运行一个 Python 3.6</div></pre></td></tr></table></figure></p>
-<p>➜  ~ ipython<br>Python 3.6.0b1 (default, Sep 15 2016, 10:16:39)<br>Type “copyright”, “credits” or “license” for more information.</p>
-<p>IPython 5.1.0 – An enhanced Interactive Python.<br>?         -&gt; Introduction and overview of IPython’s features.<br>%quickref -&gt; Quick reference.<br>help      -&gt; Python’s own help system.<br>object?   -&gt; Details about ‘object’, use ‘object??’ for extra details.</p>
-<p>In [1]: import os</p>
-<p>In [2]: os.getpid()<br>Out[2]: 33164</p>
-<p>In [3]:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">接下来通过 dtrace 来获取所有的 Python 探针输出：</div></pre></td></tr></table></figure></p>
-<p>➜  ~ sudo dtrace -l -m python3.6</p>
-<p>   ID   PROVIDER            MODULE                          FUNCTION NAME<br>35775 python33164         python3.6          _PyEval_EvalFrameDefault function-entry<br>35776 python33164         python3.6          _PyEval_EvalFrameDefault function-return<br>35777 python33164         python3.6                           collect gc-done<br>35778 python33164         python3.6                           collect gc-start<br>35779 python33164         python3.6          _PyEval_EvalFrameDefault line<br>```</p>
-<p>如果想要实现一个类似 pycon 中监控程序执行具体内容的 dtrace 脚本，请参考官方文档 <a href="https://docs.python.org/3.6/howto/instrumentation.html#instrumentation" target="_blank" rel="external">Instrumenting CPython with DTrace and SystemTap</a> 中的现成脚本即可。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>dtrace 提供了一种方便的、低干扰的 Python 内部执行探查方式。通过这种方式可以方便的了解目前 Python 的具体执行状况。同时，通过脚本，可以快速获取和定位相关想要了解的具体内容。当然，你也可以像郭浩川分享的那样，做一个比较炫酷的烈焰图。XD</p>
-<p>[^systemtap]: <a href="http://ocgxshkaw.bkt.clouddn.com/4%20%E3%80%8A%E7%94%A8%E9%AB%98%E9%AD%94%E7%9A%84%E5%A7%BF%E5%8A%BF%E8%B0%83%20python%20%E7%A8%8B%E5%BA%8F%E3%80%8B%E9%83%AD%E6%B5%A9%E5%B7%9D.pdf" target="_blank" rel="external">利用 systemtap 进行 Python 执行情况分析</a></p>
 
           
         
@@ -1140,7 +1120,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">64</span>
+                <span class="site-state-item-count">65</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1153,7 +1133,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-count">46</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

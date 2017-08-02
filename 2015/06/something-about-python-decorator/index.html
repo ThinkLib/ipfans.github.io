@@ -103,7 +103,7 @@
 <meta property="og:site_name" content="ipfans&#39;s Blog">
 <meta property="og:description" content="很久没有写技术存档了，太过于罪恶。最近在智能硬件创业公司担任架构师，推广一些更新更酷的技术应用在各个方面，包括 Golang/Python/Docker 等，如果你有兴趣，也欢迎加入我们: kevin[at yeeuu[dot]com。广告时间结束。 Python 的修饰器是比较常见的开发应用帮助工具，他可以实现一些批量的修饰工作，比如统一来添加一些小功能等等。但是这些功能对原有的函数不产生侵入，">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-08-01T04:50:43.000Z">
+<meta property="og:updated_time" content="2017-08-02T10:33:28.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Python Decorator 修饰器简介">
 <meta name="twitter:description" content="很久没有写技术存档了，太过于罪恶。最近在智能硬件创业公司担任架构师，推广一些更新更酷的技术应用在各个方面，包括 Golang/Python/Docker 等，如果你有兴趣，也欢迎加入我们: kevin[at yeeuu[dot]com。广告时间结束。 Python 的修饰器是比较常见的开发应用帮助工具，他可以实现一些批量的修饰工作，比如统一来添加一些小功能等等。但是这些功能对原有的函数不产生侵入，">
@@ -366,7 +366,7 @@
       
         <p>很久没有写技术存档了，太过于罪恶。最近在智能硬件创业公司担任架构师，推广一些更新更酷的技术应用在各个方面，包括 Golang/Python/Docker 等，如果你有兴趣，也欢迎加入我们: kevin[at yeeuu[dot]com。广告时间结束。</p>
 <p>Python 的修饰器是比较常见的开发应用帮助工具，他可以实现一些批量的修饰工作，比如统一来添加一些小功能等等。但是这些功能对原有的函数不产生侵入，也就是说可以实现快速的修改和替换、移除。</p>
-<p>如果你使用过 Python 的 Web 框架，相信你对修饰器应该并不陌生：<a href="https://docs.djangoproject.com/en/1.8/topics/http/decorators/" target="_blank" rel="external">Django</a>、<a href="http://flask.pocoo.org/docs/0.10/patterns/viewdecorators/" target="_blank" rel="external">Flask</a>、<a href="http://tornado.readthedocs.org/en/latest/gen.html#decorators" target="_blank" rel="external">Tornado</a>等常见的框架中都包含了修饰器的使用。</p>
+<p>如果你使用过 Python 的 Web 框架，相信你对修饰器应该并不陌生：<a href="https://docs.djangoproject.com/en/1.8/topics/http/decorators/" target="_blank" rel="external">Django</a>、<a href="http://flask.pocoo.org/docs/0.10/patterns/viewdecorators/" target="_blank" rel="external">Flask</a>、<a href="http://tornado.readthedocs.org/en/latest/gen.html#decorators" target="_blank" rel="external">Tornado</a> 等常见的框架中都包含了修饰器的使用。</p>
 <p>那么 decorators 是怎么实现的呢？还是先从一个简单的例子开始。先看下 Tornado 中的 <a href="">tornado.web.authenticated</a> 使用。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">IndexHandler</span><span class="params">(tornado.web.RequestHandler)</span>:</span></div><div class="line"><span class="meta">    @tornado.web.authenticated</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get</span><span class="params">(self)</span>:</span></div><div class="line">        self.render(<span class="string">'index.html'</span>)</div></pre></td></tr></table></figure>
 <p>tornado.web.authenticated 的作用就是判断 self.current_user 是否为 None 或者为空，否则跳转到之前设置的 login_url 地址去。至于获取 current_user 的内容，可以通过重载 get_current_user 函数实现。</p>
@@ -523,7 +523,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">64</span>
+                <span class="site-state-item-count">65</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -536,7 +536,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-count">46</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

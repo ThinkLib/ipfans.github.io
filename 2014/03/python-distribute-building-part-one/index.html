@@ -95,18 +95,18 @@
 
 
 
-<meta name="description" content="之前我在 Python 开发实践 中曾经提到过通过 python distribute 实现包分发。但是一直没有机会研究如何实现(没错…)，今天就粗略的通过一个例子简单描述一下一个包的制作： 123456789101112131415161718192021222324252627282930313233343536373839404142# setup.py#!/usr/bin/env pyth">
+<meta name="description" content="之前我在 Python 开发实践 中曾经提到过通过 python distribute 实现包分发。但是一直没有机会研究如何实现 (没错…)，今天就粗略的通过一个例子简单描述一下一个包的制作： 123456789101112131415161718192021222324252627282930313233343536373839404142# setup.py#!/usr/bin/env pyt">
 <meta name="keywords" content="Python">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Python 分发包制作（一）">
 <meta property="og:url" content="https://ipfans.github.io/2014/03/python-distribute-building-part-one/index.html">
 <meta property="og:site_name" content="ipfans&#39;s Blog">
-<meta property="og:description" content="之前我在 Python 开发实践 中曾经提到过通过 python distribute 实现包分发。但是一直没有机会研究如何实现(没错…)，今天就粗略的通过一个例子简单描述一下一个包的制作： 123456789101112131415161718192021222324252627282930313233343536373839404142# setup.py#!/usr/bin/env pyth">
+<meta property="og:description" content="之前我在 Python 开发实践 中曾经提到过通过 python distribute 实现包分发。但是一直没有机会研究如何实现 (没错…)，今天就粗略的通过一个例子简单描述一下一个包的制作： 123456789101112131415161718192021222324252627282930313233343536373839404142# setup.py#!/usr/bin/env pyt">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-08-01T04:50:43.000Z">
+<meta property="og:updated_time" content="2017-08-02T10:33:28.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Python 分发包制作（一）">
-<meta name="twitter:description" content="之前我在 Python 开发实践 中曾经提到过通过 python distribute 实现包分发。但是一直没有机会研究如何实现(没错…)，今天就粗略的通过一个例子简单描述一下一个包的制作： 123456789101112131415161718192021222324252627282930313233343536373839404142# setup.py#!/usr/bin/env pyth">
+<meta name="twitter:description" content="之前我在 Python 开发实践 中曾经提到过通过 python distribute 实现包分发。但是一直没有机会研究如何实现 (没错…)，今天就粗略的通过一个例子简单描述一下一个包的制作： 123456789101112131415161718192021222324252627282930313233343536373839404142# setup.py#!/usr/bin/env pyt">
 
 
 
@@ -364,9 +364,9 @@
       
 
       
-        <p>之前我在 <a href="http://www.acgso.com/2013/09/python-development-devops-usage/" target="_blank" rel="external">Python 开发实践</a> 中曾经提到过通过 python distribute 实现包分发。但是一直没有机会研究如何实现(没错…)，今天就粗略的通过一个例子简单描述一下一个包的制作：</p>
+        <p>之前我在 <a href="http://www.acgso.com/2013/09/python-development-devops-usage/" target="_blank" rel="external">Python 开发实践</a> 中曾经提到过通过 python distribute 实现包分发。但是一直没有机会研究如何实现 (没错…)，今天就粗略的通过一个例子简单描述一下一个包的制作：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># setup.py</span></div><div class="line"><span class="comment">#!/usr/bin/env python</span></div><div class="line"><span class="comment"># -*- coding: utf-8 -*-</span></div><div class="line"></div><div class="line"><span class="keyword">from</span> setuptools <span class="keyword">import</span> setup, find_packages</div><div class="line"><span class="keyword">import</span> sys</div><div class="line"></div><div class="line"><span class="comment"># 兼容旧版本 setuptools</span></div><div class="line">extra = &#123;&#125;</div><div class="line"><span class="keyword">if</span> sys.version_info &gt;= (<span class="number">3</span>,):</div><div class="line">    extra[<span class="string">'use_2to3'</span>] = <span class="keyword">True</span></div><div class="line">    extra[<span class="string">'convert_2to3_doctests'</span>] = [<span class="string">'src/your/module/README.txt'</span>]</div><div class="line">    extra[<span class="string">'use_2to3_fixers'</span>] = [<span class="string">'your.fixers'</span>]</div><div class="line"></div><div class="line">setup(</div><div class="line">    <span class="comment"># 包名称</span></div><div class="line">    name=<span class="string">'your.module'</span>,</div><div class="line">    <span class="comment"># 版本号</span></div><div class="line">    version = <span class="string">'1.0'</span>,</div><div class="line">    <span class="comment"># 包描述</span></div><div class="line">    description=<span class="string">'This is your awesome module'</span>,</div><div class="line">    <span class="comment"># 作者名称</span></div><div class="line">    author=<span class="string">'You'</span>,</div><div class="line">    <span class="comment"># 作者 URL</span></div><div class="line">    author_email=<span class="string">'your@email'</span>,</div><div class="line">    <span class="comment"># 如果有需要</span></div><div class="line">    license = <span class="string">"PSF"</span>,</div><div class="line">    <span class="comment"># 如果有需要</span></div><div class="line">    url = <span class="string">""</span>,</div><div class="line">    <span class="comment"># 依赖包</span></div><div class="line">    install_requires=[],</div><div class="line">    <span class="comment"># 源代码目录</span></div><div class="line">    package_dir = &#123;<span class="string">''</span>:<span class="string">'src'</span>&#125;,</div><div class="line">    <span class="comment"># 包文件</span></div><div class="line">    packages = find_packages(),</div><div class="line">    <span class="comment"># 包含其他必须文件，前面是文件夹，后面是扩展名，将会按此格式排列文件</span></div><div class="line">    package_data = &#123;<span class="comment"># include them:'': ['*.txt', '*.rst'],</span></div><div class="line">    &#125;,</div><div class="line">    <span class="comment"># 单元测试</span></div><div class="line">    test_suite = <span class="string">'your.module.tests'</span>,</div><div class="line">    **extra</div><div class="line">)</div></pre></td></tr></table></figure>
-<p>在 setuptools &gt;= 0.7 的版本上，distribute 的功能已经被整合进入 Setuptools，例子也是适合于 0.7 以上版本的配置。上面这个例子适用于纯 Python 的包，很多时候我们需要做一些对 Python 的性能提升(比如动态库 binding)，怎么做呢？这是下一篇文要写的了…</p>
+<p>在 setuptools &gt;= 0.7 的版本上，distribute 的功能已经被整合进入 Setuptools，例子也是适合于 0.7 以上版本的配置。上面这个例子适用于纯 Python 的包，很多时候我们需要做一些对 Python 的性能提升 (比如动态库 binding)，怎么做呢？这是下一篇文要写的了…</p>
 
       
     </div>
@@ -492,7 +492,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">64</span>
+                <span class="site-state-item-count">65</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -505,7 +505,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-count">46</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

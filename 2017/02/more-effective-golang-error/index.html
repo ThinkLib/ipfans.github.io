@@ -95,18 +95,18 @@
 
 
 
-<meta name="description" content="Golang 中的错误处理是一个被大家经常拿出来讨论的 话题(另外一个是泛型)。其中泛型这个问题，rsc 在最近的计划中也提出 了纳入他今年的考虑计划中，同时，泛型的提案在 2016 年也进行了一些更新，相信未来会有一些更好的方案提出。这个文章我们讨论一下如何在现行的 Golang 框架下提供更友好和优雅的错误处理。 从现状谈起Golang 中的错误处理原则，开发者曾经之前专门发布了几篇文章 (E">
+<meta name="description" content="Golang 中的错误处理是一个被大家经常拿出来讨论的 话题(另外一个是 泛型)。其中泛型这个问题，rsc 在最近的计划中也提出 了纳入他今年的考虑计划中，同时，泛型的提案 在 2016 年也进行了一些更新，相信未来会有一些更好的方案提出。这个文章我们讨论一下如何在现行的 Golang 框架下提供更友好和优雅的错误处理。 从现状谈起Golang 中的错误处理原则，开发者曾经之前专门发布了几篇文章">
 <meta name="keywords" content="Golang">
 <meta property="og:type" content="article">
 <meta property="og:title" content="更优雅的 Golang 错误处理">
 <meta property="og:url" content="https://ipfans.github.io/2017/02/more-effective-golang-error/index.html">
 <meta property="og:site_name" content="ipfans&#39;s Blog">
-<meta property="og:description" content="Golang 中的错误处理是一个被大家经常拿出来讨论的 话题(另外一个是泛型)。其中泛型这个问题，rsc 在最近的计划中也提出 了纳入他今年的考虑计划中，同时，泛型的提案在 2016 年也进行了一些更新，相信未来会有一些更好的方案提出。这个文章我们讨论一下如何在现行的 Golang 框架下提供更友好和优雅的错误处理。 从现状谈起Golang 中的错误处理原则，开发者曾经之前专门发布了几篇文章 (E">
+<meta property="og:description" content="Golang 中的错误处理是一个被大家经常拿出来讨论的 话题(另外一个是 泛型)。其中泛型这个问题，rsc 在最近的计划中也提出 了纳入他今年的考虑计划中，同时，泛型的提案 在 2016 年也进行了一些更新，相信未来会有一些更好的方案提出。这个文章我们讨论一下如何在现行的 Golang 框架下提供更友好和优雅的错误处理。 从现状谈起Golang 中的错误处理原则，开发者曾经之前专门发布了几篇文章">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-08-01T04:50:43.000Z">
+<meta property="og:updated_time" content="2017-08-02T10:33:28.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="更优雅的 Golang 错误处理">
-<meta name="twitter:description" content="Golang 中的错误处理是一个被大家经常拿出来讨论的 话题(另外一个是泛型)。其中泛型这个问题，rsc 在最近的计划中也提出 了纳入他今年的考虑计划中，同时，泛型的提案在 2016 年也进行了一些更新，相信未来会有一些更好的方案提出。这个文章我们讨论一下如何在现行的 Golang 框架下提供更友好和优雅的错误处理。 从现状谈起Golang 中的错误处理原则，开发者曾经之前专门发布了几篇文章 (E">
+<meta name="twitter:description" content="Golang 中的错误处理是一个被大家经常拿出来讨论的 话题(另外一个是 泛型)。其中泛型这个问题，rsc 在最近的计划中也提出 了纳入他今年的考虑计划中，同时，泛型的提案 在 2016 年也进行了一些更新，相信未来会有一些更好的方案提出。这个文章我们讨论一下如何在现行的 Golang 框架下提供更友好和优雅的错误处理。 从现状谈起Golang 中的错误处理原则，开发者曾经之前专门发布了几篇文章">
 
 
 
@@ -364,7 +364,7 @@
       
 
       
-        <p>Golang 中的错误处理是一个被大家经常拿出来讨论的 <a href="http://www.infoq.com/cn/news/2012/11/go-error-handle" target="_blank" rel="external">话题</a>(另外一个是<a href="http://www.weibo.com/1609119537/CdzJVejwg?type=comment" target="_blank" rel="external">泛型</a>)。其中泛型这个问题，rsc 在最近的计划中也<a href="https://mp.weixin.qq.com/s?__biz=MjM5OTcxMzE0MQ==&amp;mid=2653369836&amp;idx=1&amp;sn=ddff3df7dbf52bb5bcc8b0ace78e0121&amp;chksm=bce4d5f68b935ce0ece41ada8a49bbd33b638d184901ca8a61b5288daaf7c5a2d63af0cc3b34" target="_blank" rel="external">提出</a> 了纳入他今年的考虑计划中，同时，<a href="https://github.com/golang/proposal/blob/master/design/15292-generics.md" target="_blank" rel="external">泛型的提案</a>在 2016 年也进行了一些更新，相信未来会有一些更好的方案提出。这个文章我们讨论一下如何在现行的 Golang 框架下提供更友好和优雅的错误处理。</p>
+        <p>Golang 中的错误处理是一个被大家经常拿出来讨论的 <a href="http://www.infoq.com/cn/news/2012/11/go-error-handle" target="_blank" rel="external">话题</a>(另外一个是 <a href="http://www.weibo.com/1609119537/CdzJVejwg?type=comment" target="_blank" rel="external">泛型</a>)。其中泛型这个问题，rsc 在最近的计划中也<a href="https://mp.weixin.qq.com/s?__biz=MjM5OTcxMzE0MQ==&amp;mid=2653369836&amp;idx=1&amp;sn=ddff3df7dbf52bb5bcc8b0ace78e0121&amp;chksm=bce4d5f68b935ce0ece41ada8a49bbd33b638d184901ca8a61b5288daaf7c5a2d63af0cc3b34" target="_blank" rel="external">提出</a> 了纳入他今年的考虑计划中，同时，<a href="https://github.com/golang/proposal/blob/master/design/15292-generics.md" target="_blank" rel="external">泛型的提案</a> 在 2016 年也进行了一些更新，相信未来会有一些更好的方案提出。这个文章我们讨论一下如何在现行的 Golang 框架下提供更友好和优雅的错误处理。</p>
 <h2 id="从现状谈起"><a href="#从现状谈起" class="headerlink" title="从现状谈起"></a>从现状谈起</h2><p>Golang 中的错误处理原则，开发者曾经之前专门发布了几篇文章 (<a href="https://blog.golang.org/error-handling-and-go" target="_blank" rel="external">Error handling and Go</a> 和 <a href="https://blog.golang.org/defer-panic-and-recover" target="_blank" rel="external">Defer, Panic, and Recover</a>、<a href="https://blog.golang.org/errors-are-values" target="_blank" rel="external">Errors are values</a> ) 介绍。分别介绍了 Golang 中处理一般预知到的错误与遇到崩溃时的错误处理机制。</p>
 <p>一般情况下，我们还是以官方博客中的错误处理例子为例：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;f, err := os.Open(<span class="string">"filename.ext"</span>)</div><div class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;log.Fatal(err)</div><div class="line">        <span class="comment">// 或者更简单的：</span></div><div class="line">        <span class="comment">// return err</span></div><div class="line">    &#125;</div><div class="line">    ...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
@@ -525,7 +525,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">64</span>
+                <span class="site-state-item-count">65</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -538,7 +538,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-count">46</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

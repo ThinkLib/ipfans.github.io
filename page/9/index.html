@@ -286,6 +286,153 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://ipfans.github.io/2014/05/build-zbar-on-linux/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ipfans">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/363344?v=3&s=460">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ipfans's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2014/05/build-zbar-on-linux/" itemprop="url">Linux 系统上的 zbar 编译安装</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-05-20T15:33:35+08:00">
+                2014-05-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2014/05/build-zbar-on-linux/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2014/05/build-zbar-on-linux/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>因为系统不方便使用包升级，因此使用的源码方式安装，坑基本上都踩过了，做一下记录吧。</p>
+<p>zbar 的安装依赖于 ImageMagick，ImageMagick 则依赖于 jpeg 提供 jpeg 图片支持，因此安装顺序为反序安装。</p>
+<h2 id="安装-jpeg-库"><a href="#安装-jpeg-库" class="headerlink" title="安装 jpeg 库"></a>安装 jpeg 库</h2><p>这个安装比较简单，没什么坑来的。先到 <a href="http://www.imagemagick.org/download/delegates/" target="_blank" rel="external">http://www.imagemagick.org/download/delegates/</a> 下载 jpeg 的库，比如我用的是 jpegsrc.v9a.tar.gz，执行下列执行进行安装：</p>
+<pre><code>/.configure
+make &amp;&amp; make install
+</code></pre><h2 id="安装-ImageMagick"><a href="#安装-ImageMagick" class="headerlink" title="安装 ImageMagick"></a>安装 ImageMagick</h2><p>这个安装稍微麻烦一点，还是差不多开始的：</p>
+<pre><code>./configure
+make &amp;&amp; make install
+</code></pre><p>下面是需要配置一些参数，否则 zbar 安装会不成功：</p>
+<pre><code>export MAGICK_CFLAGS=&quot;/usr/local/include/ImageMagick-6/&quot;
+export MAGICK_LIBS=&quot;/usr/local/lib/libMagickWand-6.Q16.so&quot;
+</code></pre><h2 id="安装-zbar"><a href="#安装-zbar" class="headerlink" title="安装 zbar"></a>安装 zbar</h2><p>接下来编译 zbar 了，这个之前配置好了会方便一点，同时禁用一些不用的功能：</p>
+<pre><code>./configure --enable-shared --without-gtk --without-qt --without-python CPPFLAGS=-I/usr/local/include/ImageMagick-6
+make &amp;&amp; make install
+</code></pre><p>接下来添加 ldconfig 文件让 libzbar.so 生效。</p>
+<pre><code>ldconfig
+</code></pre><h2 id="测试安装"><a href="#测试安装" class="headerlink" title="测试安装"></a>测试安装</h2><p>测试一下 zbar 是否安装成功：</p>
+<pre><code>wget http://i1.hexunimg.cn/2012-03-13/139256375.jpg 
+/usr/local/bin/zbarimg 139256375.jpg
+QR-Code:http://www.baidu.com
+QR-Code:http://apk.hiapk.com/m/downloads?id=com.qq.reader&amp;vcode=11
+QR-Code:http://apk.hiapk.com/m/downloads?id=cn.ibuka.manga.ui&amp;vcode=16843778
+QR-Code:http://apk.hiapk.com/m/downloads?id=com.kugou.android&amp;vcode=4120
+QR-Code:http://apk.hiapk.com/m/downloads?id=com.kandian.vodapp4pad7in&amp;vcode=7
+scanned 4 barcode symbols from 1 images in 0.05 seconds
+</code></pre>
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="https://ipfans.github.io/2014/05/speed-python-code-with-cython/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -792,7 +939,7 @@
 <p>打开压缩包，以 Windows/SQLite3 为例演示安装步骤：</p>
 <ol>
 <li>解压压缩包，双击执行 start.bat 文件（Linux/Mac 下是 start.sh）</li>
-<li>打开浏览器，浏览<a href="http://127.0.0.1:3000" target="_blank" rel="external">http://127.0.0.1:3000</a></li>
+<li>打开浏览器，浏览 <a href="http://127.0.0.1:3000" target="_blank" rel="external">http://127.0.0.1:3000</a></li>
 <li>打开自动跳转至安装界面，内容一共只有下图这么多！很简单，我就不说啥了。如果你想多机同步，建议你将 SQLite 数据库和 repo 地址放在网盘内，比如我就放在 Dropbox 下了。<br><img src="http://ww1.sinaimg.cn/mw690/69e37fdbgw1efomi9vvqyj20k90iimxf.jpg" alt=""></li>
 <li>点击 Install Gogs，安装完成～</li>
 </ol>
@@ -805,134 +952,6 @@
 <p>重新执行 start.bat，看看自己的成果吧！配合 SourceTreee 之类的程序，效果更佳：）看下我的 gogs 吧。</p>
 <p><img src="http://ww3.sinaimg.cn/mw690/69e37fdbgw1efomiaj742j20eh0cpmxw.jpg" alt=""></p>
 <p>如果想修改样式或者翻译之类的，在 template 目录下的为 gogs 的模板文件，可以进行修改，我想要的可是和 Github 同样的效果：）</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://ipfans.github.io/2014/04/openssl-algorithm-speed-result/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="ipfans">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/363344?v=3&s=460">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ipfans's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2014/04/openssl-algorithm-speed-result/" itemprop="url">几种常见加密 / hash 算法效率 (OpenSSL)</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-04-11T13:19:46+08:00">
-                2014-04-11
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2014/04/openssl-algorithm-speed-result/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2014/04/openssl-algorithm-speed-result/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>正好群里面有人在讨论这个，就单独拿出来记录一下，下次就不用单独跑了。结果只是包含常见的算法性能。</p>
-<p>说到常用的算法，之前 QQ 的协议中最早使用的是 xxTEA 算法 [^1]，运算效率高，但是同样的，被破解的几率随着系统硬件性能的提升和手段的进化破解难度大幅降低，所以后来更换成了 blowfish 的算法 [^2]，从效率上来说可以接受，并且强度也是可以接受的范围。当然了，至于密钥，那是另外一个话题了。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line">OpenSSL 1.0.1g 7 Apr 2014</div><div class="line">built on: Mon Apr  7 19:24:10 BST 2014</div><div class="line">options:bn(64,64) rc4(ptr,char) des(idx,cisc,16,int) aes(partial) idea(int) blowfish(idx)</div><div class="line">compiler: clang -fPIC -fno-common -DOPENSSL_PIC -DZLIB_SHARED -DZLIB -DOPENSSL_THREADS -D_REENTRANT -DDSO_DLFCN -DHAVE_DLFCN_H -arch x86_64 -O3 -DL_ENDIAN -Wall -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_MONT5 -DOPENSSL_BN_ASM_GF2m -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DAES_ASM -DVPAES_ASM -DBSAES_ASM -DWHIRLPOOL_ASM -DGHASH_ASM</div><div class="line">The &apos;numbers&apos; are in 1000s of bytes per second processed.</div><div class="line">type             16 bytes     64 bytes    256 bytes   1024 bytes   8192 bytes</div><div class="line">md5              27012.47k    83668.96k   193662.90k   288870.40k   339611.95k</div><div class="line">hmac(md5)        22436.27k    72562.60k   176476.05k   277375.28k   337510.40k</div><div class="line">sha1             30214.31k    86946.66k   183855.45k   259266.33k   297429.61k</div><div class="line">rc4             196157.50k   211073.87k   232483.09k   233261.75k   235103.97k</div><div class="line">des cbc          36183.51k    37559.07k    38393.90k    38166.10k    38460.60k</div><div class="line">des ede3         14248.36k    14433.49k    14513.37k    14586.23k    14629.00k</div><div class="line">idea cbc         29515.76k    30455.99k    30819.81k    30886.49k    30909.05k</div><div class="line">seed cbc         42818.52k    46288.05k    47289.80k    47466.82k    47201.72k</div><div class="line">blowfish cbc     61676.43k    64869.07k    66887.52k    66720.19k    66823.31k</div><div class="line">aes-128 cbc      53756.63k    58966.27k    59666.27k   126935.19k   127531.60k</div><div class="line">aes-192 cbc      46063.28k    50037.52k    50891.14k   109122.65k   109760.48k</div><div class="line">aes-256 cbc      40039.57k    42316.96k    43542.15k    93052.84k    93731.72k</div><div class="line">sha256           24619.03k    53308.64k    90030.81k   109692.87k   117423.88k</div><div class="line">sha512           19076.43k    74213.38k   114250.08k   162023.40k   183772.75k</div><div class="line">whirlpool        15034.42k    31777.43k    52066.33k    61904.05k    56250.74k</div><div class="line">aes-128 ige      53897.17k    56852.04k    57523.48k    57741.98k    57742.06k</div><div class="line">aes-192 ige      45658.29k    47596.69k    48166.72k    48698.26k    48257.35k</div><div class="line">aes-256 ige      40110.70k    41541.96k    41726.01k    41792.81k    41839.56k</div><div class="line">                  sign    verify    sign/s verify/s</div><div class="line">rsa  512 bits 0.000169s 0.000015s   5921.3  64569.3</div><div class="line">rsa 1024 bits 0.000554s 0.000035s   1805.6  28181.2</div><div class="line">rsa 2048 bits 0.003531s 0.000112s    283.2   8923.1</div><div class="line">rsa 4096 bits 0.025068s 0.000405s     39.9   2466.8</div><div class="line">                  sign    verify    sign/s verify/s</div><div class="line">dsa  512 bits 0.000145s 0.000153s   6890.8   6518.5</div><div class="line">dsa 1024 bits 0.000338s 0.000393s   2961.0   2547.0</div><div class="line">dsa 2048 bits 0.001081s 0.001332s    925.1    750.6</div></pre></td></tr></table></figure>
-<p>刚刚开始那系统自带的去跑，发现干脆升级到最新的 OpenSSL 跑一下吧。结果跑了两遍之后，Air 直接烫手了，这种测试也就做一次就够了吧。</p>
-<p>[^1] <a href="http://bbs.pediy.com/showthread.php?t=11312" target="_blank" rel="external">http://bbs.pediy.com/showthread.php?t=11312</a></p>
-<p>[^2] <a href="http://blog.csdn.net/qinggebuyao/article/details/7814499" target="_blank" rel="external">http://blog.csdn.net/qinggebuyao/article/details/7814499</a></p>
 
           
         
@@ -1017,7 +1036,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">64</span>
+                <span class="site-state-item-count">65</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1030,7 +1049,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-count">46</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

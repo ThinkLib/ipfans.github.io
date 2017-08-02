@@ -95,18 +95,18 @@
 
 
 
-<meta name="description" content="mgo 库是一个很好用的 驱动。对我们来说，主力数据库是 ```MongoDB```，因此这个驱动对我们来说也是非常重要的。但是，mgo 库有些问题算是一些坑，这里我做了一些简单的整理。123456789101112## 一些关于 bson.ObjectId 的问题### ObjectId 为空的判断如果你看 ```bson.ObjectId``` 定义的话，它是一个 ```string``` 类">
+<meta name="description" content="mgo 库 是一个很好用的 驱动。对我们来说，主力数据库是 ```MongoDB```，因此这个驱动对我们来说也是非常重要的。但是，mgo 库有些问题算是一些坑，这里我做了一些简单的整理。123456789101112## 一些关于 bson.ObjectId 的问题### ObjectId 为空的判断如果你看 ```bson.ObjectId``` 定义的话，它是一个 ```string```">
 <meta name="keywords" content="Golang">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Mgo 库的常见坑总结">
 <meta property="og:url" content="https://ipfans.github.io/2016/01/something-about-mgo-driver/index.html">
 <meta property="og:site_name" content="ipfans&#39;s Blog">
-<meta property="og:description" content="mgo 库是一个很好用的 驱动。对我们来说，主力数据库是 ```MongoDB```，因此这个驱动对我们来说也是非常重要的。但是，mgo 库有些问题算是一些坑，这里我做了一些简单的整理。123456789101112## 一些关于 bson.ObjectId 的问题### ObjectId 为空的判断如果你看 ```bson.ObjectId``` 定义的话，它是一个 ```string``` 类">
+<meta property="og:description" content="mgo 库 是一个很好用的 驱动。对我们来说，主力数据库是 ```MongoDB```，因此这个驱动对我们来说也是非常重要的。但是，mgo 库有些问题算是一些坑，这里我做了一些简单的整理。123456789101112## 一些关于 bson.ObjectId 的问题### ObjectId 为空的判断如果你看 ```bson.ObjectId``` 定义的话，它是一个 ```string```">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-08-01T04:50:43.000Z">
+<meta property="og:updated_time" content="2017-08-02T10:33:28.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Mgo 库的常见坑总结">
-<meta name="twitter:description" content="mgo 库是一个很好用的 驱动。对我们来说，主力数据库是 ```MongoDB```，因此这个驱动对我们来说也是非常重要的。但是，mgo 库有些问题算是一些坑，这里我做了一些简单的整理。123456789101112## 一些关于 bson.ObjectId 的问题### ObjectId 为空的判断如果你看 ```bson.ObjectId``` 定义的话，它是一个 ```string``` 类">
+<meta name="twitter:description" content="mgo 库 是一个很好用的 驱动。对我们来说，主力数据库是 ```MongoDB```，因此这个驱动对我们来说也是非常重要的。但是，mgo 库有些问题算是一些坑，这里我做了一些简单的整理。123456789101112## 一些关于 bson.ObjectId 的问题### ObjectId 为空的判断如果你看 ```bson.ObjectId``` 定义的话，它是一个 ```string```">
 
 
 
@@ -364,7 +364,7 @@
       
 
       
-        <p><a href="https://gopkg.in/mgo.v2" target="_blank" rel="external">mgo 库</a>是一个很好用的 <figure class="highlight plain"><figcaption><span>驱动。对我们来说，主力数据库是 ```MongoDB```，因此这个驱动对我们来说也是非常重要的。但是，mgo 库有些问题算是一些坑，这里我做了一些简单的整理。</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">## 一些关于 bson.ObjectId 的问题</div><div class="line"></div><div class="line">### ObjectId 为空的判断</div><div class="line">如果你看 ```bson.ObjectId``` 定义的话，它是一个 ```string``` 类型的数据。但是如果你直接定义一个结构，并且生成对象时，这个对象并不是这样的。</div><div class="line"></div><div class="line">我们首先定义一个结构体：</div><div class="line"></div><div class="line">```go</div><div class="line">type Home struct &#123;ID   bson.ObjectId `bson:&quot;_id,omitempty&quot;`</div><div class="line">	Name string        `bson:&quot;name&quot;`</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+        <p><a href="https://gopkg.in/mgo.v2" target="_blank" rel="external">mgo 库</a> 是一个很好用的 <figure class="highlight plain"><figcaption><span>驱动。对我们来说，主力数据库是 ```MongoDB```，因此这个驱动对我们来说也是非常重要的。但是，mgo 库有些问题算是一些坑，这里我做了一些简单的整理。</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">## 一些关于 bson.ObjectId 的问题</div><div class="line"></div><div class="line">### ObjectId 为空的判断</div><div class="line">如果你看 ```bson.ObjectId``` 定义的话，它是一个 ```string``` 类型的数据。但是如果你直接定义一个结构，并且生成对象时，这个对象并不是这样的。</div><div class="line"></div><div class="line">我们首先定义一个结构体：</div><div class="line"></div><div class="line">```go</div><div class="line">type Home struct &#123;ID   bson.ObjectId `bson:&quot;_id,omitempty&quot;`</div><div class="line">	Name string        `bson:&quot;name&quot;`</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <p>然后看看一个生成的内容</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">h := Home&#123;Name:<span class="string">"123"</span>&#125;</div><div class="line">fmt.Println(h.ID)</div></pre></td></tr></table></figure>
 <p>结果是 <figure class="highlight plain"><figcaption><span>```ObjectId``` 是否为空，使用 ```h.ID ==""``` 是一定会结果为 ```false``` 的。如果你想判断是否为空，正确的方式应该为：</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">```go</div><div class="line">h := Home&#123;Name:&quot;123&quot;&#125;</div><div class="line">fmt.Println(h.ID)</div><div class="line">fmt.Println(h.ID.Hex() == &quot;&quot;)</div></pre></td></tr></table></figure></p>
@@ -505,7 +505,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">64</span>
+                <span class="site-state-item-count">65</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -518,7 +518,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-count">46</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

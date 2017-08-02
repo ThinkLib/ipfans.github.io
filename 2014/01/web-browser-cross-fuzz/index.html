@@ -95,18 +95,18 @@
 
 
 
-<meta name="description" content="现在来写 cross_fuzz 似乎是有点晚了，毕竟基本上很多时候 cross_fuzz 已经广泛应用于 DOM fuzz 中了。比如Chromium 中就内置了 cross_fuzz 工具。不过说回来，毕竟就是 Google 自己人做的不是。 最新的代码 (2011 年更新) 可以在：http://lcamtuf.coredump.cx/cross_fuzz/找到。 基本设计逻辑cross_fu">
+<meta name="description" content="现在来写 cross_fuzz 似乎是有点晚了，毕竟基本上很多时候 cross_fuzz 已经广泛应用于 DOM fuzz 中了。比如 Chromium 中就内置了 cross_fuzz 工具。不过说回来，毕竟就是 Google 自己人做的不是。 最新的代码 (2011 年更新) 可以在：http://lcamtuf.coredump.cx/cross_fuzz/ 找到。 基本设计逻辑cross_">
 <meta name="keywords" content="fuzzer">
 <meta property="og:type" content="article">
 <meta property="og:title" content="浏览器 fuzz 工具 cross_fuzz">
 <meta property="og:url" content="https://ipfans.github.io/2014/01/web-browser-cross-fuzz/index.html">
 <meta property="og:site_name" content="ipfans&#39;s Blog">
-<meta property="og:description" content="现在来写 cross_fuzz 似乎是有点晚了，毕竟基本上很多时候 cross_fuzz 已经广泛应用于 DOM fuzz 中了。比如Chromium 中就内置了 cross_fuzz 工具。不过说回来，毕竟就是 Google 自己人做的不是。 最新的代码 (2011 年更新) 可以在：http://lcamtuf.coredump.cx/cross_fuzz/找到。 基本设计逻辑cross_fu">
+<meta property="og:description" content="现在来写 cross_fuzz 似乎是有点晚了，毕竟基本上很多时候 cross_fuzz 已经广泛应用于 DOM fuzz 中了。比如 Chromium 中就内置了 cross_fuzz 工具。不过说回来，毕竟就是 Google 自己人做的不是。 最新的代码 (2011 年更新) 可以在：http://lcamtuf.coredump.cx/cross_fuzz/ 找到。 基本设计逻辑cross_">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-08-01T04:50:43.000Z">
+<meta property="og:updated_time" content="2017-08-02T10:33:28.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="浏览器 fuzz 工具 cross_fuzz">
-<meta name="twitter:description" content="现在来写 cross_fuzz 似乎是有点晚了，毕竟基本上很多时候 cross_fuzz 已经广泛应用于 DOM fuzz 中了。比如Chromium 中就内置了 cross_fuzz 工具。不过说回来，毕竟就是 Google 自己人做的不是。 最新的代码 (2011 年更新) 可以在：http://lcamtuf.coredump.cx/cross_fuzz/找到。 基本设计逻辑cross_fu">
+<meta name="twitter:description" content="现在来写 cross_fuzz 似乎是有点晚了，毕竟基本上很多时候 cross_fuzz 已经广泛应用于 DOM fuzz 中了。比如 Chromium 中就内置了 cross_fuzz 工具。不过说回来，毕竟就是 Google 自己人做的不是。 最新的代码 (2011 年更新) 可以在：http://lcamtuf.coredump.cx/cross_fuzz/ 找到。 基本设计逻辑cross_">
 
 
 
@@ -364,8 +364,8 @@
       
 
       
-        <p>现在来写 cross_fuzz 似乎是有点晚了，毕竟基本上很多时候 cross_fuzz 已经广泛应用于 DOM fuzz 中了。比如<a href="http://www.chromium.org/developers/testing/fuzzers" target="_blank" rel="external">Chromium 中就内置了 cross_fuzz 工具</a>。不过说回来，毕竟就是 Google 自己人做的不是。</p>
-<p>最新的代码 (2011 年更新) 可以在：<a href="http://lcamtuf.coredump.cx/cross_fuzz/" target="_blank" rel="external">http://lcamtuf.coredump.cx/cross_fuzz/</a>找到。</p>
+        <p>现在来写 cross_fuzz 似乎是有点晚了，毕竟基本上很多时候 cross_fuzz 已经广泛应用于 DOM fuzz 中了。比如 <a href="http://www.chromium.org/developers/testing/fuzzers" target="_blank" rel="external">Chromium 中就内置了 cross_fuzz 工具</a>。不过说回来，毕竟就是 Google 自己人做的不是。</p>
+<p>最新的代码 (2011 年更新) 可以在：<a href="http://lcamtuf.coredump.cx/cross_fuzz/" target="_blank" rel="external">http://lcamtuf.coredump.cx/cross_fuzz/</a> 找到。</p>
 <h2 id="基本设计逻辑"><a href="#基本设计逻辑" class="headerlink" title="基本设计逻辑"></a>基本设计逻辑</h2><p>cross_fuzz 就是一个 HTML 文件，因此看起来其实并不麻烦：简单的说，就是不停的打开两个窗口显示不同的 HTML/XHTML/SVG/swf 等等内容（当然，可以自己添加），通过不同的 DOM 操作（访问对象、回收操作）等等尝试出发 UAF 之类的问题。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">1. Open two windows with documents of any (DOM-enabled) type. Simple HTML, XHTML, and SVG documents are randomly selected as targets by default – although any other, possibly plugin-supported formats could be targeted instead.</div><div class="line"></div><div class="line">2. Crawl DOM hierarchy of the first document, collecting encountered object references for later reuse. Visited objects and collected references are tagged using an injected property to avoid infinite recursion; a secondary blacklist is used to prevent navigating away or descending into the master window. Critically, random shuffling and recursion fanout control are used to ensure good coverage.</div><div class="line"></div><div class="line">3. Repeat DOM crawl, randomly tweaking encountered object properties by setting them to a one of the previously recorded references (or, with some probability, to one of a handful of hardcoded “interesting” values).</div><div class="line"></div><div class="line">4. Repeat DOM crawl, randomly calling encountered object methods. Call parameters are synthesized using collected references and “interesting” values, as noted above. If a method returns an object, its output is subsequently crawled and tweaked in a similar manner.</div><div class="line"></div><div class="line">5. Randomly destroy first document using one of the several possible methods, toggle garbage collection.</div><div class="line"></div><div class="line">6. Perform the same set of crawl &amp; tweak operations for the second document, but use references collected from the first document for overwriting properties and calling methods in the second one.</div><div class="line"></div><div class="line">7. Randomly destroy document windows, carry over a percentage of collected references to the next fuzzing cycle.</div></pre></td></tr></table></figure>
 <h2 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h2><p>使用很简单，以 chrome 为例：</p>
@@ -506,7 +506,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">64</span>
+                <span class="site-state-item-count">65</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -519,7 +519,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-count">46</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

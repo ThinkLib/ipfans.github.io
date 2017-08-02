@@ -113,7 +113,7 @@
 <meta property="og:image" content="http://ww1.sinaimg.cn/large/69e37fdbgy1fcvwev74fzj20su0a2mxj">
 <meta property="og:image" content="http://ww1.sinaimg.cn/large/69e37fdbgy1fcvwqa1v43j20rp0c4wg6">
 <meta property="og:image" content="http://ww1.sinaimg.cn/large/69e37fdbgy1fcvwqr99vcj20rj0c440e">
-<meta property="og:updated_time" content="2017-08-01T04:50:43.000Z">
+<meta property="og:updated_time" content="2017-08-02T10:33:28.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="使用 Python 和 Pandas 分析 Pronto CycleShare 数据">
 <meta name="twitter:description" content="这是一篇非常不错的 pandas 分析入门文章，在此简单翻译摘录如下。  本周，西雅图的自行车共享系统 Pronto CycleShare 一周岁了。 为了庆祝这一点，Pronto 提供了从第一年的数据缓存，并宣布了 Pronto Cycle Share 的数据分析挑战。 你可以用很多工具分析这些数据，但我的选择工具是 Python。 在这篇文章中，我想展示如何开始分析这些数据，并使用 PyDat">
@@ -379,8 +379,8 @@
 <hr>
 <p>本周，西雅图的自行车共享系统 Pronto CycleShare 一周岁了。 为了庆祝这一点，Pronto 提供了从第一年的数据缓存，并宣布了 <a href="http://www.prontocycleshare.com/datachallenge" target="_blank" rel="external">Pronto Cycle Share 的数据分析挑战</a>。</p>
 <p>你可以用很多工具分析这些数据，但我的选择工具是 Python。 在这篇文章中，我想展示如何开始分析这些数据，并使用 PyData 技术栈，即 <a href="http://www.numpy.org/" target="_blank" rel="external">NumPy</a>，<a href="http://pandas.pydata.org/" target="_blank" rel="external">Pandas</a>，<a href="http://matplotlib.org/" target="_blank" rel="external">Matplotlib</a> 和 <a href="http://seaborn.pydata.org/index.html" target="_blank" rel="external">Seaborn</a> 与其他可用的数据源。</p>
-<p>这篇文章以 Jupyter Notebook 形式组织，它是一种开放的文档格式。结合了文本、代码、数据和图形，并且通过 Web 浏览器查看。本文中的内容可以下载<a href="http://jakevdp.github.io/downloads/notebooks/ProntoData.ipynb" target="_blank" rel="external">对应的 Notebook 文件</a>，并通过 Jupyter 打开。</p>
-<h2 id="下载-Pronto-的数据"><a href="#下载-Pronto-的数据" class="headerlink" title="下载 Pronto 的数据"></a>下载 Pronto 的数据</h2><p>我们可以从 <a href="http://www.prontocycleshare.com/datachallenge" target="_blank" rel="external">Pronto 官网</a>下载对应的<a href="https://s3.amazonaws.com/pronto-data/open_data_year_one.zip" target="_blank" rel="external">数据文件</a>。总下载大约 70MB，解压缩的文件大约 900MB。</p>
+<p>这篇文章以 Jupyter Notebook 形式组织，它是一种开放的文档格式。结合了文本、代码、数据和图形，并且通过 Web 浏览器查看。本文中的内容可以下载 <a href="http://jakevdp.github.io/downloads/notebooks/ProntoData.ipynb" target="_blank" rel="external">对应的 Notebook 文件</a>，并通过 Jupyter 打开。</p>
+<h2 id="下载-Pronto-的数据"><a href="#下载-Pronto-的数据" class="headerlink" title="下载 Pronto 的数据"></a>下载 Pronto 的数据</h2><p>我们可以从 <a href="http://www.prontocycleshare.com/datachallenge" target="_blank" rel="external">Pronto 官网</a> 下载对应的 <a href="https://s3.amazonaws.com/pronto-data/open_data_year_one.zip" target="_blank" rel="external">数据文件</a>。总下载大约 70MB，解压缩的文件大约 900MB。</p>
 <p>接下来我们需要导入一些 Python 包：</p>
 <p>In [2]:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">%matplotlib inline</div><div class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</div><div class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</div><div class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</div><div class="line"><span class="keyword">import</span> seaborn <span class="keyword">as</span> sns; sns.set()</div></pre></td></tr></table></figure>
@@ -417,14 +417,14 @@
 <p>In [9]:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">fig, ax = plt.subplots(<span class="number">1</span>, <span class="number">2</span>, figsize=(<span class="number">16</span>, <span class="number">6</span>), sharey=<span class="keyword">True</span>)</div><div class="line">by_hour.loc[<span class="string">'weekday'</span>].plot(title=<span class="string">'Average Hourly Use (Mon-Fri)'</span>, ax=ax[<span class="number">0</span>])</div><div class="line">by_hour.loc[<span class="string">'weekend'</span>].plot(title=<span class="string">'Average Hourly Use (Sat-Sun)'</span>, ax=ax[<span class="number">1</span>])</div><div class="line">ax[<span class="number">0</span>].set_ylabel(<span class="string">'Average Trips per Hour'</span>);</div></pre></td></tr></table></figure>
 <p>   <img src="http://ww1.sinaimg.cn/large/69e37fdbgy1fcvtx6xmpqj20q30axgmm" alt=""></p>
-<p>我们看到一个 “通勤” 模式和一个 “娱乐” 模式之间的明显区别:“通勤”模式在早上和晚上急剧上升，而 “娱乐” 模式在下午的时候有一个宽峰。 有趣的是，年费会员在周末的行为似乎与临时用户在周末的行为几乎相同。</p>
+<p>我们看到一个 “通勤” 模式和一个 “娱乐” 模式之间的明显区别:“通勤” 模式在早上和晚上急剧上升，而 “娱乐” 模式在下午的时候有一个宽峰。 有趣的是，年费会员在周末的行为似乎与临时用户在周末的行为几乎相同。</p>
 <h2 id="旅行时间"><a href="#旅行时间" class="headerlink" title="旅行时间"></a>旅行时间</h2><p>接下来，我们来看看旅行的持续时间。 Pronto 免费骑行最长可达 30 分钟; 任何长于此的单次使用，在前半个小时都会产生几美元的使用费，此后每小时大约需要十美元。</p>
 <p>让我们看看年费会员和临时使用者的旅行持续时间的分布：</p>
 <p>In [10]:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">trips[<span class="string">'minutes'</span>] = trips.tripduration / <span class="number">60</span></div><div class="line">trips.groupby(<span class="string">'usertype'</span>)[<span class="string">'minutes'</span>].hist(bins=np.arange(<span class="number">61</span>), alpha=<span class="number">0.5</span>, normed=<span class="keyword">True</span>);</div><div class="line">plt.xlabel(<span class="string">'Duration (minutes)'</span>)</div><div class="line">plt.ylabel(<span class="string">'relative frequency'</span>)</div><div class="line">plt.title(<span class="string">'Trip Durations'</span>)</div><div class="line">plt.text(<span class="number">34</span>, <span class="number">0.09</span>,<span class="string">"Free Trips\n\nAdditional Fee"</span>, ha=<span class="string">'right'</span>,</div><div class="line">         size=<span class="number">18</span>, rotation=<span class="number">90</span>, alpha=<span class="number">0.5</span>, color=<span class="string">'red'</span>)</div><div class="line">plt.legend([<span class="string">'Annual Members'</span>, <span class="string">'Short-term Pass'</span>])</div><div class="line"></div><div class="line">plt.axvline(<span class="number">30</span>, linestyle=<span class="string">'--'</span>, color=<span class="string">'red'</span>, alpha=<span class="number">0.3</span>);</div></pre></td></tr></table></figure>
 <p>   <img src="http://ww1.sinaimg.cn/large/69e37fdbgy1fcvu4jj5p0j20e20a5aab" alt=""></p>
 <p>在这里，我添加了一个红色的虚线，分开免费骑乘（左）和付费骑乘（右）。看来，年费用户对系统规则更加了解：只有行程分布的一小部分超过 30 分钟。另一方面，大约四分之一的临时用户时间超过半小时限制，并收取额外费用。 我的预期是，这些临时用户不能很好理解这种定价结构，并且可能会因为不开心的体验不再使用。</p>
-<h2 id="估计行程距离"><a href="#估计行程距离" class="headerlink" title="估计行程距离"></a>估计行程距离</h2><p>看看旅行的距离也十分有趣。Pronto 发布的数据中不包括行车的距离，因此我们需要通过其他来源来确定。让我们从加载行车数据开始 - 因为一些行程在 Pronto 的服务点之间开始和结束，我们将其添加为一个“车站”：</p>
+<h2 id="估计行程距离"><a href="#估计行程距离" class="headerlink" title="估计行程距离"></a>估计行程距离</h2><p>看看旅行的距离也十分有趣。Pronto 发布的数据中不包括行车的距离，因此我们需要通过其他来源来确定。让我们从加载行车数据开始 - 因为一些行程在 Pronto 的服务点之间开始和结束，我们将其添加为一个 “车站”：</p>
 <p>In [11]:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">stations = pd.read_csv(<span class="string">'2015_station_data.csv'</span>)</div><div class="line">pronto_shop = dict(id=<span class="number">54</span>, name=<span class="string">"Pronto shop"</span>,</div><div class="line">                   terminal=<span class="string">"Pronto shop"</span>,</div><div class="line">                   lat=<span class="number">47.6173156</span>, long=<span class="number">-122.3414776</span>,</div><div class="line">                   dockcount=<span class="number">100</span>, online=<span class="string">'10/13/2014'</span>)</div><div class="line">stations = stations.append(pronto_shop, ignore_index=<span class="keyword">True</span>)</div></pre></td></tr></table></figure>
 <p>现在我们需要找到两对纬度 / 经度坐标之间的骑车距离。幸运的是，Google 地图有一个距离 API，我们可以免费使用。</p>
@@ -640,7 +640,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">64</span>
+                <span class="site-state-item-count">65</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -653,7 +653,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-count">46</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

@@ -286,6 +286,144 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://ipfans.github.io/2016/05/learning-coreos-part1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ipfans">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/363344?v=3&s=460">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ipfans's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016/05/learning-coreos-part1/" itemprop="url">CoreOS 折腾笔记（一）集群部署</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-05-28T17:00:00+08:00">
+                2016-05-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/05/learning-coreos-part1/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2016/05/learning-coreos-part1/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>最近在技改完成之后打算进行大量的微服务化改造，而方便进行微服务化的步骤之一，就是将现有的系统移植进入 Docker 环境之中。在标准容器系统的选择上，我把目光放在了 CoreOS 上。实际上，我在 CoreOS 版本还是 2 开头的时候就有简单研究过，但是当时主要作为研究 Docker 的途径，现在则是作为集群化部署的基准系统。从本文开始的一系列折腾则是我在研究 CoreOS 集群化使用的一些纪录，而本文就是介绍一个本地实现容器化机群的步骤。</p>
+<h2 id="安装-Vagrant"><a href="#安装-Vagrant" class="headerlink" title="安装 Vagrant"></a>安装 Vagrant</h2><p>略，因为太简单了。另外还需要 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">## 配置 CoreOS-vagrant</div><div class="line"></div><div class="line">执行以下命令：</div><div class="line"></div><div class="line">```bash</div><div class="line">git clone https://github.com/coreos/coreos-vagrant.git</div><div class="line">cd coreos-vagrant</div></pre></td></tr></table></figure></p>
+<p>下载 CoreOS 的 vagrant 配置。值得在进入正式配置之前一提的是，CoreOS 本身是没有默认密码或者安装密码机制的，也就是说，现有的所有认证登录需要通过 SSH 进行。如果是通过 vagrant 安装，会自动生成登录需要的 SSH 密钥，这个是需要额外注意的内容。</p>
+<p>首先，将仓库中提供的两个模版配置文件复制成正式，接下来需要修改对应的文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">cp config.rb.sample config.rb</div><div class="line">cp user-data.sample user-data</div></pre></td></tr></table></figure>
+<p>首先修改 <figure class="highlight plain"><figcaption><span>文件。这里重点是两个参数，一个是启动的实例数量，另外一个是升级的版本，我修改成了</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">```ruby</div><div class="line">$num_instances=4</div><div class="line">$update_channel=&apos;stable&apos;</div></pre></td></tr></table></figure></p>
+<p>启动 4 个实例，升级选择的版本则是月度升级版。另外一个 <figure class="highlight plain"><figcaption><span>暂时不作修改。</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">接下来执行：</div><div class="line"></div><div class="line">```bash</div><div class="line">vagrant up</div></pre></td></tr></table></figure></p>
+<p>在一堆输出之后，生成的 4 个实例就已经在运行了。也可以通过命令 <figure class="highlight plain"><figcaption><span>status``` 查看运行状态。</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"></div></pre></td></tr></table></figure></p>
+<p>➜  coreos-vagrant git:(master) vagrant status<br>Current machine states:</p>
+<p>core-01                   running (virtualbox)<br>core-02                   running (virtualbox)<br>core-03                   running (virtualbox)<br>core-04                   running (virtualbox)</p>
+<p>This environment represents multiple VMs. The VMs are all listed<br>above with their current state. For more information about a specific<br>VM, run <code>vagrant status NAME</code>.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">接下来需要把 SSH 密钥添加到 SSH 可以识别的路径中，当然，也可以使用 ```ssh -i``` 每次指定 key。</div></pre></td></tr></table></figure></p>
+<p>➜  coreos-vagrant git:(master) ssh-add ~/.vagrant.d/insecure_private_key<br>Identity added: /Users/user/.vagrant.d/insecure_private_key (/Users/user/.vagrant.d/insecure_private_key)<br>➜  coreos-vagrant git:(master) vagrant ssh core-01 – -A<br>CoreOS stable (1010.5.0)<br>core@core-01 ~ $<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">这里的 ```-- -A``` 前两的个横杆表示 ssh 参数的起始。之后的 ```-A``` 是标准的 SSH 命令参数，表示将主机的 SSH 秘钥传递到虚拟机里面，这样做是为了之后的涉及 SSH 操作更加方便，否则会在某些命令时报错。</div><div class="line"></div><div class="line">进入 CoreOS 之后，就可以查看现在集群中的机器，可以通过如下命令：</div></pre></td></tr></table></figure></p>
+<p>core@core-01 ~ $ fleetctl list-machines<br>MACHINE        IP        METADATA<br>6e1b9fae…    172.17.8.104    -<br>91060182…    172.17.8.103    -<br>af1494a6…    172.17.8.102    -<br>c99fef8a…    172.17.8.101    -<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">查看设备是否正常加入。当然，也可以很方便的登录其它系统：</div></pre></td></tr></table></figure></p>
+<p>core@core-01 ~ $ fleetctl ssh -machine af1494a6<br>The authenticity of host ‘172.17.8.102’ can’t be established.<br>ECDSA key fingerprint is 24:34:be:4e:b7:43:be:94:34:33:b2:81:e0:0c:08:9d.<br>Are you sure you want to continue connecting (yes/no)? yes<br>Warning: Permanently added ‘172.17.8.102’ (ECDSA) to the list of known hosts.<br>CoreOS stable (1010.5.0)<br>core@core-02 ~ $ exit<br>logout<br>```</p>
+<p>这样我们的第一步，使用 CoreOS 部署本地集群就已经实现了。</p>
+<p>最后，如果需要关闭这些 CoreOS 实例，可以通过 <code>vagrant halt</code> 停止所有，下次可以通过 <code>vagrant up</code> 就可以重新启动了。</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="https://ipfans.github.io/2016/04/docker-for-mac-beta/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -365,7 +503,7 @@
       
         
           
-            <p>之前作为 <figure class="highlight docker"><figcaption><span>beta``` 的第一批用户获得了 beta 的授权，但是因为邮件进了垃圾邮件，所以一直没有发现。今天给 Docker 发邮件申请 beta 测试才知道已经通过了，赶紧尝鲜起来。如果你没有权限，可以尝试到 [Docker Beta](https://beta.docker.com) 申请测试资格。</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">__测试版本可能存在风险，请自行判断。__</div><div class="line"></div><div class="line"><span class="comment">## 安装之前</span></div><div class="line"></div><div class="line">Docker for Mac 需要一些前置要求，官方文档提供的数据如下：</div><div class="line"></div><div class="line">* <span class="number">2010</span> 年之后的 Intel Mac 机型，支持 ```MMU(Memory Management Unit)``` 虚拟化、```EPT(Extended Page Table)``` 等特性</div><div class="line">* ```OSX <span class="number">10.10</span>.<span class="number">3</span>``` 以上系统</div><div class="line">* 至少 ```<span class="number">4</span>GB``` 内存</div><div class="line">* ```VirtualBox <span class="number">4</span>.x``` 与 ```Docker for Mac``` 冲突，因此如果你安装这个系列的 ```Virtualbox``` 需要卸载。</div><div class="line"></div><div class="line">如果之前装过 ```Docker Toolbox``` 的话，需要一些额外的操作去与 ```Docker Toolbox``` 兼容。（我选择了直接卸载现有的 ```Docker Toolbox```。XD ）</div><div class="line"></div><div class="line"><span class="comment">## 安装 Docker for Mac</span></div><div class="line"></div><div class="line">```Docker for Mac``` 是一个 <span class="number">98.3</span>M(Mac 显示为 <span class="number">103.1</span>MB)的 DMG 文件，下载下来之后双击文件，将鲸鱼拖拽到 ```Applications``` 文件夹中即可。</div><div class="line"></div><div class="line">![Docker drag](http://ww1.sinaimg.cn/mw690/<span class="number">69</span>e37fdbgw1f3a9ba0ex5j20n40ck75x.jpg)</div><div class="line"></div><div class="line">第一次打开 ```Docker for Mac``` 需要提供邀请码，同时需要特殊权限写入 ```Docker bin``` 文件。</div><div class="line"></div><div class="line">![](http://ww3.sinaimg.cn/mw690/<span class="number">69</span>e37fdbgw1f3a9afjankj20g809s0uj.jpg)</div><div class="line"></div><div class="line">```Docker for Mac``` 包含了 ```Docker``` 引擎，```Docker``` 命令行客户端，```Docker Compose``` 和 ```Docker Machine```。之后双击应用程序中的 ```Docker``` 就可以启用引擎，这时，右上角会有一个鲸鱼的标志。</div><div class="line"></div><div class="line">![](http://ww2.sinaimg.cn/mw690/<span class="number">69</span>e37fdbgw1f3a9bckt09j20aj020q2x.jpg)</div><div class="line"></div><div class="line">点击标记可以获得菜单，进行设置，查看日志等等信息。</div><div class="line"></div><div class="line">![](http://ww3.sinaimg.cn/mw690/<span class="number">69</span>e37fdbgw1f3a9bb23nlj206906e74i.jpg)</div><div class="line"></div><div class="line">点击检查更新可以验证当前是否为最新版本的 ```Docker for Mac```。</div><div class="line"></div><div class="line">![](http://ww2.sinaimg.cn/mw690/<span class="number">69</span>e37fdbgw1f3a9feab6kj20hf07tdhe.jpg)</div><div class="line"></div><div class="line"><span class="comment">## Docker for mac 尝鲜</span></div><div class="line"></div><div class="line">先看一下 ```Docker``` 的设置，可以设置使用的内存启用方式，是否启用 ```VPN``` 兼容模式(现在我看论坛有人提到会不兼容 ```Cisco AnyConnect```)，禁用 VM 的时光机备份功能。另外可以在这里提供了直接卸载按钮，不想用的时候也比较方便。</div><div class="line"></div><div class="line">![](http://ww3.sinaimg.cn/mw690/<span class="number">69</span>e37fdbgw1f3aazp4etzj20e40erq4d.jpg)</div><div class="line"></div><div class="line">附带的软件版本也是新的 Docker 软件：</div><div class="line"></div><div class="line">```batch</div><div class="line">➜  ~ docker -v</div><div class="line">Docker version <span class="number">1.11</span>.<span class="number">0</span>, build <span class="number">4</span>dc5990</div><div class="line">➜  ~ docker-compose --version</div><div class="line">docker-compose version <span class="number">1.7</span>.<span class="number">0</span>, build <span class="number">0</span>d7bf73</div><div class="line">➜  ~ docker-machine --version</div><div class="line">docker-machine version <span class="number">0.7</span>.<span class="number">0</span>, build a650a40</div></pre></td></tr></table></figure></p>
+            <p>之前作为 <figure class="highlight docker"><figcaption><span>beta``` 的第一批用户获得了 beta 的授权，但是因为邮件进了垃圾邮件，所以一直没有发现。今天给 Docker 发邮件申请 beta 测试才知道已经通过了，赶紧尝鲜起来。如果你没有权限，可以尝试到 [Docker Beta](https://beta.docker.com) 申请测试资格。</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">__测试版本可能存在风险，请自行判断。__</div><div class="line"></div><div class="line"><span class="comment">## 安装之前</span></div><div class="line"></div><div class="line">Docker for Mac 需要一些前置要求，官方文档提供的数据如下：</div><div class="line"></div><div class="line">* <span class="number">2010</span> 年之后的 Intel Mac 机型，支持 ```MMU(Memory Management Unit)``` 虚拟化、```EPT(Extended Page Table)``` 等特性</div><div class="line">* ```OSX <span class="number">10.10</span>.<span class="number">3</span>``` 以上系统</div><div class="line">* 至少 ```<span class="number">4</span>GB``` 内存</div><div class="line">* ```VirtualBox <span class="number">4</span>.x``` 与 ```Docker for Mac``` 冲突，因此如果你安装这个系列的 ```Virtualbox``` 需要卸载。</div><div class="line"></div><div class="line">如果之前装过 ```Docker Toolbox``` 的话，需要一些额外的操作去与 ```Docker Toolbox``` 兼容。（我选择了直接卸载现有的 ```Docker Toolbox```。XD ）</div><div class="line"></div><div class="line"><span class="comment">## 安装 Docker for Mac</span></div><div class="line"></div><div class="line">```Docker for Mac``` 是一个 <span class="number">98.3</span>M(Mac 显示为 <span class="number">103.1</span>MB) 的 DMG 文件，下载下来之后双击文件，将鲸鱼拖拽到 ```Applications``` 文件夹中即可。</div><div class="line"></div><div class="line">![Docker drag](http://ww1.sinaimg.cn/mw690/<span class="number">69</span>e37fdbgw1f3a9ba0ex5j20n40ck75x.jpg)</div><div class="line"></div><div class="line">第一次打开 ```Docker for Mac``` 需要提供邀请码，同时需要特殊权限写入 ```Docker bin``` 文件。</div><div class="line"></div><div class="line">![](http://ww3.sinaimg.cn/mw690/<span class="number">69</span>e37fdbgw1f3a9afjankj20g809s0uj.jpg)</div><div class="line"></div><div class="line">```Docker for Mac``` 包含了 ```Docker``` 引擎，```Docker``` 命令行客户端，```Docker Compose``` 和 ```Docker Machine```。之后双击应用程序中的 ```Docker``` 就可以启用引擎，这时，右上角会有一个鲸鱼的标志。</div><div class="line"></div><div class="line">![](http://ww2.sinaimg.cn/mw690/<span class="number">69</span>e37fdbgw1f3a9bckt09j20aj020q2x.jpg)</div><div class="line"></div><div class="line">点击标记可以获得菜单，进行设置，查看日志等等信息。</div><div class="line"></div><div class="line">![](http://ww3.sinaimg.cn/mw690/<span class="number">69</span>e37fdbgw1f3a9bb23nlj206906e74i.jpg)</div><div class="line"></div><div class="line">点击检查更新可以验证当前是否为最新版本的 ```Docker for Mac```。</div><div class="line"></div><div class="line">![](http://ww2.sinaimg.cn/mw690/<span class="number">69</span>e37fdbgw1f3a9feab6kj20hf07tdhe.jpg)</div><div class="line"></div><div class="line"><span class="comment">## Docker for mac 尝鲜</span></div><div class="line"></div><div class="line">先看一下 ```Docker``` 的设置，可以设置使用的内存启用方式，是否启用 ```VPN``` 兼容模式 (现在我看论坛有人提到会不兼容 ```Cisco AnyConnect```)，禁用 VM 的时光机备份功能。另外可以在这里提供了直接卸载按钮，不想用的时候也比较方便。</div><div class="line"></div><div class="line">![](http://ww3.sinaimg.cn/mw690/<span class="number">69</span>e37fdbgw1f3aazp4etzj20e40erq4d.jpg)</div><div class="line"></div><div class="line">附带的软件版本也是新的 Docker 软件：</div><div class="line"></div><div class="line">```batch</div><div class="line">➜  ~ docker -v</div><div class="line">Docker version <span class="number">1.11</span>.<span class="number">0</span>, build <span class="number">4</span>dc5990</div><div class="line">➜  ~ docker-compose --version</div><div class="line">docker-compose version <span class="number">1.7</span>.<span class="number">0</span>, build <span class="number">0</span>d7bf73</div><div class="line">➜  ~ docker-machine --version</div><div class="line">docker-machine version <span class="number">0.7</span>.<span class="number">0</span>, build a650a40</div></pre></td></tr></table></figure></p>
 <p>跑一个 Ubuntu 测试一下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">➜  ~ docker run -i -t --name ubuntu ubuntu:16.04 /bin/bash</div><div class="line">root@d5ceb77516bf:/# uname -a</div><div class="line">Linux d5ceb77516bf 4.4.6 #1 SMP Mon Apr 18 19:18:15 UTC 2016 x86_64 x86_64 x86_64 GNU/Linux</div><div class="line">root@d5ceb77516bf:/#</div></pre></td></tr></table></figure>
 <p>我发现一直不怎么会写结尾／结论，那么最后扯个蛋：我们在进行 <code>Docker</code> 在 <code>CI/CD</code>、线上环境中的应用摸索，如果你有兴趣交流，欢迎联系 <code>kevin &lt;at&gt; yeeuu &lt;dot&gt; com</code>。</p>
@@ -830,146 +968,6 @@ cprofilev profile_output
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://ipfans.github.io/2016/02/simple-implement-asyncio-to-understand-how-async-works/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="ipfans">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/363344?v=3&s=460">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ipfans's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/02/simple-implement-asyncio-to-understand-how-async-works/" itemprop="url">从 asyncio 简单实现看异步是如何工作的</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-02-03T15:40:00+08:00">
-                2016-02-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2016/02/simple-implement-asyncio-to-understand-how-async-works/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2016/02/simple-implement-asyncio-to-understand-how-async-works/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>从 asyncio 简单实现看异步是如何工作的</p>
-<p>by ipfans</p>
-<p>注：请使用 <figure class="highlight python"><figcaption><span>3.5+``` 版本运行以下代码。</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="comment">## 先从例子看起</span></div><div class="line"></div><div class="line">首先我们来看一个 socket 通讯的例子，这个例子我们可以在官方 ```socket``` 模块的文档中找到部分原型代码：</div><div class="line"></div><div class="line">```python</div><div class="line"><span class="comment"># echo.py</span></div><div class="line"><span class="keyword">from</span> socket <span class="keyword">import</span> *  <span class="comment"># 是的，这是一个不好的写法</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">echo_server</span><span class="params">(address)</span>:</span></div><div class="line">    sock = socket(AF_INET, SOCK_STREAM)</div><div class="line">    sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, <span class="number">1</span>)</div><div class="line">    sock.bind(address)</div><div class="line">    sock.listen(<span class="number">5</span>)</div><div class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">        client, addr = sock.accept()</div><div class="line">        print(<span class="string">"connect from"</span>, addr)</div><div class="line">        echo_handler(client)</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">echo_handler</span><span class="params">(client)</span>:</span></div><div class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">        data = client.recv(<span class="number">10000</span>)</div><div class="line">        <span class="keyword">if</span> <span class="keyword">not</span> data:</div><div class="line">            <span class="keyword">break</span></div><div class="line">        client.send(str.encode(<span class="string">"Got: "</span>) + data)</div><div class="line">    print(<span class="string">"connection closed."</span>)</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    echo_server((<span class="string">''</span>, <span class="number">25000</span>))</div></pre></td></tr></table></figure></p>
-<p>但是同步模式会有一个问题，当进行通讯是阻塞的，当一个连接占用时就会阻碍其他连接的继续，这个时候应该怎么更快的运行呢？</p>
-<h2 id="回顾历史"><a href="#回顾历史" class="headerlink" title="回顾历史"></a>回顾历史</h2><p>在 asyncio 出现之前，我们都是怎么提高效率的呢？首先想到的方法就是多线程处理：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># echo_thread.py</span></div><div class="line"><span class="keyword">from</span> socket <span class="keyword">import</span> *</div><div class="line"><span class="keyword">import</span> _thread</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">echo_server</span><span class="params">(address)</span>:</span></div><div class="line">    sock = socket(AF_INET, SOCK_STREAM)</div><div class="line">    sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, <span class="number">1</span>)</div><div class="line">    sock.bind(address)</div><div class="line">    sock.listen(<span class="number">5</span>)</div><div class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">        client, addr = sock.accept()</div><div class="line">        print(<span class="string">"connect from"</span>, addr)</div><div class="line">        _thread.start_new_thread(echo_handler, (client,))</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">echo_handler</span><span class="params">(client)</span>:</span></div><div class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">        data = client.recv(<span class="number">10000</span>)</div><div class="line">        <span class="keyword">if</span> <span class="keyword">not</span> data:</div><div class="line">            <span class="keyword">break</span></div><div class="line">        client.send(str.encode(<span class="string">"Got: "</span>) + data)</div><div class="line">    print(<span class="string">"connection closed."</span>)</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    echo_server((<span class="string">''</span>, <span class="number">25000</span>))</div></pre></td></tr></table></figure>
-<p>当然了，我们都知道多线程之下总是会有一些问题的。那么还有更好的方案吗？如果你了解过<a href="http://www.kegel.com/c10k.html" target="_blank" rel="external">C10k 问题</a>，你一定听过 <figure class="highlight plain"><figcaption><span>之类的大名。那么，能在 Python 中使用这些功能吗？答案是肯定的。那就是[```select```](https://docs.python.org/3.5/library/select.html)。</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">```python</div><div class="line"># echo_select.py</div><div class="line">from socket import *</div><div class="line">import select</div><div class="line"></div><div class="line"></div><div class="line">def echo_server(address):</div><div class="line">    sock = socket(AF_INET, SOCK_STREAM)</div><div class="line">    sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)</div><div class="line">    sock.bind(address)</div><div class="line">    sock.listen(5)</div><div class="line">    input = [sock,]</div><div class="line">    while True:</div><div class="line">        r, _, _ = select.select(input, [], [])</div><div class="line">        for s in r:</div><div class="line">            if s == sock:</div><div class="line">                client, addr = sock.accept()</div><div class="line">                print(&quot;connect from&quot;, addr)</div><div class="line">                echo_handler(client)</div><div class="line"></div><div class="line"></div><div class="line">def echo_handler(client):</div><div class="line">    while True:</div><div class="line">        data = client.recv(10000)</div><div class="line">        if not data:</div><div class="line">            break</div><div class="line">        client.send(str.encode(&quot;Got: &quot;) + data)</div><div class="line">    print(&quot;connection closed.&quot;)</div><div class="line"></div><div class="line">if __name__ == &apos;__main__&apos;:</div><div class="line">    echo_server((&apos;&apos;, 25000))</div></pre></td></tr></table></figure></p>
-<p>相比 <figure class="highlight plain"><figcaption><span>来说，```select``` 更加底层，提供了最基础的等待 IO 完成功能。但是缺点是这个功能太单一了，这也就是为什么后面语言提供了 ```asyncio```。最早应该是 ```python-dev``` 中 [提出了](https://mail.python.org/pipermail/python-ideas/2012-May/015223.html) 要在标准库中添加基于 ```select``` 的异步 IO 功能。之后 Python 在 3.4 版本之中就加入了 [```selectors ```](https://docs.python.org/3.5/library/selectors.html) 与[```asyncio```](https://docs.python.org/3.5/library/asyncio.html)库用于异步 IO。</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">其他的方法还有 ```gevent```、```Twisted```、```Tornado``` 等等的方案，这里就不多赘述了。(在 3.4 的时候我一直觉得 ```yield form``` 太丑陋了，相对我宁愿继续用 ```Tornado``` 的 ```yield``` 方式。当然这个更加主观的原因吧，不过现在 ```async/await``` 方式明显让我又让我爱上了。）</div><div class="line"></div><div class="line">## 从同步到 asyncio</div><div class="line"></div><div class="line">那么如何在 asyncio 框架下如何实现异步 socket 通讯的例子呢？事实上官方文档中提供了两个比较高层封装过的 asyncio 库例子 [TCP echo server protocol](https://docs.python.org/3.5/library/asyncio-protocol.html#tcp-echo-server-protocol) 和[TCP echo server using streams](https://docs.python.org/3.5/library/asyncio-stream.html#tcp-echo-server-using-streams)。这两个例子采用的是 ```asyncio``` 的 ```socket``` 通讯高级别封装，似乎与我们同步代码相差有点远。这里我们实际例子中使用了更加底层的[Low-level socket operations](https://docs.python.org/3.5/library/asyncio-eventloop.html#low-level-socket-operations)。这个更接近于我们在同步状态下使用 ```socket``` 的代码。</div><div class="line"></div><div class="line">```python</div><div class="line"># aecho.py</div><div class="line">from socket import *</div><div class="line">import asyncio</div><div class="line"></div><div class="line">loop = asyncio.get_event_loop()</div><div class="line"></div><div class="line"></div><div class="line">async def echo_server(address):</div><div class="line">    sock = socket(AF_INET, SOCK_STREAM)</div><div class="line">    sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)</div><div class="line">    sock.bind(address)</div><div class="line">    sock.listen(5)</div><div class="line">    sock.setblocking(False) # 设置非阻塞</div><div class="line">    while True:</div><div class="line">        client, addr = await loop.sock_accept(sock)</div><div class="line">        print(&quot;connect from&quot;, addr)</div><div class="line">        loop.create_task(echo_handler(client))</div><div class="line"></div><div class="line"></div><div class="line">async def echo_handler(client):</div><div class="line">    with client:</div><div class="line">        while True:</div><div class="line">            data = await loop.sock_recv(client, 10000)</div><div class="line">            if not data:</div><div class="line">                break</div><div class="line">            await loop.sock_sendall(client, str.encode(&quot;Got: &quot;) + data)</div><div class="line">    print(&quot;connection closed&quot;)</div><div class="line"></div><div class="line">loop.create_task(echo_server((&apos;&apos;, 25000)))</div><div class="line">loop.run_forever()</div></pre></td></tr></table></figure></p>
-<p>其中遇到的 <figure class="highlight plain"><figcaption><span>会相对同步状态下无法对应，这个方法用于安排一个异步任务的执行，将一个异步方法封装为 ```future``` 对象。其他的 ```Event Loop``` 中的功能基本与传统的程序相同。</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">## 从 asyncio 到自己的实现</div><div class="line"></div><div class="line">那么在 ```asyncio.event_loop``` 中到底发生了什么呢？我们可以尝试用自己的程序实现一下。</div><div class="line"></div><div class="line">如果你阅读过[PEP-0492](https://www.python.org/dev/peps/pep-0492/)，你就知道，实际上 Python 的协程是通过生成器实现的。</div><div class="line"></div><div class="line">```python</div><div class="line"># async_yield.py</div><div class="line">from types import coroutine</div><div class="line"></div><div class="line"></div><div class="line">@coroutine</div><div class="line">def read_wait(sock):</div><div class="line">    yield &quot;read_wait&quot;, sock  # 为什么有个 read_wait？等下介绍</div></pre></td></tr></table></figure></p>
-<p>下面来模拟实际调用：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">python -i async_yield.py</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>f = read_wait(<span class="string">"somesocket"</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>f</div><div class="line">&lt;generator object read_wait at <span class="number">0x10200d5c8</span>&gt;</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>f.send(<span class="keyword">None</span>)</div><div class="line">(<span class="string">'read_wait'</span>, <span class="string">'somesocket'</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>f.send(<span class="keyword">None</span>)</div><div class="line">Traceback (most recent call last):</div><div class="line">  File <span class="string">"&lt;stdin&gt;"</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</div><div class="line">StopIteration</div></pre></td></tr></table></figure>
-<p>如果不了解 <figure class="highlight plain"><figcaption><span>与 ```StopIteration``` 作用的话，请参考 ```PEP-0492``` 中相关的描述。</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">接下来继续完善 ```write``` 方法，并且实现我们自己的 ```Loop```。</div><div class="line"></div><div class="line">```python</div><div class="line"># async_yield.py</div><div class="line">from types import coroutine</div><div class="line">from collections import deque</div><div class="line">from selectors import DefaultSelector, EVENT_READ, EVENT_WRITE</div><div class="line"></div><div class="line"></div><div class="line">@coroutine</div><div class="line">def read_wait(sock):</div><div class="line">    yield &quot;read_wait&quot;, sock</div><div class="line"></div><div class="line"></div><div class="line">@coroutine</div><div class="line">def write_wait(sock):</div><div class="line">    yield &quot;write_wait&quot;, sock</div><div class="line"></div><div class="line"></div><div class="line">class Loop(object):</div><div class="line">    def __init__(self):</div><div class="line">        self.ready = deque()</div><div class="line">        self.selector = DefaultSelector()</div><div class="line"></div><div class="line">    async def sock_recv(self, sock, maxbytes):</div><div class="line">        await read_wait(sock)</div><div class="line">        return sock.recv(maxbytes)</div><div class="line"></div><div class="line">    async def sock_accept(self, sock):</div><div class="line">        await read_wait(sock)</div><div class="line">        return sock.accept()</div><div class="line"></div><div class="line">    async def sock_sendall(self, sock, data):</div><div class="line">        while data:</div><div class="line">            await write_wait(sock)</div><div class="line">            n = sock.send(data)</div><div class="line">            data = data[n:]</div><div class="line"></div><div class="line">    def create_task(self, coro):</div><div class="line">        self.ready.append(coro)</div><div class="line"></div><div class="line">    def run_forever(self):</div><div class="line">        while True:</div><div class="line">            while not self.ready:</div><div class="line">                events = self.selector.select()</div><div class="line">                for key, _ in events:</div><div class="line">                    self.ready.append(key.data)</div><div class="line">                    self.selector.unregister(key.fileobj)</div><div class="line">            while self.ready:</div><div class="line">                self.current_task = self.ready.popleft()</div><div class="line">                try:</div><div class="line">                    op, *args = self.current_task.send(None)</div><div class="line">                    getattr(self, op)(*args)</div><div class="line">                except StopIteration:</div><div class="line">                    pass</div><div class="line"></div><div class="line">    def read_wait(self, sock):</div><div class="line">        self.selector.register(sock, EVENT_READ, self.current_task)</div><div class="line"></div><div class="line">    def write_wait(self, sock):</div><div class="line">        self.selector.register(sock, EVENT_WRITE, self.current_task)</div></pre></td></tr></table></figure></p>
-<p>对于之前一节中的 <figure class="highlight plain"><figcaption><span>文件，我们只需要修改一下导入模块与 loop 的获取方法即可：</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">```python</div><div class="line"># pecho.py</div><div class="line">from socket import *</div><div class="line">import async_yield</div><div class="line"></div><div class="line">loop = async_yield.Loop()</div><div class="line"></div><div class="line"></div><div class="line">async def echo_server(address):</div><div class="line">    sock = socket(AF_INET, SOCK_STREAM)</div><div class="line">    sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)</div><div class="line">    sock.bind(address)</div><div class="line">    sock.listen(5)</div><div class="line">    sock.setblocking(False)  # 设置非阻塞模式</div><div class="line">    while True:</div><div class="line">        client, addr = await loop.sock_accept(sock)</div><div class="line">        print(&quot;connect from&quot;, addr)</div><div class="line">        loop.create_task(echo_handler(client))</div><div class="line"></div><div class="line"></div><div class="line">async def echo_handler(client):</div><div class="line">    with client:</div><div class="line">        while True:</div><div class="line">            data = await loop.sock_recv(client, 10000)</div><div class="line">            if not data:</div><div class="line">                break</div><div class="line">            await loop.sock_sendall(client, str.encode(&quot;Got: &quot;) + data)</div><div class="line">    print(&quot;connection closed&quot;)</div><div class="line"></div><div class="line">loop.create_task(echo_server((&apos;&apos;, 25000)))</div><div class="line">loop.run_forever()</div></pre></td></tr></table></figure></p>
-<h2 id="async-yield-发生了什么？"><a href="#async-yield-发生了什么？" class="headerlink" title="async_yield 发生了什么？"></a>async_yield 发生了什么？</h2><p>首先，我们定义了两个协程函数 <code>read_wait</code> 和 <code>write_wait</code>，分别用于相应处理读取操作与写入操作。其中返回了一个 tuple 类型数据，用于在 <code>op, *args = self.current_task.send(None)</code> 中填充方法名和参数，之后在 <code>getattr(self, op)(*args)</code> 中进行分别调用。</p>
-<p>下面 <code>Loop</code> 类实现了在 pecho 中用到的所有异步函数。初始化时的 <code>self.ready</code> 用于存储协程的调用序列。该序列通过 <code>create_task</code> 添加协程到队列中。</p>
-<p>在 <code>run_forever</code> 中，如果目前队列为空，则通过 <code>self.selector.select()</code> 提取一个事件放入队列处理，若队列存在通过 <code>self.current_task.send(None)</code> 通知事件发送，从而调用对应的事件功能。你也可以在 <code>op, *args = self.current_task.send(None)</code> 后添加 <code>print(op)</code> 获取实时的调用情况。</p>
-<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>事实上这篇文章的思路是基于 <a href="https://twitter.com/dabeaz" target="_blank" rel="external">@dabeaz</a> 在 <code>Python Brasil</code> 上的 <a href="https://www.youtube.com/watch?v=ZzfHjytDceU" target="_blank" rel="external">keynote</a> 整理而来。dabeaz 还有另外一个非常不错的基于 select 的异步库，名字叫做<a href="https://github.com/dabeaz/curio" target="_blank" rel="external">curio</a>，是一个了解实现异步库的很好教程。</p>
-<p>最后讲个段子，之前有人开玩笑，蟒爹开发一个功能，之后大家都不会正确使用，直到 dabeaz 站出来告诉大家如何正确使用新功能。在写这篇文章的时候虽然很想找出来出处，但是似乎找不到了…</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1020,7 +1018,7 @@ cprofilev profile_output
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">64</span>
+                <span class="site-state-item-count">65</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1033,7 +1031,7 @@ cprofilev profile_output
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-count">46</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

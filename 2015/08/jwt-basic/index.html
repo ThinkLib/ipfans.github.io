@@ -103,7 +103,7 @@
 <meta property="og:site_name" content="ipfans&#39;s Blog">
 <meta property="og:description" content="JWT 是什么JWT 全称是 JSON Web Tokens，是 RFC 7519 标准，用于安全校验两方可信性的安全措施。 JWT 解决了哪些问题？JWT 本身设计是用于解决 Session 机制不能够很好的在 SPA/API 类型 (restful) 应用中处理身份认证问题。通常 API 的调用是无状态（stateless）的，使用 Session 等形式会有上下文要求。如当用户登录完成后，可">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-08-01T04:50:43.000Z">
+<meta property="og:updated_time" content="2017-08-02T10:33:28.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JWT 介绍">
 <meta name="twitter:description" content="JWT 是什么JWT 全称是 JSON Web Tokens，是 RFC 7519 标准，用于安全校验两方可信性的安全措施。 JWT 解决了哪些问题？JWT 本身设计是用于解决 Session 机制不能够很好的在 SPA/API 类型 (restful) 应用中处理身份认证问题。通常 API 的调用是无状态（stateless）的，使用 Session 等形式会有上下文要求。如当用户登录完成后，可">
@@ -374,7 +374,7 @@
 <p>其中 header 格式如下:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&#123;&quot;alg&quot;: &quot;HS256&quot;, // 指定加密算法，可以选择 RS256 等。</div><div class="line">  &quot;typ&quot;: &quot;JWT&quot;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>payload 为存储的数据区块，由于此部分未进行加密，不建议存储敏感信息。内容为字典结构。</p>
-<h2 id="JWT-存在的安全问题"><a href="#JWT-存在的安全问题" class="headerlink" title="JWT 存在的安全问题"></a>JWT 存在的安全问题</h2><p>JWT 披露了一个比较<a href="https://auth0.com/blog/2015/03/31/critical-vulnerabilities-in-json-web-token-libraries/" target="_blank" rel="external">严重的安全问题</a>：JWT 中允许设置加密方法『alg』为 none，这样签名信息可设置为 “”，这样就给恶意用户伪造 JWT 的可能。并且该验证是在验证签名之前（决定签名使用算法），所以在安全实现 JWT 时需要对验证算法进行可信安全校验。</p>
+<h2 id="JWT-存在的安全问题"><a href="#JWT-存在的安全问题" class="headerlink" title="JWT 存在的安全问题"></a>JWT 存在的安全问题</h2><p>JWT 披露了一个比较 <a href="https://auth0.com/blog/2015/03/31/critical-vulnerabilities-in-json-web-token-libraries/" target="_blank" rel="external">严重的安全问题</a>：JWT 中允许设置加密方法『alg』为 none，这样签名信息可设置为 “”，这样就给恶意用户伪造 JWT 的可能。并且该验证是在验证签名之前（决定签名使用算法），所以在安全实现 JWT 时需要对验证算法进行可信安全校验。</p>
 <p>还有一个问题是 JWT 本身并不会加密 payload 中的信息，因此在传递敏感信息时需要单独对数据进行个别处理。</p>
 <h2 id="参考连接"><a href="#参考连接" class="headerlink" title="参考连接"></a>参考连接</h2><ol>
 <li>JWT.io <a href="http://jwt.io/" target="_blank" rel="external">http://jwt.io/</a></li>
@@ -513,7 +513,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">64</span>
+                <span class="site-state-item-count">65</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -526,7 +526,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-count">46</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

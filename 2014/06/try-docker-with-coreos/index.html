@@ -103,7 +103,7 @@
 <meta property="og:site_name" content="ipfans&#39;s Blog">
 <meta property="og:description" content="Docker 是一个最近非常风行的轻量级应用容器。如果不知道的同学自行搜索去吧，这里不在赘述了。针对于 Docker，有个初创公司推出了适用于 Docker 专用的 Linux：CoreOS。一个号称系统运行内存只占用 161MB 的精简系统。这个 CoreOS 只提供了 Docker 需要的必须环境和管理功能，因此很轻量级，非常适合批量部署和我们这种用来研究学习目的的。 值得一提的是里面的管理工">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-08-01T04:50:43.000Z">
+<meta property="og:updated_time" content="2017-08-02T10:33:28.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="初识 Docker">
 <meta name="twitter:description" content="Docker 是一个最近非常风行的轻量级应用容器。如果不知道的同学自行搜索去吧，这里不在赘述了。针对于 Docker，有个初创公司推出了适用于 Docker 专用的 Linux：CoreOS。一个号称系统运行内存只占用 161MB 的精简系统。这个 CoreOS 只提供了 Docker 需要的必须环境和管理功能，因此很轻量级，非常适合批量部署和我们这种用来研究学习目的的。 值得一提的是里面的管理工">
@@ -379,7 +379,7 @@
 <p>执行完成上面的指令之后，CoreOS 就运行了，同时你也注意到有一些关于 ssh 的信息。这个时候怎么登陆到 CoreOS 呢？</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">vagrant ssh</div></pre></td></tr></table></figure>
 <p>然后就登录到了 CoreOS 系统了。</p>
-<p>如果你有代理想要下载加速，也是可以的，在命令行中执行(Windows)：</p>
+<p>如果你有代理想要下载加速，也是可以的，在命令行中执行 (Windows)：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">set all_proxy=socks5://127.0.0.1:1080</div></pre></td></tr></table></figure>
 <h2 id="Docker-试用"><a href="#Docker-试用" class="headerlink" title="Docker 试用"></a>Docker 试用</h2><p>先来一个简单的 hello world：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker run ubuntu /bin/echo hello world</div></pre></td></tr></table></figure>
@@ -388,7 +388,7 @@
 <p>这样就表示一个 docker 模版安装成功了。不过这还早，怎么利用 docker 部署 python 应用呢？</p>
 <p>首先是创建一个 Docker 容器：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo docker run -i -t -p 80:80 ubuntu /bin/bash</div></pre></td></tr></table></figure>
-<p>执行完成之后，你不仅会创建一个容器，并且会登录到这个容器内了。这样就可以当作一个简单的系统来应用了。退出容器的方法是按快捷键 CTRL+P 和 CTRL+Q。列举运行的 docker 可以使用 sudo docker ps 命令，然后 docker attach [id]方式进入容器。</p>
+<p>执行完成之后，你不仅会创建一个容器，并且会登录到这个容器内了。这样就可以当作一个简单的系统来应用了。退出容器的方法是按快捷键 CTRL+P 和 CTRL+Q。列举运行的 docker 可以使用 sudo docker ps 命令，然后 docker attach [id] 方式进入容器。</p>
 <p>根据之前提到的内容，我们现在可以执行 coreos 里面没有的命令了，比如说 apt-get:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">apt-get update</div><div class="line">apt-get upgrade</div></pre></td></tr></table></figure>
 <p>接下来是安装必须的工具了：</p>
@@ -529,7 +529,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">64</span>
+                <span class="site-state-item-count">65</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -542,7 +542,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-count">46</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

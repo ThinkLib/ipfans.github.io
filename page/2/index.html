@@ -286,6 +286,163 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://ipfans.github.io/2016/09/tracing-python-program-with-dtrace/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ipfans">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/363344?v=3&s=460">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ipfans's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016/09/tracing-python-program-with-dtrace/" itemprop="url">使用 dtrace 跟踪 Python 应用</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-09-15T18:00:00+08:00">
+                2016-09-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/09/tracing-python-program-with-dtrace/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2016/09/tracing-python-program-with-dtrace/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>今年在 Pycon China 上，来自饿了么的郭浩川分享了 <a href="http://ocgxshkaw.bkt.clouddn.com/4%20%E3%80%8A%E7%94%A8%E9%AB%98%E9%AD%94%E7%9A%84%E5%A7%BF%E5%8A%BF%E8%B0%83%20python%20%E7%A8%8B%E5%BA%8F%E3%80%8B%E9%83%AD%E6%B5%A9%E5%B7%9D.pdf" target="_blank" rel="external">利用 systemtap 进行 Python 执行情况分析</a> 的内容。分享利用 systemtap 在线上环境中实时监控 gevent patch 的 green thread 程序的执行状况。</p>
+<p>dtrace 和 systemtap 均支持在 Linux 上进行分析，在 macOS 系统上则只有 dtrace 使用。在 Python3.5 和之前版本中，需要使用手工 Patch 的方式进行埋点监控。在 Python 3.6 以上中 dtrace 和 systemtap 埋点支持功能可以通过编译参数 –with-dtrace 开启。</p>
+<h2 id="从-dtrace-开始"><a href="#从-dtrace-开始" class="headerlink" title="从 dtrace 开始"></a>从 dtrace 开始</h2><p>dtrace 是一个低开销的成本动态跟踪工具，可以通过埋点 probs 方式监控各项程序运行状态。dtrace 最初内置在 Solaris 系统中，因此我们可以借助 Solaris 系统的相关文档了解 dtrace 的基本操作。<a href="http://wenku.baidu.com/view/adb13ec7f61fb7360b4c65ad.html" target="_blank" rel="external">DTrace 用户指南</a> 是 Oracle 提供的基于 Solaris 系统的 dtrace 操作手册，操作基本与其它系统相同，推荐在最初开始阶段阅读该使用手册。</p>
+<p>在 macOS 上，已经很多系统底层功能和 framework 中已经集成了 dtrace 的功能。</p>
+<p>比如说我们需要监控 read 这个 syscall 的入口，可以通过下面这个命令实现：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">➜  ~ sudo dtrace -n syscall::read:entry</div><div class="line"></div><div class="line">dtrace: description &apos;syscall::read:entry&apos; matched 1 probe</div><div class="line"></div><div class="line">CPU     ID                    FUNCTION:NAME</div><div class="line">  0    156                       read:entry</div><div class="line">  0    156                       read:entry</div><div class="line">  0    156                       read:entry</div><div class="line">...</div></pre></td></tr></table></figure>
+<p>其中 <code>-n</code> 参数表示打印特定的 probs 内容的调用。现在这样仅仅显示了调用，但是调用的信息还是不详细的。这个时候就需要使用 dtrace 的脚本获取更多的信息。</p>
+<h2 id="dtrace-的脚本"><a href="#dtrace-的脚本" class="headerlink" title="dtrace 的脚本"></a>dtrace 的脚本</h2><p>dtrace 的名字暗示了自己的脚本，dtrace 使用了 D 语言作为脚本语言（WTF）。这个时候就需要学习一下基础的 D 语言内容。dtrace 中 D 语言的使用，可以在上面提到的 dtrace 用户指南中的对应章节。</p>
+<p>我们继续上一节中的例子，检测调用 read syscall 的参数内容。在进行操作之前，我们需要了解一下 read 的参数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">size_t</span> read(<span class="keyword">int</span> fildes, <span class="keyword">void</span> *buf, <span class="keyword">size_t</span> nbyte);</div></pre></td></tr></table></figure>
+<p>我们想知道调用来自于哪些进程，读取了多少字节。首先，我们需要创建一个叫 <code>syscall.d</code> 文件。</p>
+<figure class="highlight d"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">syscall::read:entry</div><div class="line">&#123;printf (<span class="string">"%s called read, asking for %d bytes\n"</span>, execname, arg2);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>然后通过命令行执行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">➜  ~ sudo dtrace -s syscall.d</div><div class="line"></div><div class="line">dtrace: script &apos;syscall.d&apos; matched 1 probe</div><div class="line"></div><div class="line">CPU     ID                    FUNCTION:NAME</div><div class="line">  0    156                       read:entry steam_osx called read, asking for 128 bytes</div><div class="line">  0    156                       read:entry steam_osx called read, asking for 128 bytes</div><div class="line">  0    156                       read:entry steam_osx called read, asking for 128 bytes</div><div class="line">  0    156                       read:entry steam_osx called read, asking for 128 bytes</div><div class="line">  0    156                       read:entry iTerm2 called read, asking for 32 bytes</div><div class="line">  0    156                       read:entry iTerm2 called read, asking for 1024 bytes</div><div class="line">...</div></pre></td></tr></table></figure>
+<h2 id="从-dtrace-到-Python-跟踪"><a href="#从-dtrace-到-Python-跟踪" class="headerlink" title="从 dtrace 到 Python 跟踪"></a>从 dtrace 到 Python 跟踪</h2><p>在 Pycon 上的分享上，提供了一种 CPython 虚拟机代码 Patch 方式进行跟踪的方案，这种方案需要系统支持，比如 REHL 系列系统默认支持，假如你是用了 Ubuntu 系统，除了重新编译 CPython 以外没有其他办法。不过除此之外，还有一种更简单的方式，就是使用 <code>Python USDT</code>。但是值得注意的是 <code>Python USDT</code> 是一种用户态修饰器监控方法，这种方式与 patch CPython 的方式相比差距较大，毕竟 USDT 无法监控一些系统底层的尤其是涉及到比如 gevent 导致的上下文切换时的混乱。同样的，systemtap 也有一个专门的库：<a href="https://github.com/wooparadog/python-systemtap" target="_blank" rel="external">python-systemtap</a>。</p>
+<p>不过还是从 USDT 开始。USDT 可以通过 pip 直接安装：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">pip install usdt</div></pre></td></tr></table></figure>
+<p>接下来用 ipython 演示一下 usdt 的基础使用：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">➜  ~ ipython</div><div class="line">Python 2.7.12 (default, Jul  4 2016, 11:33:35)</div><div class="line">Type &quot;copyright&quot;, &quot;credits&quot; or &quot;license&quot; for more information.</div><div class="line"></div><div class="line">IPython 5.0.0 -- An enhanced Interactive Python.</div><div class="line">?         -&gt; Introduction and overview of IPython&apos;s features.</div><div class="line">%quickref -&gt; Quick reference.</div><div class="line">help      -&gt; Python&apos;s own help system.</div><div class="line">object?   -&gt; Details about &apos;object&apos;, use &apos;object??&apos; for extra details.</div><div class="line"></div><div class="line">In [1]: import os</div><div class="line"></div><div class="line">In [2]: os.getpid()</div><div class="line">Out[2]: 7777</div><div class="line"></div><div class="line">In [3]: from usdt.tracer import fbt</div><div class="line"></div><div class="line">In [4]: @fbt</div><div class="line">   ...: def example(v):</div><div class="line">   ...:     pass</div><div class="line">   ...:</div><div class="line"></div><div class="line">In [5]: example(&quot;hello&quot;)</div></pre></td></tr></table></figure>
+<p>我们使用监听进程的方式监控来自于 usdt 的探针：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">➜  ~ sudo dtrace -l -p 7777 -m fbt</div><div class="line"></div><div class="line">   ID   PROVIDER            MODULE                          FUNCTION NAME</div><div class="line"> 1206 python-fbt7777               fbt                           example entry</div><div class="line"> 1207 python-fbt7777               fbt                           example return</div></pre></td></tr></table></figure>
+<p>其中 <code>-p</code> 用于指定进程，<code>-m</code> 指定对应的模块。如果不进行模块过滤的话，你很有可能被很多相关的调试信息淹没。</p>
+<p>在新版的 Python 3.6 以上版本中通过开启 <code>--with-dtrace</code> 开关的方式可以获取详细的 Python 运行状态信息，包括：</p>
+<ul>
+<li>函数调用与返回</li>
+<li>GC 开始与结束</li>
+<li>执行代码行数</li>
+</ul>
+<p>首先运行一个 Python 3.6</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">➜  ~ ipython</div><div class="line">Python 3.6.0b1 (default, Sep 15 2016, 10:16:39)</div><div class="line">Type &quot;copyright&quot;, &quot;credits&quot; or &quot;license&quot; for more information.</div><div class="line"></div><div class="line">IPython 5.1.0 -- An enhanced Interactive Python.</div><div class="line">?         -&gt; Introduction and overview of IPython&apos;s features.</div><div class="line">%quickref -&gt; Quick reference.</div><div class="line">help      -&gt; Python&apos;s own help system.</div><div class="line">object?   -&gt; Details about &apos;object&apos;, use &apos;object??&apos; for extra details.</div><div class="line"></div><div class="line">In [1]: import os</div><div class="line"></div><div class="line">In [2]: os.getpid()</div><div class="line">Out[2]: 33164</div><div class="line"></div><div class="line">In [3]:</div></pre></td></tr></table></figure>
+<p>接下来通过 dtrace 来获取所有的 Python 探针输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">➜  ~ sudo dtrace -l -m python3.6</div><div class="line"></div><div class="line">   ID   PROVIDER            MODULE                          FUNCTION NAME</div><div class="line">35775 python33164         python3.6          _PyEval_EvalFrameDefault function-entry</div><div class="line">35776 python33164         python3.6          _PyEval_EvalFrameDefault function-return</div><div class="line">35777 python33164         python3.6                           collect gc-done</div><div class="line">35778 python33164         python3.6                           collect gc-start</div><div class="line">35779 python33164         python3.6          _PyEval_EvalFrameDefault line</div></pre></td></tr></table></figure>
+<p>如果想要实现一个类似 pycon 中监控程序执行具体内容的 dtrace 脚本，请参考官方文档 <a href="https://docs.python.org/3.6/howto/instrumentation.html#instrumentation" target="_blank" rel="external">Instrumenting CPython with DTrace and SystemTap</a> 中的现成脚本即可。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>dtrace 提供了一种方便的、低干扰的 Python 内部执行探查方式。通过这种方式可以方便的了解目前 Python 的具体执行状况。同时，通过脚本，可以快速获取和定位相关想要了解的具体内容。当然，你也可以像郭浩川分享的那样，做一个比较炫酷的烈焰图。XD</p>
+<p>[^systemtap]: <a href="http://ocgxshkaw.bkt.clouddn.com/4%20%E3%80%8A%E7%94%A8%E9%AB%98%E9%AD%94%E7%9A%84%E5%A7%BF%E5%8A%BF%E8%B0%83%20python%20%E7%A8%8B%E5%BA%8F%E3%80%8B%E9%83%AD%E6%B5%A9%E5%B7%9D.pdf" target="_blank" rel="external">利用 systemtap 进行 Python 执行情况分析</a></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="https://ipfans.github.io/2016/08/introduce-traefik-load-balance/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -365,14 +522,14 @@
       
         
           
-            <p>traefik(<a href="https://traefik.io/)是一款开源的反向代理与负载均衡工具。它最大的优点是能够与常见的微服务系统直接整合，可以实现自动化动态配置。目前支持" target="_blank" rel="external">https://traefik.io/)是一款开源的反向代理与负载均衡工具。它最大的优点是能够与常见的微服务系统直接整合，可以实现自动化动态配置。目前支持</a> Docker, Swarm, Mesos/Marathon, Mesos, Kubernetes, Consul, Etcd, Zookeeper, BoltDB, Rest API 等等后端模型。</p>
+            <p>traefik(<a href="https://traefik.io/" target="_blank" rel="external">https://traefik.io/</a>) 是一款开源的反向代理与负载均衡工具。它最大的优点是能够与常见的微服务系统直接整合，可以实现自动化动态配置。目前支持 Docker, Swarm, Mesos/Marathon, Mesos, Kubernetes, Consul, Etcd, Zookeeper, BoltDB, Rest API 等等后端模型。</p>
 <p>traefik 的具体模型如下：<br><img src="https://github.com/containous/traefik/raw/master/docs/img/architecture.png" alt="traefik"></p>
-<h2 id="为什么选择-traefik？"><a href="#为什么选择-traefik？" class="headerlink" title="为什么选择 traefik？"></a>为什么选择 traefik？</h2><p>事实上在之前我对 LB 的选择一直更倾向于使用<a href="http://www.haproxy.org" target="_blank" rel="external">HAProxy</a>。但是选择 traefik 主要是有以下特点让我们决定使用：</p>
+<h2 id="为什么选择-traefik？"><a href="#为什么选择-traefik？" class="headerlink" title="为什么选择 traefik？"></a>为什么选择 traefik？</h2><p>事实上在之前我对 LB 的选择一直更倾向于使用 <a href="http://www.haproxy.org" target="_blank" rel="external">HAProxy</a>。但是选择 traefik 主要是有以下特点让我们决定使用：</p>
 <ul>
 <li>Golang 编写，单文件部署，与系统无关，同时也提供小尺寸 Docker 镜像。</li>
 <li>支持 Docker/Etcd 后端，天然连接我们的微服务集群。</li>
 <li>内置 Web UI，管理相对方便。</li>
-<li>自动配置 ACME(Let’s Encrypt)证书功能。</li>
+<li>自动配置 ACME(Let’s Encrypt) 证书功能。</li>
 <li>性能尚可，我们也没有到压榨 LB 性能的阶段，易用性更重要。</li>
 </ul>
 <p>除了这些以外，traefik 还有以下特点：</p>
@@ -525,7 +682,7 @@
 <li>作为文档附加属性，方便开发者调用时传入传出的参数类型。</li>
 <li>提升 IDE 的检查机制，在智能提示时更快给出提示和类型检查结果。</li>
 </ul>
-<p>实现这个过程中，你需要使用 <figure class="highlight python"><figcaption><span>3.5+``` 中提供的新模块[```typing```](https://docs.python.org/3.5/library/typing.html)。值得注意的是，这个改动并不会影响程序运行，仅仅是为了方便类型检查器实现的。</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="comment">## Type Hint 类型检查器</span></div><div class="line"></div><div class="line">目前，比如 ```JetBrains``` 家的 ```PyCharm``` 已经支持 Type Hint 语法检查功能，如果你使用了这个 IDE，可以通过 IDE 功能进行实现。如果你像我一样，使用了 SublimeText 编辑器，那么第三方工具 [```mypy```](https://github.com/python/mypy) 可以帮助到你。```AnacondaST3``` 最近要发布的 <span class="number">2.0</span> 版本也内置了 ```mypy``` 功能的支持，具体的进度可以看一下 [这个 issue](https://github.com/DamnWidget/anaconda/issues/<span class="number">439</span>)。一些其它的 Python 工具(比如[代码提示工具 jedi <span class="number">0.10</span>+](https://github.com/davidhalter/jedi/pull/<span class="number">661</span>)) 也支持了 Type Hint 功能。</div><div class="line"></div><div class="line"><span class="comment">## 从简单的例子开始</span></div><div class="line"></div><div class="line">从简单的例子开始，我们先从一个简单的程序开始，运行环境为 ```Python <span class="number">3.5</span><span class="number">.2</span>```，使用 ```mypy``` 工具进行检查。</div><div class="line"></div><div class="line">首先通过 ```pip install mypy-lang``` 命令安装 ```mypy``` 工具。注意是 ```mypy-lang```，之所以是这样，是因为在 ```pypi``` 里 ```mypy``` 这个名字已经被占用掉了。</div><div class="line"></div><div class="line">接下来，通过 ```mypy``` 检查下面这个文件</div><div class="line"></div><div class="line">```python</div><div class="line"><span class="comment"># fib.py</span></div><div class="line"><span class="keyword">from</span> typing <span class="keyword">import</span> Iterator</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">fib</span><span class="params">(n: int)</span> -&gt; Iterator[int]:</span></div><div class="line">    a, b = <span class="number">0</span>, <span class="number">1</span></div><div class="line">    <span class="keyword">while</span> a &lt; n:</div><div class="line">        <span class="keyword">yield</span> a</div><div class="line">        a, b = b, a + b</div><div class="line"></div><div class="line">i = fib(<span class="number">3.2</span>)</div><div class="line">print(next(i))</div><div class="line">print(next(i))</div></pre></td></tr></table></figure></p>
+<p>实现这个过程中，你需要使用 <figure class="highlight python"><figcaption><span>3.5+``` 中提供的新模块 [```typing```](https://docs.python.org/3.5/library/typing.html)。值得注意的是，这个改动并不会影响程序运行，仅仅是为了方便类型检查器实现的。</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="comment">## Type Hint 类型检查器</span></div><div class="line"></div><div class="line">目前，比如 ```JetBrains``` 家的 ```PyCharm``` 已经支持 Type Hint 语法检查功能，如果你使用了这个 IDE，可以通过 IDE 功能进行实现。如果你像我一样，使用了 SublimeText 编辑器，那么第三方工具 [```mypy```](https://github.com/python/mypy) 可以帮助到你。```AnacondaST3``` 最近要发布的 <span class="number">2.0</span> 版本也内置了 ```mypy``` 功能的支持，具体的进度可以看一下 [这个 issue](https://github.com/DamnWidget/anaconda/issues/<span class="number">439</span>)。一些其它的 Python 工具 (比如 [代码提示工具 jedi <span class="number">0.10</span>+](https://github.com/davidhalter/jedi/pull/<span class="number">661</span>)) 也支持了 Type Hint 功能。</div><div class="line"></div><div class="line"><span class="comment">## 从简单的例子开始</span></div><div class="line"></div><div class="line">从简单的例子开始，我们先从一个简单的程序开始，运行环境为 ```Python <span class="number">3.5</span><span class="number">.2</span>```，使用 ```mypy``` 工具进行检查。</div><div class="line"></div><div class="line">首先通过 ```pip install mypy-lang``` 命令安装 ```mypy``` 工具。注意是 ```mypy-lang```，之所以是这样，是因为在 ```pypi``` 里 ```mypy``` 这个名字已经被占用掉了。</div><div class="line"></div><div class="line">接下来，通过 ```mypy``` 检查下面这个文件</div><div class="line"></div><div class="line">```python</div><div class="line"><span class="comment"># fib.py</span></div><div class="line"><span class="keyword">from</span> typing <span class="keyword">import</span> Iterator</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">fib</span><span class="params">(n: int)</span> -&gt; Iterator[int]:</span></div><div class="line">    a, b = <span class="number">0</span>, <span class="number">1</span></div><div class="line">    <span class="keyword">while</span> a &lt; n:</div><div class="line">        <span class="keyword">yield</span> a</div><div class="line">        a, b = b, a + b</div><div class="line"></div><div class="line">i = fib(<span class="number">3.2</span>)</div><div class="line">print(next(i))</div><div class="line">print(next(i))</div></pre></td></tr></table></figure></p>
 <p>在命令行中执行命令 <figure class="highlight plain"><figcaption><span>fib.py```，获取返回结果：</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"></div></pre></td></tr></table></figure></p>
 <p>➜ mypy fib.py<br>fib.py:11: error: Argument 1 to “fib” has incompatible type “float”; expected “int”<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">但是在实际的应用过程中，这个功能在 Python 里是可以正常运行的：</div></pre></td></tr></table></figure></p>
 <p>➜  mypy python fib.py<br>0<br>1<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">可以看到，mypy 工具提示了我们的代码中存在一处类型不匹配的问题，但是如果不进行检查，代码有可能执行出不可预知的结果。</div><div class="line"></div><div class="line">在这个例子里面，我们使用了两种类型，一种是 Python 基础数据类型，比如 ```str```、```int``` 等等，这些类型数据是可以直接使用的；另外一种是来自于 ```typing``` 中引入的 ```Iterator```，用来表示迭代器类型。另外一个值得注意的是，```typing``` 中部分类型也会随时添加，一般我们以演示版本为准。</div><div class="line"></div><div class="line">从简单到复杂，类型组合怎么办？</div><div class="line">---</div><div class="line"></div><div class="line">实际上，在我们使用过程中还有可能传递一些更加复杂的参数类型，比如 list 类型，tuple 类型等等，这类型的数据如何声明呢？我们可以先看一个例子：</div><div class="line"></div><div class="line">```python</div><div class="line">def foo(strings, string_list, count, total):</div></pre></td></tr></table></figure></p>
@@ -656,7 +813,7 @@
         
           
             <p>服务发现是微服务化架构中重要的一环，服务的配置信息需要有一种可靠高效的发现机制，保证服务上线时可以及时被使用，服务失效中断时可以及时切走。服务发现工具 Etcd 就是为了这种需求开发的。</p>
-<h2 id="什么是-Etcd？"><a href="#什么是-Etcd？" class="headerlink" title="什么是 Etcd？"></a>什么是 Etcd？</h2><p>Etcd 是一个分布式 KV 数据库，通过将数据分散存储在多台独立的设备上，从而提高数据的可靠性或读写性能。Etcd 是几个比较常见的服务发现应用之一，它支持 TTL 的支持和 HTTP Restful API，同时通过 Raft 一致性算法处理日志复制以保证强一致性。关于 Raft 算法，请参考<a href="http://www.infoq.com/cn/articles/coreos-analyse-etcd" target="_blank" rel="external">这篇文章</a>，这里不多介绍。Etcd 本来就是 CoreOS 团队开发支持的，因此也是原生存在在 CoreOS 系统中。</p>
+<h2 id="什么是-Etcd？"><a href="#什么是-Etcd？" class="headerlink" title="什么是 Etcd？"></a>什么是 Etcd？</h2><p>Etcd 是一个分布式 KV 数据库，通过将数据分散存储在多台独立的设备上，从而提高数据的可靠性或读写性能。Etcd 是几个比较常见的服务发现应用之一，它支持 TTL 的支持和 HTTP Restful API，同时通过 Raft 一致性算法处理日志复制以保证强一致性。关于 Raft 算法，请参考 <a href="http://www.infoq.com/cn/articles/coreos-analyse-etcd" target="_blank" rel="external">这篇文章</a>，这里不多介绍。Etcd 本来就是 CoreOS 团队开发支持的，因此也是原生存在在 CoreOS 系统中。</p>
 <p>Etcd 中提供了订阅通知机制，同时提供了一个线上服务 <figure class="highlight plain"><figcaption><span>Fleet 等等工具也是基于 Etcd 去发现网络中的节点服务器。在 CoreOS 机器部署之后，系统中一个叫做 ```cloud-init``` 的服务会根据之前的 ```user-data``` 文件去启动 Etcd。Etcd 会更新对应的自己的节点信息，并且获取其它的节点信息。</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">另外比较常见的服务发现还有 ZooKeeper（应用最广泛）、Consul 等等，如果有兴趣，可以自己在进行研究。</div><div class="line"></div><div class="line">## Etcdctl 使用</div><div class="line"></div><div class="line">工具 ```etcdctl``` 是 ```etcd``` 的控制程序，我们可以通过执行命令查看所有键值：</div></pre></td></tr></table></figure></p>
 <p>core@core-01 ~ $ etcdctl ls / –recursive<br>/coreos.com<br>/coreos.com/network<br>/coreos.com/network/config<br>/coreos.com/network/subnets<br>/coreos.com/network/subnets/10.1.64.0-24<br>/coreos.com/network/subnets/10.1.48.0-24<br>/coreos.com/network/subnets/10.1.10.0-24<br>/coreos.com/updateengine<br>/coreos.com/updateengine/rebootlock<br>/coreos.com/updateengine/rebootlock/semaphore<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">还可以通过类似 Redis 的 ```get``` 等命令获取具体存储内容：</div></pre></td></tr></table></figure></p>
 <p>core@core-01 ~ $ etcdctl get /coreos.com/network/subnets/10.1.64.0-24<br>{“PublicIP”:”172.17.8.101”}<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">区别是 Etcd 是支持目录的：</div></pre></td></tr></table></figure></p>
@@ -665,7 +822,7 @@
 <p>etcdctl set /foo “Expiring Soon” –ttl 20<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">这个 KV 对就会在 20 秒内时效。</div><div class="line"></div><div class="line">## Etcd 集群管理</div><div class="line"></div><div class="line">除了本身的 KV 数据库特性外，作为集群服务发现工具时，也可以通过 restful api 方式发现当前集群信息：</div></pre></td></tr></table></figure></p>
 <p>core@core-01 ~ $ curl -L <a href="http://127.0.0.1:4001/v2/stats/leader" target="_blank" rel="external">http://127.0.0.1:4001/v2/stats/leader</a><br>{“leader”:”efb737dfdc9ee528”,”followers”:{“6219cfe16536320”:{“latency”:{“current”:0.003561,”average”:0.0031178274017212987,”standardDeviation”:0.018016615756979302,”minimum”:9e-06,”maximum”:1.338917},”counts”:{“fail”:0,”success”:51588}},”a8cc28a8e121c40d”:{“latency”:{“current”:0.002212,”average”:0.002837358092138387,”standardDeviation”:0.015615452604769925,”minimum”:1.7e-05,”maximum”:1.48721},”counts”:{“fail”:0,”success”:51618}},”e44ee28dd4e590ac”:{“latency”:{“current”:0.001838,”average”:0.006247004906804689,”standardDeviation”:0.4458222893241591,”minimum”:9e-06,”maximum”:105.637627},”counts”:{“fail”:32,”success”:58694}}}}<br>core@core-01 ~ $ curl -L <a href="http://127.0.0.1:4001/v2/stats/self" target="_blank" rel="external">http://127.0.0.1:4001/v2/stats/self</a><br>{“name”:”c99fef8aac9b4a3e9d3a44f58b0739a6”,”id”:”efb737dfdc9ee528”,”state”:”StateLeader”,”startTime”:”2016-05-28T09:44:01.416629553Z”,”leaderInfo”:{“leader”:”efb737dfdc9ee528”,”uptime”:”1h59m14.023315023s”,”startTime”:”2016-05-28T09:44:44.495996231Z”},”recvAppendRequestCnt”:0,”sendAppendRequestCnt”:162816,”sendPkgRate”:20.004570208101516,”sendBandwidthRate”:1953.7463493742348}<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">其它的系列集群接口，也可以在 [官方文档](https://coreos.com/etcd/docs/latest/) 中查看。</div><div class="line"></div><div class="line">## Etcd 配置</div><div class="line"></div><div class="line">如果你有印象在第一篇中，如果你打开 ```user-data``` 文件，你就会发现 Etcd 的踪影：</div><div class="line"></div><div class="line">```yaml</div><div class="line">➜  coreos-vagrant git:(master) cat user-data</div><div class="line">#cloud-config</div><div class="line"></div><div class="line">---</div><div class="line">coreos:</div><div class="line">  etcd2:</div><div class="line">    advertise-client-urls: http://$public_ipv4:2379</div><div class="line">    initial-advertise-peer-urls: http://$private_ipv4:2380</div><div class="line">    listen-client-urls: http://0.0.0.0:2379,http://0.0.0.0:4001</div><div class="line">    listen-peer-urls: http://$private_ipv4:2380,http://$private_ipv4:7001</div><div class="line">    discovery: https://discovery.etcd.io/xxxxxxxxxxxx</div><div class="line">  fleet:</div><div class="line">    public-ip: &quot;$public_ipv4&quot;</div><div class="line">  flannel:</div><div class="line">    interface: &quot;$public_ipv4&quot;</div><div class="line">....</div></pre></td></tr></table></figure></p>
 <p>我们这里使用了线上服务 <code>https://discovery.etcd.io/</code> 发现集群中的机器，这个服务同样也可以使用本地内系统。</p>
-<h2 id="利用-Etcd-制作服务发现"><a href="#利用-Etcd-制作服务发现" class="headerlink" title="利用 Etcd 制作服务发现"></a>利用 Etcd 制作服务发现</h2><p>之前提到，Etcd 的特性非常方便用做服务发现，具体如何操作呢？在谈具体实现之前，我们来介绍一下两种服务注册方法：一种叫做<a href="http://microservices.io/patterns/self-registration.html" target="_blank" rel="external">自注册方法</a>；另外一种叫<a href="http://microservices.io/patterns/3rd-party-registration.html" target="_blank" rel="external">第三方注册方法</a>。区别是是否由自身来进行健康检查和提醒。另外，服务发现重要的是，在服务失效时可以及时去除无效服务，这个在 Etcd 的 TTL 功能上就会显得比较重要。我们可以设置一个键值的有效期为 3 秒，并且每秒钟都来刷新授权，如果程序异常退出或者刷新不及时，那么这个服务简直就会失效。通过这种方式就可以有效验证服务是否有效。</p>
+<h2 id="利用-Etcd-制作服务发现"><a href="#利用-Etcd-制作服务发现" class="headerlink" title="利用 Etcd 制作服务发现"></a>利用 Etcd 制作服务发现</h2><p>之前提到，Etcd 的特性非常方便用做服务发现，具体如何操作呢？在谈具体实现之前，我们来介绍一下两种服务注册方法：一种叫做 <a href="http://microservices.io/patterns/self-registration.html" target="_blank" rel="external">自注册方法</a>；另外一种叫 <a href="http://microservices.io/patterns/3rd-party-registration.html" target="_blank" rel="external">第三方注册方法</a>。区别是是否由自身来进行健康检查和提醒。另外，服务发现重要的是，在服务失效时可以及时去除无效服务，这个在 Etcd 的 TTL 功能上就会显得比较重要。我们可以设置一个键值的有效期为 3 秒，并且每秒钟都来刷新授权，如果程序异常退出或者刷新不及时，那么这个服务简直就会失效。通过这种方式就可以有效验证服务是否有效。</p>
 <p>具体的代码就不再额外给出了，大家可以自己动手实现一下。另外，其实服务发现还有一个重要的是提供自身工作的地址端口信息，这些可以通过环境变量传递到容器的注册过程中去，这个也是能够让负载均衡或者 WebService 服务器可以识别服务的重要手段。比如 Nginx 可以在根据服务注册信息定期更新自己的配置文件，利用重载保证不间断的服务运行。</p>
 
           
@@ -836,144 +993,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://ipfans.github.io/2016/05/learning-coreos-part1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="ipfans">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/363344?v=3&s=460">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ipfans's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/05/learning-coreos-part1/" itemprop="url">CoreOS 折腾笔记（一）集群部署</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-05-28T17:00:00+08:00">
-                2016-05-28
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2016/05/learning-coreos-part1/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2016/05/learning-coreos-part1/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>最近在技改完成之后打算进行大量的微服务化改造，而方便进行微服务化的步骤之一，就是将现有的系统移植进入 Docker 环境之中。在标准容器系统的选择上，我把目光放在了 CoreOS 上。实际上，我在 CoreOS 版本还是 2 开头的时候就有简单研究过，但是当时主要作为研究 Docker 的途径，现在则是作为集群化部署的基准系统。从本文开始的一系列折腾则是我在研究 CoreOS 集群化使用的一些纪录，而本文就是介绍一个本地实现容器化机群的步骤。</p>
-<h2 id="安装-Vagrant"><a href="#安装-Vagrant" class="headerlink" title="安装 Vagrant"></a>安装 Vagrant</h2><p>略，因为太简单了。另外还需要 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">## 配置 CoreOS-vagrant</div><div class="line"></div><div class="line">执行以下命令：</div><div class="line"></div><div class="line">```bash</div><div class="line">git clone https://github.com/coreos/coreos-vagrant.git</div><div class="line">cd coreos-vagrant</div></pre></td></tr></table></figure></p>
-<p>下载 CoreOS 的 vagrant 配置。值得在进入正式配置之前一提的是，CoreOS 本身是没有默认密码或者安装密码机制的，也就是说，现有的所有认证登录需要通过 SSH 进行。如果是通过 vagrant 安装，会自动生成登录需要的 SSH 密钥，这个是需要额外注意的内容。</p>
-<p>首先，将仓库中提供的两个模版配置文件复制成正式，接下来需要修改对应的文件：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">cp config.rb.sample config.rb</div><div class="line">cp user-data.sample user-data</div></pre></td></tr></table></figure>
-<p>首先修改 <figure class="highlight plain"><figcaption><span>文件。这里重点是两个参数，一个是启动的实例数量，另外一个是升级的版本，我修改成了</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">```ruby</div><div class="line">$num_instances=4</div><div class="line">$update_channel=&apos;stable&apos;</div></pre></td></tr></table></figure></p>
-<p>启动 4 个实例，升级选择的版本则是月度升级版。另外一个 <figure class="highlight plain"><figcaption><span>暂时不作修改。</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">接下来执行：</div><div class="line"></div><div class="line">```bash</div><div class="line">vagrant up</div></pre></td></tr></table></figure></p>
-<p>在一堆输出之后，生成的 4 个实例就已经在运行了。也可以通过命令 <figure class="highlight plain"><figcaption><span>status``` 查看运行状态。</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"></div></pre></td></tr></table></figure></p>
-<p>➜  coreos-vagrant git:(master) vagrant status<br>Current machine states:</p>
-<p>core-01                   running (virtualbox)<br>core-02                   running (virtualbox)<br>core-03                   running (virtualbox)<br>core-04                   running (virtualbox)</p>
-<p>This environment represents multiple VMs. The VMs are all listed<br>above with their current state. For more information about a specific<br>VM, run <code>vagrant status NAME</code>.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">接下来需要把 SSH 密钥添加到 SSH 可以识别的路径中，当然，也可以使用 ```ssh -i``` 每次指定 key。</div></pre></td></tr></table></figure></p>
-<p>➜  coreos-vagrant git:(master) ssh-add ~/.vagrant.d/insecure_private_key<br>Identity added: /Users/user/.vagrant.d/insecure_private_key (/Users/user/.vagrant.d/insecure_private_key)<br>➜  coreos-vagrant git:(master) vagrant ssh core-01 – -A<br>CoreOS stable (1010.5.0)<br>core@core-01 ~ $<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">这里的 ```-- -A``` 前两的个横杆表示 ssh 参数的起始。之后的 ```-A``` 是标准的 SSH 命令参数，表示将主机的 SSH 秘钥传递到虚拟机里面，这样做是为了之后的涉及 SSH 操作更加方便，否则会在某些命令时报错。</div><div class="line"></div><div class="line">进入 CoreOS 之后，就可以查看现在集群中的机器，可以通过如下命令：</div></pre></td></tr></table></figure></p>
-<p>core@core-01 ~ $ fleetctl list-machines<br>MACHINE        IP        METADATA<br>6e1b9fae…    172.17.8.104    -<br>91060182…    172.17.8.103    -<br>af1494a6…    172.17.8.102    -<br>c99fef8a…    172.17.8.101    -<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">查看设备是否正常加入。当然，也可以很方便的登录其它系统：</div></pre></td></tr></table></figure></p>
-<p>core@core-01 ~ $ fleetctl ssh -machine af1494a6<br>The authenticity of host ‘172.17.8.102’ can’t be established.<br>ECDSA key fingerprint is 24:34:be:4e:b7:43:be:94:34:33:b2:81:e0:0c:08:9d.<br>Are you sure you want to continue connecting (yes/no)? yes<br>Warning: Permanently added ‘172.17.8.102’ (ECDSA) to the list of known hosts.<br>CoreOS stable (1010.5.0)<br>core@core-02 ~ $ exit<br>logout<br>```</p>
-<p>这样我们的第一步，使用 CoreOS 部署本地集群就已经实现了。</p>
-<p>最后，如果需要关闭这些 CoreOS 实例，可以通过 <code>vagrant halt</code> 停止所有，下次可以通过 <code>vagrant up</code> 就可以重新启动了。</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1024,7 +1043,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">64</span>
+                <span class="site-state-item-count">65</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1037,7 +1056,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-count">46</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

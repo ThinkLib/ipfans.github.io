@@ -77,7 +77,7 @@
 <link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="OSX,Python,Xcode,Mavericks," />
+  <meta name="keywords" content="Python,OSX,Xcode,Mavericks," />
 
 
 
@@ -96,14 +96,14 @@
 
 
 <meta name="description" content="最近升级了一下 simplejson，发现 simplejson 的 speedup 模块报了一个错误： 123456789101112131415161718192021Installing collected packages: simplejson  Found existing installation: simplejson 3.3.1    Uninstalling simplejso">
-<meta name="keywords" content="OSX,Python,Xcode,Mavericks">
+<meta name="keywords" content="Python,OSX,Xcode,Mavericks">
 <meta property="og:type" content="article">
 <meta property="og:title" content="解决 Mavericks 系统上 Python 库 - mno-fused-madd 错误">
 <meta property="og:url" content="https://ipfans.github.io/2014/04/fix-build-python-ext-on-mac-os-x-mavericks-with-error-mno-fused-madd/index.html">
 <meta property="og:site_name" content="ipfans&#39;s Blog">
 <meta property="og:description" content="最近升级了一下 simplejson，发现 simplejson 的 speedup 模块报了一个错误： 123456789101112131415161718192021Installing collected packages: simplejson  Found existing installation: simplejson 3.3.1    Uninstalling simplejso">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-08-01T04:50:43.000Z">
+<meta property="og:updated_time" content="2017-08-02T10:33:28.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="解决 Mavericks 系统上 Python 库 - mno-fused-madd 错误">
 <meta name="twitter:description" content="最近升级了一下 simplejson，发现 simplejson 的 speedup 模块报了一个错误： 123456789101112131415161718192021Installing collected packages: simplejson  Found existing installation: simplejson 3.3.1    Uninstalling simplejso">
@@ -376,7 +376,7 @@
 <p>-Wno-error=unused-command-line-argument-hard-error-in-future<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">官方推荐的方法是：</div></pre></td></tr></table></figure></p>
 <p>$ ARCHFLAGS=-Wno-error=unused-command-line-argument-hard-error-in-future pip install simplejson<br>Downloading/unpacking simplejson<br>  Downloading simplejson-3.4.0.tar.gz (68kB): 68kB downloaded<br>  Running setup.py egg_info for package simplejson</p>
 <p>Installing collected packages: simplejson<br>  Running setup.py install for simplejson<br>    building ‘simplejson._speedups’ extension<br>    cc -fno-strict-aliasing -fno-common -dynamic -g -Os -pipe -fno-common -fno-strict-aliasing -fwrapv -mno-fused-madd -DENABLE_DTRACE -DMACOSX -DNDEBUG -Wall -Wstrict-prototypes -Wshorten-64-to-32 -DNDEBUG -g -fwrapv -Os -Wall -Wstrict-prototypes -DENABLE_DTRACE -Wno-error=unused-command-line-argument-hard-error-in-future -pipe -Wno-error=unused-command-line-argument-hard-error-in-future -I/System/Library/Frameworks/Python.framework/Versions/2.7/include/python2.7 -c simplejson/_speedups.c -o build/temp.macosx-10.9-intel-2.7/simplejson/_speedups.o<br>    clang: warning: unknown argument: ‘-mno-fused-madd’ [-Wunused-command-line-argument-hard-error-in-future]<br>    clang: note: this will be a hard error (cannot be downgraded to a warning) in the future<br>    clang: warning: argument unused during compilation: ‘-mno-fused-madd’<br>    cc -bundle -undefined dynamic_lookup -Wl,-F. -Wno-error=unused-command-line-argument-hard-error-in-future -Wno-error=unused-command-line-argument-hard-error-in-future build/temp.macosx-10.9-intel-2.7/simplejson/_speedups.o -o build/lib.macosx-10.9-intel-2.7/simplejson/_speedups.so</p>
-<p>Successfully installed simplejson<br>Cleaning up…<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">最后来个轻量级的性能测试(python 2.7.5)：</div><div class="line"></div><div class="line">```python</div><div class="line">#!/usr/bin/env python</div><div class="line"># -*- coding: utf-8 -*-</div><div class="line"></div><div class="line">from timeit import Timer</div><div class="line">import json</div><div class="line">import simplejson</div><div class="line"></div><div class="line"></div><div class="line">def by_json():</div><div class="line">    a = &#123;&quot;a&quot;: 1, &quot;b&quot;: &quot;2&quot;, &quot;c&quot;: [1, 2, 3], &quot;d&quot;: [&quot;1&quot;, &quot;2&quot;, &quot;3&quot;]&#125;</div><div class="line">    b = json.dumps(a)</div><div class="line">    a = json.loads(b)</div><div class="line"></div><div class="line"></div><div class="line">def by_simplejson():</div><div class="line">    a = &#123;&quot;a&quot;: 1, &quot;b&quot;: &quot;2&quot;, &quot;c&quot;: [1, 2, 3], &quot;d&quot;: [&quot;1&quot;, &quot;2&quot;, &quot;3&quot;]&#125;</div><div class="line">    b = simplejson.dumps(a)</div><div class="line">    a = simplejson.loads(b)</div><div class="line"></div><div class="line"></div><div class="line">if __name__ == &apos;__main__&apos;:</div><div class="line">    t = Timer(stmt=&quot;by_json()&quot;, setup=&quot;from __main__ import by_json&quot;)</div><div class="line">    print &apos;by json: %s seconds&apos; % t.timeit(number=3)</div><div class="line">    t = Timer(stmt=&quot;by_simplejson()&quot;, setup=&quot;from __main__ import by_simplejson&quot;)</div><div class="line">    print &apos;by simplejson: %s seconds&apos; % t.timeit(number=3)</div></pre></td></tr></table></figure></p>
+<p>Successfully installed simplejson<br>Cleaning up…<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">最后来个轻量级的性能测试 (python 2.7.5)：</div><div class="line"></div><div class="line">```python</div><div class="line">#!/usr/bin/env python</div><div class="line"># -*- coding: utf-8 -*-</div><div class="line"></div><div class="line">from timeit import Timer</div><div class="line">import json</div><div class="line">import simplejson</div><div class="line"></div><div class="line"></div><div class="line">def by_json():</div><div class="line">    a = &#123;&quot;a&quot;: 1, &quot;b&quot;: &quot;2&quot;, &quot;c&quot;: [1, 2, 3], &quot;d&quot;: [&quot;1&quot;, &quot;2&quot;, &quot;3&quot;]&#125;</div><div class="line">    b = json.dumps(a)</div><div class="line">    a = json.loads(b)</div><div class="line"></div><div class="line"></div><div class="line">def by_simplejson():</div><div class="line">    a = &#123;&quot;a&quot;: 1, &quot;b&quot;: &quot;2&quot;, &quot;c&quot;: [1, 2, 3], &quot;d&quot;: [&quot;1&quot;, &quot;2&quot;, &quot;3&quot;]&#125;</div><div class="line">    b = simplejson.dumps(a)</div><div class="line">    a = simplejson.loads(b)</div><div class="line"></div><div class="line"></div><div class="line">if __name__ == &apos;__main__&apos;:</div><div class="line">    t = Timer(stmt=&quot;by_json()&quot;, setup=&quot;from __main__ import by_json&quot;)</div><div class="line">    print &apos;by json: %s seconds&apos; % t.timeit(number=3)</div><div class="line">    t = Timer(stmt=&quot;by_simplejson()&quot;, setup=&quot;from __main__ import by_simplejson&quot;)</div><div class="line">    print &apos;by simplejson: %s seconds&apos; % t.timeit(number=3)</div></pre></td></tr></table></figure></p>
 <p>测试结果表明：恩，实际上不用 simplejson 也可以，不会有很大性能差异：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ python json_speed.py</div><div class="line">by json: 0.000191926956177 seconds</div><div class="line">by simplejson: 0.000169992446899 seconds</div></pre></td></tr></table></figure>
 
@@ -408,9 +408,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/OSX/" rel="tag"># OSX</a>
-          
             <a href="/tags/Python/" rel="tag"># Python</a>
+          
+            <a href="/tags/OSX/" rel="tag"># OSX</a>
           
             <a href="/tags/Xcode/" rel="tag"># Xcode</a>
           
@@ -510,7 +510,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">64</span>
+                <span class="site-state-item-count">65</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -523,7 +523,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-count">46</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

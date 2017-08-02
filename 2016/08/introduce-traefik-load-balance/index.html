@@ -95,19 +95,19 @@
 
 
 
-<meta name="description" content="traefik(https://traefik.io/)是一款开源的反向代理与负载均衡工具。它最大的优点是能够与常见的微服务系统直接整合，可以实现自动化动态配置。目前支持 Docker, Swarm, Mesos/Marathon, Mesos, Kubernetes, Consul, Etcd, Zookeeper, BoltDB, Rest API 等等后端模型。 traefik 的具体模型如">
+<meta name="description" content="traefik(https://traefik.io/) 是一款开源的反向代理与负载均衡工具。它最大的优点是能够与常见的微服务系统直接整合，可以实现自动化动态配置。目前支持 Docker, Swarm, Mesos/Marathon, Mesos, Kubernetes, Consul, Etcd, Zookeeper, BoltDB, Rest API 等等后端模型。 traefik 的具体模型">
 <meta name="keywords" content="traefik,LoadBalance,configure">
 <meta property="og:type" content="article">
 <meta property="og:title" content="traefik 简介">
 <meta property="og:url" content="https://ipfans.github.io/2016/08/introduce-traefik-load-balance/index.html">
 <meta property="og:site_name" content="ipfans&#39;s Blog">
-<meta property="og:description" content="traefik(https://traefik.io/)是一款开源的反向代理与负载均衡工具。它最大的优点是能够与常见的微服务系统直接整合，可以实现自动化动态配置。目前支持 Docker, Swarm, Mesos/Marathon, Mesos, Kubernetes, Consul, Etcd, Zookeeper, BoltDB, Rest API 等等后端模型。 traefik 的具体模型如">
+<meta property="og:description" content="traefik(https://traefik.io/) 是一款开源的反向代理与负载均衡工具。它最大的优点是能够与常见的微服务系统直接整合，可以实现自动化动态配置。目前支持 Docker, Swarm, Mesos/Marathon, Mesos, Kubernetes, Consul, Etcd, Zookeeper, BoltDB, Rest API 等等后端模型。 traefik 的具体模型">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://github.com/containous/traefik/raw/master/docs/img/architecture.png">
-<meta property="og:updated_time" content="2017-08-01T04:50:43.000Z">
+<meta property="og:updated_time" content="2017-08-02T10:33:28.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="traefik 简介">
-<meta name="twitter:description" content="traefik(https://traefik.io/)是一款开源的反向代理与负载均衡工具。它最大的优点是能够与常见的微服务系统直接整合，可以实现自动化动态配置。目前支持 Docker, Swarm, Mesos/Marathon, Mesos, Kubernetes, Consul, Etcd, Zookeeper, BoltDB, Rest API 等等后端模型。 traefik 的具体模型如">
+<meta name="twitter:description" content="traefik(https://traefik.io/) 是一款开源的反向代理与负载均衡工具。它最大的优点是能够与常见的微服务系统直接整合，可以实现自动化动态配置。目前支持 Docker, Swarm, Mesos/Marathon, Mesos, Kubernetes, Consul, Etcd, Zookeeper, BoltDB, Rest API 等等后端模型。 traefik 的具体模型">
 <meta name="twitter:image" content="https://github.com/containous/traefik/raw/master/docs/img/architecture.png">
 
 
@@ -366,14 +366,14 @@
       
 
       
-        <p>traefik(<a href="https://traefik.io/)是一款开源的反向代理与负载均衡工具。它最大的优点是能够与常见的微服务系统直接整合，可以实现自动化动态配置。目前支持" target="_blank" rel="external">https://traefik.io/)是一款开源的反向代理与负载均衡工具。它最大的优点是能够与常见的微服务系统直接整合，可以实现自动化动态配置。目前支持</a> Docker, Swarm, Mesos/Marathon, Mesos, Kubernetes, Consul, Etcd, Zookeeper, BoltDB, Rest API 等等后端模型。</p>
+        <p>traefik(<a href="https://traefik.io/" target="_blank" rel="external">https://traefik.io/</a>) 是一款开源的反向代理与负载均衡工具。它最大的优点是能够与常见的微服务系统直接整合，可以实现自动化动态配置。目前支持 Docker, Swarm, Mesos/Marathon, Mesos, Kubernetes, Consul, Etcd, Zookeeper, BoltDB, Rest API 等等后端模型。</p>
 <p>traefik 的具体模型如下：<br><img src="https://github.com/containous/traefik/raw/master/docs/img/architecture.png" alt="traefik"></p>
-<h2 id="为什么选择-traefik？"><a href="#为什么选择-traefik？" class="headerlink" title="为什么选择 traefik？"></a>为什么选择 traefik？</h2><p>事实上在之前我对 LB 的选择一直更倾向于使用<a href="http://www.haproxy.org" target="_blank" rel="external">HAProxy</a>。但是选择 traefik 主要是有以下特点让我们决定使用：</p>
+<h2 id="为什么选择-traefik？"><a href="#为什么选择-traefik？" class="headerlink" title="为什么选择 traefik？"></a>为什么选择 traefik？</h2><p>事实上在之前我对 LB 的选择一直更倾向于使用 <a href="http://www.haproxy.org" target="_blank" rel="external">HAProxy</a>。但是选择 traefik 主要是有以下特点让我们决定使用：</p>
 <ul>
 <li>Golang 编写，单文件部署，与系统无关，同时也提供小尺寸 Docker 镜像。</li>
 <li>支持 Docker/Etcd 后端，天然连接我们的微服务集群。</li>
 <li>内置 Web UI，管理相对方便。</li>
-<li>自动配置 ACME(Let’s Encrypt)证书功能。</li>
+<li>自动配置 ACME(Let’s Encrypt) 证书功能。</li>
 <li>性能尚可，我们也没有到压榨 LB 性能的阶段，易用性更重要。</li>
 </ul>
 <p>除了这些以外，traefik 还有以下特点：</p>
@@ -534,7 +534,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">64</span>
+                <span class="site-state-item-count">65</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -547,7 +547,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-count">46</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

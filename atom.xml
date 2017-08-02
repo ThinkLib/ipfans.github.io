@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://ipfans.github.io/"/>
-  <updated>2017-08-01T05:43:29.000Z</updated>
+  <updated>2017-08-02T10:50:59.000Z</updated>
   <id>https://ipfans.github.io/</id>
   
   <author>
@@ -16,11 +16,29 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>OSX 下安装 face_recognition</title>
+    <link href="https://ipfans.github.io/2017/08/install-face-recognition-on-osx/"/>
+    <id>https://ipfans.github.io/2017/08/install-face-recognition-on-osx/</id>
+    <published>2017-08-02T10:30:00.000Z</published>
+    <updated>2017-08-02T10:50:59.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;face_recognition 是一个热门的人脸识别库，常年占据 &lt;a href=&quot;https://github.com/trending/python&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Github Trending Python 子类&lt;/
+    
+    </summary>
+    
+    
+      <category term="Python" scheme="https://ipfans.github.io/tags/Python/"/>
+    
+  </entry>
+  
+  <entry>
     <title>一些 MongoDB 的坑</title>
     <link href="https://ipfans.github.io/2017/07/mongodb-optimizing/"/>
     <id>https://ipfans.github.io/2017/07/mongodb-optimizing/</id>
     <published>2017-07-31T10:45:00.000Z</published>
-    <updated>2017-08-01T05:43:29.000Z</updated>
+    <updated>2017-08-02T10:33:28.000Z</updated>
     
     <summary type="html">
     
@@ -39,7 +57,7 @@
     <link href="https://ipfans.github.io/2017/04/grpc-call-timeout/"/>
     <id>https://ipfans.github.io/2017/04/grpc-call-timeout/</id>
     <published>2017-04-06T10:00:00.000Z</published>
-    <updated>2017-08-01T04:50:43.000Z</updated>
+    <updated>2017-08-02T10:33:28.000Z</updated>
     
     <summary type="html">
     
@@ -58,7 +76,7 @@
     <link href="https://ipfans.github.io/2017/02/analyzing-pronto-cycleshare-data-with-python-and-pandas/"/>
     <id>https://ipfans.github.io/2017/02/analyzing-pronto-cycleshare-data-with-python-and-pandas/</id>
     <published>2017-02-19T10:00:00.000Z</published>
-    <updated>2017-08-01T04:50:43.000Z</updated>
+    <updated>2017-08-02T10:33:28.000Z</updated>
     
     <summary type="html">
     
@@ -78,11 +96,11 @@
     <link href="https://ipfans.github.io/2017/02/more-effective-golang-error/"/>
     <id>https://ipfans.github.io/2017/02/more-effective-golang-error/</id>
     <published>2017-02-08T10:00:00.000Z</published>
-    <updated>2017-08-01T04:50:43.000Z</updated>
+    <updated>2017-08-02T10:33:28.000Z</updated>
     
     <summary type="html">
     
-      &lt;p&gt;Golang 中的错误处理是一个被大家经常拿出来讨论的 &lt;a href=&quot;http://www.infoq.com/cn/news/2012/11/go-error-handle&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;话题&lt;/a&gt;(另外一个是&lt;a 
+      &lt;p&gt;Golang 中的错误处理是一个被大家经常拿出来讨论的 &lt;a href=&quot;http://www.infoq.com/cn/news/2012/11/go-error-handle&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;话题&lt;/a&gt;(另外一个是 &lt;a
     
     </summary>
     
@@ -96,7 +114,7 @@
     <link href="https://ipfans.github.io/2016/09/tracing-python-program-with-dtrace/"/>
     <id>https://ipfans.github.io/2016/09/tracing-python-program-with-dtrace/</id>
     <published>2016-09-15T10:00:00.000Z</published>
-    <updated>2017-08-01T04:50:43.000Z</updated>
+    <updated>2017-08-02T10:48:42.000Z</updated>
     
     <summary type="html">
     
@@ -116,11 +134,11 @@
     <link href="https://ipfans.github.io/2016/08/introduce-traefik-load-balance/"/>
     <id>https://ipfans.github.io/2016/08/introduce-traefik-load-balance/</id>
     <published>2016-08-01T03:00:00.000Z</published>
-    <updated>2017-08-01T04:50:43.000Z</updated>
+    <updated>2017-08-02T10:33:28.000Z</updated>
     
     <summary type="html">
     
-      &lt;p&gt;traefik(&lt;a href=&quot;https://traefik.io/)是一款开源的反向代理与负载均衡工具。它最大的优点是能够与常见的微服务系统直接整合，可以实现自动化动态配置。目前支持&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://tr
+      &lt;p&gt;traefik(&lt;a href=&quot;https://traefik.io/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://traefik.io/&lt;/a&gt;) 是一款开源的反向代理与负载均衡工具。它最大的优点是能够与常见的微服务系统直接整合，可以
     
     </summary>
     
@@ -138,7 +156,7 @@
     <link href="https://ipfans.github.io/2016/07/type-hint-improve-python-programming/"/>
     <id>https://ipfans.github.io/2016/07/type-hint-improve-python-programming/</id>
     <published>2016-07-13T12:00:00.000Z</published>
-    <updated>2017-08-01T04:50:43.000Z</updated>
+    <updated>2017-08-02T10:33:28.000Z</updated>
     
     <summary type="html">
     
@@ -161,7 +179,7 @@
     <link href="https://ipfans.github.io/2016/05/learning-coreos-part3/"/>
     <id>https://ipfans.github.io/2016/05/learning-coreos-part3/</id>
     <published>2016-05-31T01:13:00.000Z</published>
-    <updated>2017-08-01T04:50:43.000Z</updated>
+    <updated>2017-08-02T10:33:28.000Z</updated>
     
     <summary type="html">
     
@@ -186,7 +204,7 @@
     <link href="https://ipfans.github.io/2016/05/learning-coreos-part2/"/>
     <id>https://ipfans.github.io/2016/05/learning-coreos-part2/</id>
     <published>2016-05-28T10:00:00.000Z</published>
-    <updated>2017-08-01T04:50:43.000Z</updated>
+    <updated>2017-08-02T10:33:28.000Z</updated>
     
     <summary type="html">
     
@@ -210,7 +228,7 @@
     <link href="https://ipfans.github.io/2016/05/learning-coreos-part1/"/>
     <id>https://ipfans.github.io/2016/05/learning-coreos-part1/</id>
     <published>2016-05-28T09:00:00.000Z</published>
-    <updated>2017-08-01T04:50:43.000Z</updated>
+    <updated>2017-08-02T10:33:28.000Z</updated>
     
     <summary type="html">
     
@@ -232,7 +250,7 @@
     <link href="https://ipfans.github.io/2016/04/docker-for-mac-beta/"/>
     <id>https://ipfans.github.io/2016/04/docker-for-mac-beta/</id>
     <published>2016-04-26T10:00:00.000Z</published>
-    <updated>2017-08-01T04:50:43.000Z</updated>
+    <updated>2017-08-02T10:33:28.000Z</updated>
     
     <summary type="html">
     
@@ -250,7 +268,7 @@
     <link href="https://ipfans.github.io/2016/04/writing-testable-golang-code/"/>
     <id>https://ipfans.github.io/2016/04/writing-testable-golang-code/</id>
     <published>2016-04-18T10:40:00.000Z</published>
-    <updated>2017-08-01T04:50:43.000Z</updated>
+    <updated>2017-08-02T10:33:28.000Z</updated>
     
     <summary type="html">
     
@@ -269,7 +287,7 @@
     <link href="https://ipfans.github.io/2016/04/python-profile-using-cprofile/"/>
     <id>https://ipfans.github.io/2016/04/python-profile-using-cprofile/</id>
     <published>2016-04-18T10:30:05.000Z</published>
-    <updated>2017-08-01T04:50:43.000Z</updated>
+    <updated>2017-08-02T10:33:28.000Z</updated>
     
     <summary type="html">
     
@@ -287,7 +305,7 @@
     <link href="https://ipfans.github.io/2016/04/python-base64-encode-utf-8error/"/>
     <id>https://ipfans.github.io/2016/04/python-base64-encode-utf-8error/</id>
     <published>2016-04-18T10:30:05.000Z</published>
-    <updated>2017-08-01T04:50:43.000Z</updated>
+    <updated>2017-08-02T10:33:28.000Z</updated>
     
     <summary type="html">
     
@@ -306,7 +324,7 @@
     <link href="https://ipfans.github.io/2016/02/simple-implement-asyncio-to-understand-how-async-works/"/>
     <id>https://ipfans.github.io/2016/02/simple-implement-asyncio-to-understand-how-async-works/</id>
     <published>2016-02-03T07:40:00.000Z</published>
-    <updated>2017-08-01T04:50:43.000Z</updated>
+    <updated>2017-08-02T10:33:28.000Z</updated>
     
     <summary type="html">
     
@@ -330,7 +348,7 @@
     <link href="https://ipfans.github.io/2016/01/startup-architecture-language/"/>
     <id>https://ipfans.github.io/2016/01/startup-architecture-language/</id>
     <published>2016-01-27T01:48:00.000Z</published>
-    <updated>2017-08-01T04:50:43.000Z</updated>
+    <updated>2017-08-02T10:33:28.000Z</updated>
     
     <summary type="html">
     
@@ -348,11 +366,11 @@
     <link href="https://ipfans.github.io/2016/01/something-about-mgo-driver/"/>
     <id>https://ipfans.github.io/2016/01/something-about-mgo-driver/</id>
     <published>2016-01-26T13:30:00.000Z</published>
-    <updated>2017-08-01T04:50:43.000Z</updated>
+    <updated>2017-08-02T10:33:28.000Z</updated>
     
     <summary type="html">
     
-      &lt;p&gt;&lt;a href=&quot;https://gopkg.in/mgo.v2&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;mgo 库&lt;/a&gt;是一个很好用的 &lt;figure class=&quot;highlight plain&quot;&gt;&lt;figcaption&gt;&lt;span&gt;驱动。对我
+      &lt;p&gt;&lt;a href=&quot;https://gopkg.in/mgo.v2&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;mgo 库&lt;/a&gt; 是一个很好用的 &lt;figure class=&quot;highlight plain&quot;&gt;&lt;figcaption&gt;&lt;span&gt;驱动。对
     
     </summary>
     
@@ -366,7 +384,7 @@
     <link href="https://ipfans.github.io/2016/01/how-we-follow-python-style-guide/"/>
     <id>https://ipfans.github.io/2016/01/how-we-follow-python-style-guide/</id>
     <published>2016-01-15T09:30:00.000Z</published>
-    <updated>2017-08-01T04:50:43.000Z</updated>
+    <updated>2017-08-02T10:33:28.000Z</updated>
     
     <summary type="html">
     
@@ -385,7 +403,7 @@
     <link href="https://ipfans.github.io/2016/01/rust-http-client/"/>
     <id>https://ipfans.github.io/2016/01/rust-http-client/</id>
     <published>2016-01-06T09:13:00.000Z</published>
-    <updated>2017-08-01T04:50:43.000Z</updated>
+    <updated>2017-08-02T10:33:28.000Z</updated>
     
     <summary type="html">
     
@@ -396,26 +414,6 @@
     
     
       <category term="Rust" scheme="https://ipfans.github.io/tags/Rust/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>使用 vendor 管理 Golang 项目依赖</title>
-    <link href="https://ipfans.github.io/2016/01/golang-vendor/"/>
-    <id>https://ipfans.github.io/2016/01/golang-vendor/</id>
-    <published>2016-01-05T15:13:00.000Z</published>
-    <updated>2017-08-01T04:50:43.000Z</updated>
-    
-    <summary type="html">
-    
-      &lt;p&gt;我们在项目中除了 &lt;a href=&quot;http://ipfans.github.io/2015/12/using-vagrant-development-env/&quot;&gt;大量的使用 Python&lt;/a&gt; 外，也大量的使用了 Golang 构建高效基础运行服务。在使用 Golang
-    
-    </summary>
-    
-    
-      <category term="Golang" scheme="https://ipfans.github.io/tags/Golang/"/>
-    
-      <category term="vendor" scheme="https://ipfans.github.io/tags/vendor/"/>
     
   </entry>
   

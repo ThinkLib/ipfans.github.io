@@ -286,6 +286,134 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://ipfans.github.io/2014/04/openssl-algorithm-speed-result/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ipfans">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/363344?v=3&s=460">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ipfans's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2014/04/openssl-algorithm-speed-result/" itemprop="url">几种常见加密 / hash 算法效率 (OpenSSL)</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-04-11T13:19:46+08:00">
+                2014-04-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2014/04/openssl-algorithm-speed-result/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2014/04/openssl-algorithm-speed-result/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>正好群里面有人在讨论这个，就单独拿出来记录一下，下次就不用单独跑了。结果只是包含常见的算法性能。</p>
+<p>说到常用的算法，之前 QQ 的协议中最早使用的是 xxTEA 算法 [^1]，运算效率高，但是同样的，被破解的几率随着系统硬件性能的提升和手段的进化破解难度大幅降低，所以后来更换成了 blowfish 的算法 [^2]，从效率上来说可以接受，并且强度也是可以接受的范围。当然了，至于密钥，那是另外一个话题了。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line">OpenSSL 1.0.1g 7 Apr 2014</div><div class="line">built on: Mon Apr  7 19:24:10 BST 2014</div><div class="line">options:bn(64,64) rc4(ptr,char) des(idx,cisc,16,int) aes(partial) idea(int) blowfish(idx)</div><div class="line">compiler: clang -fPIC -fno-common -DOPENSSL_PIC -DZLIB_SHARED -DZLIB -DOPENSSL_THREADS -D_REENTRANT -DDSO_DLFCN -DHAVE_DLFCN_H -arch x86_64 -O3 -DL_ENDIAN -Wall -DOPENSSL_IA32_SSE2 -DOPENSSL_BN_ASM_MONT -DOPENSSL_BN_ASM_MONT5 -DOPENSSL_BN_ASM_GF2m -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DAES_ASM -DVPAES_ASM -DBSAES_ASM -DWHIRLPOOL_ASM -DGHASH_ASM</div><div class="line">The &apos;numbers&apos; are in 1000s of bytes per second processed.</div><div class="line">type             16 bytes     64 bytes    256 bytes   1024 bytes   8192 bytes</div><div class="line">md5              27012.47k    83668.96k   193662.90k   288870.40k   339611.95k</div><div class="line">hmac(md5)        22436.27k    72562.60k   176476.05k   277375.28k   337510.40k</div><div class="line">sha1             30214.31k    86946.66k   183855.45k   259266.33k   297429.61k</div><div class="line">rc4             196157.50k   211073.87k   232483.09k   233261.75k   235103.97k</div><div class="line">des cbc          36183.51k    37559.07k    38393.90k    38166.10k    38460.60k</div><div class="line">des ede3         14248.36k    14433.49k    14513.37k    14586.23k    14629.00k</div><div class="line">idea cbc         29515.76k    30455.99k    30819.81k    30886.49k    30909.05k</div><div class="line">seed cbc         42818.52k    46288.05k    47289.80k    47466.82k    47201.72k</div><div class="line">blowfish cbc     61676.43k    64869.07k    66887.52k    66720.19k    66823.31k</div><div class="line">aes-128 cbc      53756.63k    58966.27k    59666.27k   126935.19k   127531.60k</div><div class="line">aes-192 cbc      46063.28k    50037.52k    50891.14k   109122.65k   109760.48k</div><div class="line">aes-256 cbc      40039.57k    42316.96k    43542.15k    93052.84k    93731.72k</div><div class="line">sha256           24619.03k    53308.64k    90030.81k   109692.87k   117423.88k</div><div class="line">sha512           19076.43k    74213.38k   114250.08k   162023.40k   183772.75k</div><div class="line">whirlpool        15034.42k    31777.43k    52066.33k    61904.05k    56250.74k</div><div class="line">aes-128 ige      53897.17k    56852.04k    57523.48k    57741.98k    57742.06k</div><div class="line">aes-192 ige      45658.29k    47596.69k    48166.72k    48698.26k    48257.35k</div><div class="line">aes-256 ige      40110.70k    41541.96k    41726.01k    41792.81k    41839.56k</div><div class="line">                  sign    verify    sign/s verify/s</div><div class="line">rsa  512 bits 0.000169s 0.000015s   5921.3  64569.3</div><div class="line">rsa 1024 bits 0.000554s 0.000035s   1805.6  28181.2</div><div class="line">rsa 2048 bits 0.003531s 0.000112s    283.2   8923.1</div><div class="line">rsa 4096 bits 0.025068s 0.000405s     39.9   2466.8</div><div class="line">                  sign    verify    sign/s verify/s</div><div class="line">dsa  512 bits 0.000145s 0.000153s   6890.8   6518.5</div><div class="line">dsa 1024 bits 0.000338s 0.000393s   2961.0   2547.0</div><div class="line">dsa 2048 bits 0.001081s 0.001332s    925.1    750.6</div></pre></td></tr></table></figure>
+<p>刚刚开始那系统自带的去跑，发现干脆升级到最新的 OpenSSL 跑一下吧。结果跑了两遍之后，Air 直接烫手了，这种测试也就做一次就够了吧。</p>
+<p>[^1] <a href="http://bbs.pediy.com/showthread.php?t=11312" target="_blank" rel="external">http://bbs.pediy.com/showthread.php?t=11312</a></p>
+<p>[^2] <a href="http://blog.csdn.net/qinggebuyao/article/details/7814499" target="_blank" rel="external">http://blog.csdn.net/qinggebuyao/article/details/7814499</a></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="https://ipfans.github.io/2014/04/fix-build-python-ext-on-mac-os-x-mavericks-with-error-mno-fused-madd/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -377,7 +505,7 @@
 <p>-Wno-error=unused-command-line-argument-hard-error-in-future<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">官方推荐的方法是：</div></pre></td></tr></table></figure></p>
 <p>$ ARCHFLAGS=-Wno-error=unused-command-line-argument-hard-error-in-future pip install simplejson<br>Downloading/unpacking simplejson<br>  Downloading simplejson-3.4.0.tar.gz (68kB): 68kB downloaded<br>  Running setup.py egg_info for package simplejson</p>
 <p>Installing collected packages: simplejson<br>  Running setup.py install for simplejson<br>    building ‘simplejson._speedups’ extension<br>    cc -fno-strict-aliasing -fno-common -dynamic -g -Os -pipe -fno-common -fno-strict-aliasing -fwrapv -mno-fused-madd -DENABLE_DTRACE -DMACOSX -DNDEBUG -Wall -Wstrict-prototypes -Wshorten-64-to-32 -DNDEBUG -g -fwrapv -Os -Wall -Wstrict-prototypes -DENABLE_DTRACE -Wno-error=unused-command-line-argument-hard-error-in-future -pipe -Wno-error=unused-command-line-argument-hard-error-in-future -I/System/Library/Frameworks/Python.framework/Versions/2.7/include/python2.7 -c simplejson/_speedups.c -o build/temp.macosx-10.9-intel-2.7/simplejson/_speedups.o<br>    clang: warning: unknown argument: ‘-mno-fused-madd’ [-Wunused-command-line-argument-hard-error-in-future]<br>    clang: note: this will be a hard error (cannot be downgraded to a warning) in the future<br>    clang: warning: argument unused during compilation: ‘-mno-fused-madd’<br>    cc -bundle -undefined dynamic_lookup -Wl,-F. -Wno-error=unused-command-line-argument-hard-error-in-future -Wno-error=unused-command-line-argument-hard-error-in-future build/temp.macosx-10.9-intel-2.7/simplejson/_speedups.o -o build/lib.macosx-10.9-intel-2.7/simplejson/_speedups.so</p>
-<p>Successfully installed simplejson<br>Cleaning up…<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">最后来个轻量级的性能测试(python 2.7.5)：</div><div class="line"></div><div class="line">```python</div><div class="line">#!/usr/bin/env python</div><div class="line"># -*- coding: utf-8 -*-</div><div class="line"></div><div class="line">from timeit import Timer</div><div class="line">import json</div><div class="line">import simplejson</div><div class="line"></div><div class="line"></div><div class="line">def by_json():</div><div class="line">    a = &#123;&quot;a&quot;: 1, &quot;b&quot;: &quot;2&quot;, &quot;c&quot;: [1, 2, 3], &quot;d&quot;: [&quot;1&quot;, &quot;2&quot;, &quot;3&quot;]&#125;</div><div class="line">    b = json.dumps(a)</div><div class="line">    a = json.loads(b)</div><div class="line"></div><div class="line"></div><div class="line">def by_simplejson():</div><div class="line">    a = &#123;&quot;a&quot;: 1, &quot;b&quot;: &quot;2&quot;, &quot;c&quot;: [1, 2, 3], &quot;d&quot;: [&quot;1&quot;, &quot;2&quot;, &quot;3&quot;]&#125;</div><div class="line">    b = simplejson.dumps(a)</div><div class="line">    a = simplejson.loads(b)</div><div class="line"></div><div class="line"></div><div class="line">if __name__ == &apos;__main__&apos;:</div><div class="line">    t = Timer(stmt=&quot;by_json()&quot;, setup=&quot;from __main__ import by_json&quot;)</div><div class="line">    print &apos;by json: %s seconds&apos; % t.timeit(number=3)</div><div class="line">    t = Timer(stmt=&quot;by_simplejson()&quot;, setup=&quot;from __main__ import by_simplejson&quot;)</div><div class="line">    print &apos;by simplejson: %s seconds&apos; % t.timeit(number=3)</div></pre></td></tr></table></figure></p>
+<p>Successfully installed simplejson<br>Cleaning up…<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">最后来个轻量级的性能测试 (python 2.7.5)：</div><div class="line"></div><div class="line">```python</div><div class="line">#!/usr/bin/env python</div><div class="line"># -*- coding: utf-8 -*-</div><div class="line"></div><div class="line">from timeit import Timer</div><div class="line">import json</div><div class="line">import simplejson</div><div class="line"></div><div class="line"></div><div class="line">def by_json():</div><div class="line">    a = &#123;&quot;a&quot;: 1, &quot;b&quot;: &quot;2&quot;, &quot;c&quot;: [1, 2, 3], &quot;d&quot;: [&quot;1&quot;, &quot;2&quot;, &quot;3&quot;]&#125;</div><div class="line">    b = json.dumps(a)</div><div class="line">    a = json.loads(b)</div><div class="line"></div><div class="line"></div><div class="line">def by_simplejson():</div><div class="line">    a = &#123;&quot;a&quot;: 1, &quot;b&quot;: &quot;2&quot;, &quot;c&quot;: [1, 2, 3], &quot;d&quot;: [&quot;1&quot;, &quot;2&quot;, &quot;3&quot;]&#125;</div><div class="line">    b = simplejson.dumps(a)</div><div class="line">    a = simplejson.loads(b)</div><div class="line"></div><div class="line"></div><div class="line">if __name__ == &apos;__main__&apos;:</div><div class="line">    t = Timer(stmt=&quot;by_json()&quot;, setup=&quot;from __main__ import by_json&quot;)</div><div class="line">    print &apos;by json: %s seconds&apos; % t.timeit(number=3)</div><div class="line">    t = Timer(stmt=&quot;by_simplejson()&quot;, setup=&quot;from __main__ import by_simplejson&quot;)</div><div class="line">    print &apos;by simplejson: %s seconds&apos; % t.timeit(number=3)</div></pre></td></tr></table></figure></p>
 <p>测试结果表明：恩，实际上不用 simplejson 也可以，不会有很大性能差异：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ python json_speed.py</div><div class="line">by json: 0.000191926956177 seconds</div><div class="line">by simplejson: 0.000169992446899 seconds</div></pre></td></tr></table></figure>
 
@@ -762,133 +890,10 @@
       
         
           
-            <p>之前我在 <a href="http://www.acgso.com/2013/09/python-development-devops-usage/" target="_blank" rel="external">Python 开发实践</a> 中曾经提到过通过 python distribute 实现包分发。但是一直没有机会研究如何实现(没错…)，今天就粗略的通过一个例子简单描述一下一个包的制作：</p>
+            <p>之前我在 <a href="http://www.acgso.com/2013/09/python-development-devops-usage/" target="_blank" rel="external">Python 开发实践</a> 中曾经提到过通过 python distribute 实现包分发。但是一直没有机会研究如何实现 (没错…)，今天就粗略的通过一个例子简单描述一下一个包的制作：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># setup.py</span></div><div class="line"><span class="comment">#!/usr/bin/env python</span></div><div class="line"><span class="comment"># -*- coding: utf-8 -*-</span></div><div class="line"></div><div class="line"><span class="keyword">from</span> setuptools <span class="keyword">import</span> setup, find_packages</div><div class="line"><span class="keyword">import</span> sys</div><div class="line"></div><div class="line"><span class="comment"># 兼容旧版本 setuptools</span></div><div class="line">extra = &#123;&#125;</div><div class="line"><span class="keyword">if</span> sys.version_info &gt;= (<span class="number">3</span>,):</div><div class="line">    extra[<span class="string">'use_2to3'</span>] = <span class="keyword">True</span></div><div class="line">    extra[<span class="string">'convert_2to3_doctests'</span>] = [<span class="string">'src/your/module/README.txt'</span>]</div><div class="line">    extra[<span class="string">'use_2to3_fixers'</span>] = [<span class="string">'your.fixers'</span>]</div><div class="line"></div><div class="line">setup(</div><div class="line">    <span class="comment"># 包名称</span></div><div class="line">    name=<span class="string">'your.module'</span>,</div><div class="line">    <span class="comment"># 版本号</span></div><div class="line">    version = <span class="string">'1.0'</span>,</div><div class="line">    <span class="comment"># 包描述</span></div><div class="line">    description=<span class="string">'This is your awesome module'</span>,</div><div class="line">    <span class="comment"># 作者名称</span></div><div class="line">    author=<span class="string">'You'</span>,</div><div class="line">    <span class="comment"># 作者 URL</span></div><div class="line">    author_email=<span class="string">'your@email'</span>,</div><div class="line">    <span class="comment"># 如果有需要</span></div><div class="line">    license = <span class="string">"PSF"</span>,</div><div class="line">    <span class="comment"># 如果有需要</span></div><div class="line">    url = <span class="string">""</span>,</div><div class="line">    <span class="comment"># 依赖包</span></div><div class="line">    install_requires=[],</div><div class="line">    <span class="comment"># 源代码目录</span></div><div class="line">    package_dir = &#123;<span class="string">''</span>:<span class="string">'src'</span>&#125;,</div><div class="line">    <span class="comment"># 包文件</span></div><div class="line">    packages = find_packages(),</div><div class="line">    <span class="comment"># 包含其他必须文件，前面是文件夹，后面是扩展名，将会按此格式排列文件</span></div><div class="line">    package_data = &#123;<span class="comment"># include them:'': ['*.txt', '*.rst'],</span></div><div class="line">    &#125;,</div><div class="line">    <span class="comment"># 单元测试</span></div><div class="line">    test_suite = <span class="string">'your.module.tests'</span>,</div><div class="line">    **extra</div><div class="line">)</div></pre></td></tr></table></figure>
-<p>在 setuptools &gt;= 0.7 的版本上，distribute 的功能已经被整合进入 Setuptools，例子也是适合于 0.7 以上版本的配置。上面这个例子适用于纯 Python 的包，很多时候我们需要做一些对 Python 的性能提升(比如动态库 binding)，怎么做呢？这是下一篇文要写的了…</p>
+<p>在 setuptools &gt;= 0.7 的版本上，distribute 的功能已经被整合进入 Setuptools，例子也是适合于 0.7 以上版本的配置。上面这个例子适用于纯 Python 的包，很多时候我们需要做一些对 Python 的性能提升 (比如动态库 binding)，怎么做呢？这是下一篇文要写的了…</p>
 
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://ipfans.github.io/2014/03/golang-rsa/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="ipfans">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/363344?v=3&s=460">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ipfans's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2014/03/golang-rsa/" itemprop="url">Golang 的 RSA 公私钥方法实现</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-03-23T20:25:52+08:00">
-                2014-03-23
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2014/03/golang-rsa/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2014/03/golang-rsa/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>话不多说，自己看吧，比较明白。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div></pre></td><td class="code"><pre><div class="line">package main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (<span class="string">"crypto"</span></div><div class="line">    <span class="string">"crypto/rand"</span></div><div class="line">    <span class="string">"crypto/rsa"</span></div><div class="line">    <span class="string">"crypto/sha256"</span></div><div class="line">    <span class="string">"crypto/x509"</span></div><div class="line">    <span class="string">"encoding/base64"</span></div><div class="line">    <span class="string">"encoding/pem"</span></div><div class="line">    <span class="string">"errors"</span></div><div class="line">    <span class="string">"fmt"</span></div><div class="line">)</div><div class="line"></div><div class="line">func main() &#123;signer, err := loadPrivateKey(<span class="string">"private.pem"</span>)</div><div class="line">    <span class="keyword">if</span> err != nil &#123;fmt.Errorf(<span class="string">"signer is damaged: %v"</span>, err)</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    toSign := <span class="string">"date: Thu, 05 Jan 2012 21:31:40 GMT"</span></div><div class="line"></div><div class="line">    signed, err := signer.Sign([]byte(toSign))</div><div class="line">    <span class="keyword">if</span> err != nil &#123;fmt.Errorf(<span class="string">"could not sign request: %v"</span>, err)</div><div class="line">    &#125;</div><div class="line">    sig := base64.StdEncoding.EncodeToString(signed)</div><div class="line">    fmt.Printf(<span class="string">"Signature: %v\n"</span>, sig)</div><div class="line"></div><div class="line">    parser, perr := loadPublicKey(<span class="string">"public.pem"</span>)</div><div class="line">    <span class="keyword">if</span> perr != nil &#123;fmt.Errorf(<span class="string">"could not sign request: %v"</span>, err)</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    err = parser.Unsign([]byte(toSign), signed)</div><div class="line">    <span class="keyword">if</span> err != nil &#123;fmt.Errorf(<span class="string">"could not sign request: %v"</span>, err)</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    fmt.Printf(<span class="string">"Unsign error: %v\n"</span>, err)</div><div class="line">&#125;</div><div class="line"></div><div class="line">// loadPrivateKey loads an parses a PEM encoded private key file.</div><div class="line">func loadPublicKey(path string) (Unsigner, error) &#123;<span class="keyword">return</span> parsePublicKey([]byte(`-----BEGIN PUBLIC KEY-----</div><div class="line">MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDCFENGw33yGihy92pDjZQhl0C3</div><div class="line"><span class="number">6</span>rPJj+CvfSC8+q28hxA161QFNUd13wuCTUcq0Qd2qsBe/<span class="number">2</span>hFyc2DCJJg0h1L78+<span class="number">6</span></div><div class="line">Z4UMR7EOcpfdUE9Hf3m/hs+FUR45uBJeDK1HSFHD8bHKD6kv8FPGfJTotc+<span class="number">2</span>xjJw</div><div class="line">oYi+<span class="number">1</span>hqp1fIekaxsyQIDAQAB</div><div class="line">-----END PUBLIC KEY-----`))</div><div class="line">&#125;</div><div class="line"></div><div class="line">// parsePublicKey parses a PEM encoded private key.</div><div class="line">func parsePublicKey(pemBytes []byte) (Unsigner, error) &#123;block, _ := pem.Decode(pemBytes)</div><div class="line">    <span class="keyword">if</span> block == nil &#123;<span class="keyword">return</span> nil, errors.New(<span class="string">"ssh: no key found"</span>)&#125;</div><div class="line"></div><div class="line">    var rawkey interface&#123;&#125;</div><div class="line">    switch block.Type &#123;case<span class="string">"PUBLIC KEY"</span>:</div><div class="line">        rsa, err := x509.ParsePKIXPublicKey(block.Bytes)</div><div class="line">        <span class="keyword">if</span> err != nil &#123;<span class="keyword">return</span> nil, err&#125;</div><div class="line">        rawkey = rsa</div><div class="line">    default:</div><div class="line">        <span class="keyword">return</span> nil, fmt.Errorf(<span class="string">"ssh: unsupported key type %q"</span>, block.Type)</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> newUnsignerFromKey(rawkey)</div><div class="line">&#125;</div><div class="line"></div><div class="line">// loadPrivateKey loads an parses a PEM encoded private key file.</div><div class="line">func loadPrivateKey(path string) (Signer, error) &#123;<span class="keyword">return</span> parsePrivateKey([]byte(`-----BEGIN RSA PRIVATE KEY-----</div><div class="line">MIICXgIBAAKBgQDCFENGw33yGihy92pDjZQhl0C36rPJj+CvfSC8+q28hxA161QF</div><div class="line">NUd13wuCTUcq0Qd2qsBe/<span class="number">2</span>hFyc2DCJJg0h1L78+<span class="number">6</span>Z4UMR7EOcpfdUE9Hf3m/hs+F</div><div class="line">UR45uBJeDK1HSFHD8bHKD6kv8FPGfJTotc+<span class="number">2</span>xjJwoYi+<span class="number">1</span>hqp1fIekaxsyQIDAQAB</div><div class="line">AoGBAJR8ZkCUvx5kzv+utdl7T5MnordT1TvoXXJGXK7ZZ+UuvMNUCdN2QPc4sBiA</div><div class="line">QWvLw1cSKt5DsKZ8UETpYPy8pPYnnDEz2dDYiaew9+xEpubyeW2oH4Zx71wqBtOK</div><div class="line">kqwrXa/pzdpiucRRjk6vE6YY7EBBs/g7uanVpGibOVAEsqH1AkEA7DkjVH28WDUg</div><div class="line">f1nqvfn2Kj6CT7nIcE3jGJsZZ7zlZmBmHFDONMLUrXR/Zm3pR5m0tCmBqa5RK95u</div><div class="line"><span class="number">412j</span>t1dPIwJBANJT3v8pnkth48bQo/fKel6uEYyboRtA5/uHuHkZ6FQF7OUkGogc</div><div class="line">mSJluOdc5t6hI1VsLn0QZEjQZMEOWr+wKSMCQQCC4kXJEsHAve77oP6HtG/IiEn7</div><div class="line">kpyUXRNvFsDE0czpJJBvL/aRFUJxuRK91jhjC68sA7NsKMGg5OXb5I5Jj36xAkEA</div><div class="line">gIT7aFOYBFwGgQAQkWNKLvySgKbAZRTeLBacpHMuQdl1DfdntvAyqpAZ0lY0RKmW</div><div class="line">G6aFKaqQfOXKCyWoUiVknQJAXrlgySFci/<span class="number">2</span>ueKlIE1QqIiLSZ8V8OlpFLRnb1pzI</div><div class="line"><span class="number">7</span>U1yQXnTAEFYM560yJlzUpOb1V4cScGd365tiSMvxLOvTA==</div><div class="line">-----END RSA PRIVATE KEY-----`))</div><div class="line">&#125;</div><div class="line"></div><div class="line">// parsePublicKey parses a PEM encoded private key.</div><div class="line">func parsePrivateKey(pemBytes []byte) (Signer, error) &#123;block, _ := pem.Decode(pemBytes)</div><div class="line">    <span class="keyword">if</span> block == nil &#123;<span class="keyword">return</span> nil, errors.New(<span class="string">"ssh: no key found"</span>)&#125;</div><div class="line"></div><div class="line">    var rawkey interface&#123;&#125;</div><div class="line">    switch block.Type &#123;case<span class="string">"RSA PRIVATE KEY"</span>:</div><div class="line">        rsa, err := x509.ParsePKCS1PrivateKey(block.Bytes)</div><div class="line">        <span class="keyword">if</span> err != nil &#123;<span class="keyword">return</span> nil, err&#125;</div><div class="line">        rawkey = rsa</div><div class="line">    default:</div><div class="line">        <span class="keyword">return</span> nil, fmt.Errorf(<span class="string">"ssh: unsupported key type %q"</span>, block.Type)</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> newSignerFromKey(rawkey)</div><div class="line">&#125;</div><div class="line"></div><div class="line">// A Signer <span class="keyword">is</span> can create signatures that verify against a public key.</div><div class="line">type Signer interface &#123;</div><div class="line">    // Sign returns raw signature <span class="keyword">for</span> the given data. This method</div><div class="line">    // will apply the hash specified <span class="keyword">for</span> the keytype to the data.</div><div class="line">    Sign(data []byte) ([]byte, error)</div><div class="line">&#125;</div><div class="line"></div><div class="line">// A Signer <span class="keyword">is</span> can create signatures that verify against a public key.</div><div class="line">type Unsigner interface &#123;</div><div class="line">    // Sign returns raw signature <span class="keyword">for</span> the given data. This method</div><div class="line">    // will apply the hash specified <span class="keyword">for</span> the keytype to the data.</div><div class="line">    Unsign(data[]byte, sig []byte) error</div><div class="line">&#125;</div><div class="line"></div><div class="line">func newSignerFromKey(k interface&#123;&#125;) (Signer, error) &#123;</div><div class="line">    var sshKey Signer</div><div class="line">    switch t := k.(type) &#123;</div><div class="line">    case *rsa.PrivateKey:</div><div class="line">        sshKey = &amp;rsaPrivateKey&#123;t&#125;</div><div class="line">    default:</div><div class="line">        <span class="keyword">return</span> nil, fmt.Errorf(<span class="string">"ssh: unsupported key type %T"</span>, k)</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> sshKey, nil</div><div class="line">&#125;</div><div class="line"></div><div class="line">func newUnsignerFromKey(k interface&#123;&#125;) (Unsigner, error) &#123;</div><div class="line">    var sshKey Unsigner</div><div class="line">    switch t := k.(type) &#123;</div><div class="line">    case *rsa.PublicKey:</div><div class="line">        sshKey = &amp;rsaPublicKey&#123;t&#125;</div><div class="line">    default:</div><div class="line">        <span class="keyword">return</span> nil, fmt.Errorf(<span class="string">"ssh: unsupported key type %T"</span>, k)</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> sshKey, nil</div><div class="line">&#125;</div><div class="line"></div><div class="line">type rsaPublicKey struct &#123;*rsa.PublicKey&#125;</div><div class="line"></div><div class="line">type rsaPrivateKey struct &#123;*rsa.PrivateKey&#125;</div><div class="line"></div><div class="line">// Sign signs data <span class="keyword">with</span> rsa-sha256</div><div class="line">func (r *rsaPrivateKey) Sign(data []byte) ([]byte, error) &#123;h := sha256.New()</div><div class="line">    h.Write(data)</div><div class="line">    d := h.Sum(nil)</div><div class="line">    <span class="keyword">return</span> rsa.SignPKCS1v15(rand.Reader, r.PrivateKey, crypto.SHA256, d)</div><div class="line">&#125;</div><div class="line"></div><div class="line">// Unsign verifies the message using a rsa-sha256 signature</div><div class="line">func (r *rsaPublicKey) Unsign(message []byte, sig []byte) error &#123;h := sha256.New()</div><div class="line">    h.Write(message)</div><div class="line">    d := h.Sum(nil)</div><div class="line">    <span class="keyword">return</span> rsa.VerifyPKCS1v15(r.PublicKey, crypto.SHA256, d, sig)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
           
         
       
@@ -972,7 +977,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">64</span>
+                <span class="site-state-item-count">65</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -985,7 +990,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-count">46</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

@@ -286,6 +286,146 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://ipfans.github.io/2016/02/simple-implement-asyncio-to-understand-how-async-works/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ipfans">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/363344?v=3&s=460">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ipfans's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016/02/simple-implement-asyncio-to-understand-how-async-works/" itemprop="url">从 asyncio 简单实现看异步是如何工作的</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-02-03T15:40:00+08:00">
+                2016-02-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/02/simple-implement-asyncio-to-understand-how-async-works/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2016/02/simple-implement-asyncio-to-understand-how-async-works/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>从 asyncio 简单实现看异步是如何工作的</p>
+<p>by ipfans</p>
+<p>注：请使用 <figure class="highlight python"><figcaption><span>3.5+``` 版本运行以下代码。</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="comment">## 先从例子看起</span></div><div class="line"></div><div class="line">首先我们来看一个 socket 通讯的例子，这个例子我们可以在官方 ```socket``` 模块的文档中找到部分原型代码：</div><div class="line"></div><div class="line">```python</div><div class="line"><span class="comment"># echo.py</span></div><div class="line"><span class="keyword">from</span> socket <span class="keyword">import</span> *  <span class="comment"># 是的，这是一个不好的写法</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">echo_server</span><span class="params">(address)</span>:</span></div><div class="line">    sock = socket(AF_INET, SOCK_STREAM)</div><div class="line">    sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, <span class="number">1</span>)</div><div class="line">    sock.bind(address)</div><div class="line">    sock.listen(<span class="number">5</span>)</div><div class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">        client, addr = sock.accept()</div><div class="line">        print(<span class="string">"connect from"</span>, addr)</div><div class="line">        echo_handler(client)</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">echo_handler</span><span class="params">(client)</span>:</span></div><div class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">        data = client.recv(<span class="number">10000</span>)</div><div class="line">        <span class="keyword">if</span> <span class="keyword">not</span> data:</div><div class="line">            <span class="keyword">break</span></div><div class="line">        client.send(str.encode(<span class="string">"Got: "</span>) + data)</div><div class="line">    print(<span class="string">"connection closed."</span>)</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    echo_server((<span class="string">''</span>, <span class="number">25000</span>))</div></pre></td></tr></table></figure></p>
+<p>但是同步模式会有一个问题，当进行通讯是阻塞的，当一个连接占用时就会阻碍其他连接的继续，这个时候应该怎么更快的运行呢？</p>
+<h2 id="回顾历史"><a href="#回顾历史" class="headerlink" title="回顾历史"></a>回顾历史</h2><p>在 asyncio 出现之前，我们都是怎么提高效率的呢？首先想到的方法就是多线程处理：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># echo_thread.py</span></div><div class="line"><span class="keyword">from</span> socket <span class="keyword">import</span> *</div><div class="line"><span class="keyword">import</span> _thread</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">echo_server</span><span class="params">(address)</span>:</span></div><div class="line">    sock = socket(AF_INET, SOCK_STREAM)</div><div class="line">    sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, <span class="number">1</span>)</div><div class="line">    sock.bind(address)</div><div class="line">    sock.listen(<span class="number">5</span>)</div><div class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">        client, addr = sock.accept()</div><div class="line">        print(<span class="string">"connect from"</span>, addr)</div><div class="line">        _thread.start_new_thread(echo_handler, (client,))</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">echo_handler</span><span class="params">(client)</span>:</span></div><div class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">        data = client.recv(<span class="number">10000</span>)</div><div class="line">        <span class="keyword">if</span> <span class="keyword">not</span> data:</div><div class="line">            <span class="keyword">break</span></div><div class="line">        client.send(str.encode(<span class="string">"Got: "</span>) + data)</div><div class="line">    print(<span class="string">"connection closed."</span>)</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    echo_server((<span class="string">''</span>, <span class="number">25000</span>))</div></pre></td></tr></table></figure>
+<p>当然了，我们都知道多线程之下总是会有一些问题的。那么还有更好的方案吗？如果你了解过<a href="http://www.kegel.com/c10k.html" target="_blank" rel="external">C10k 问题</a>，你一定听过 <figure class="highlight plain"><figcaption><span>之类的大名。那么，能在 Python 中使用这些功能吗？答案是肯定的。那就是[```select```](https://docs.python.org/3.5/library/select.html)。</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">```python</div><div class="line"># echo_select.py</div><div class="line">from socket import *</div><div class="line">import select</div><div class="line"></div><div class="line"></div><div class="line">def echo_server(address):</div><div class="line">    sock = socket(AF_INET, SOCK_STREAM)</div><div class="line">    sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)</div><div class="line">    sock.bind(address)</div><div class="line">    sock.listen(5)</div><div class="line">    input = [sock,]</div><div class="line">    while True:</div><div class="line">        r, _, _ = select.select(input, [], [])</div><div class="line">        for s in r:</div><div class="line">            if s == sock:</div><div class="line">                client, addr = sock.accept()</div><div class="line">                print(&quot;connect from&quot;, addr)</div><div class="line">                echo_handler(client)</div><div class="line"></div><div class="line"></div><div class="line">def echo_handler(client):</div><div class="line">    while True:</div><div class="line">        data = client.recv(10000)</div><div class="line">        if not data:</div><div class="line">            break</div><div class="line">        client.send(str.encode(&quot;Got: &quot;) + data)</div><div class="line">    print(&quot;connection closed.&quot;)</div><div class="line"></div><div class="line">if __name__ == &apos;__main__&apos;:</div><div class="line">    echo_server((&apos;&apos;, 25000))</div></pre></td></tr></table></figure></p>
+<p>相比 <figure class="highlight plain"><figcaption><span>来说，```select``` 更加底层，提供了最基础的等待 IO 完成功能。但是缺点是这个功能太单一了，这也就是为什么后面语言提供了 ```asyncio```。最早应该是 ```python-dev``` 中 [提出了](https://mail.python.org/pipermail/python-ideas/2012-May/015223.html) 要在标准库中添加基于 ```select``` 的异步 IO 功能。之后 Python 在 3.4 版本之中就加入了 [```selectors ```](https://docs.python.org/3.5/library/selectors.html) 与 [```asyncio```](https://docs.python.org/3.5/library/asyncio.html) 库用于异步 IO。</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">其他的方法还有 ```gevent```、```Twisted```、```Tornado``` 等等的方案，这里就不多赘述了。(在 3.4 的时候我一直觉得 ```yield form``` 太丑陋了，相对我宁愿继续用 ```Tornado``` 的 ```yield``` 方式。当然这个更加主观的原因吧，不过现在 ```async/await``` 方式明显让我又让我爱上了。）</div><div class="line"></div><div class="line">## 从同步到 asyncio</div><div class="line"></div><div class="line">那么如何在 asyncio 框架下如何实现异步 socket 通讯的例子呢？事实上官方文档中提供了两个比较高层封装过的 asyncio 库例子 [TCP echo server protocol](https://docs.python.org/3.5/library/asyncio-protocol.html#tcp-echo-server-protocol) 和[TCP echo server using streams](https://docs.python.org/3.5/library/asyncio-stream.html#tcp-echo-server-using-streams)。这两个例子采用的是 ```asyncio``` 的 ```socket``` 通讯高级别封装，似乎与我们同步代码相差有点远。这里我们实际例子中使用了更加底层的[Low-level socket operations](https://docs.python.org/3.5/library/asyncio-eventloop.html#low-level-socket-operations)。这个更接近于我们在同步状态下使用 ```socket``` 的代码。</div><div class="line"></div><div class="line">```python</div><div class="line"># aecho.py</div><div class="line">from socket import *</div><div class="line">import asyncio</div><div class="line"></div><div class="line">loop = asyncio.get_event_loop()</div><div class="line"></div><div class="line"></div><div class="line">async def echo_server(address):</div><div class="line">    sock = socket(AF_INET, SOCK_STREAM)</div><div class="line">    sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)</div><div class="line">    sock.bind(address)</div><div class="line">    sock.listen(5)</div><div class="line">    sock.setblocking(False) # 设置非阻塞</div><div class="line">    while True:</div><div class="line">        client, addr = await loop.sock_accept(sock)</div><div class="line">        print(&quot;connect from&quot;, addr)</div><div class="line">        loop.create_task(echo_handler(client))</div><div class="line"></div><div class="line"></div><div class="line">async def echo_handler(client):</div><div class="line">    with client:</div><div class="line">        while True:</div><div class="line">            data = await loop.sock_recv(client, 10000)</div><div class="line">            if not data:</div><div class="line">                break</div><div class="line">            await loop.sock_sendall(client, str.encode(&quot;Got: &quot;) + data)</div><div class="line">    print(&quot;connection closed&quot;)</div><div class="line"></div><div class="line">loop.create_task(echo_server((&apos;&apos;, 25000)))</div><div class="line">loop.run_forever()</div></pre></td></tr></table></figure></p>
+<p>其中遇到的 <figure class="highlight plain"><figcaption><span>会相对同步状态下无法对应，这个方法用于安排一个异步任务的执行，将一个异步方法封装为 ```future``` 对象。其他的 ```Event Loop``` 中的功能基本与传统的程序相同。</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">## 从 asyncio 到自己的实现</div><div class="line"></div><div class="line">那么在 ```asyncio.event_loop``` 中到底发生了什么呢？我们可以尝试用自己的程序实现一下。</div><div class="line"></div><div class="line">如果你阅读过[PEP-0492](https://www.python.org/dev/peps/pep-0492/)，你就知道，实际上 Python 的协程是通过生成器实现的。</div><div class="line"></div><div class="line">```python</div><div class="line"># async_yield.py</div><div class="line">from types import coroutine</div><div class="line"></div><div class="line"></div><div class="line">@coroutine</div><div class="line">def read_wait(sock):</div><div class="line">    yield &quot;read_wait&quot;, sock  # 为什么有个 read_wait？等下介绍</div></pre></td></tr></table></figure></p>
+<p>下面来模拟实际调用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">python -i async_yield.py</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>f = read_wait(<span class="string">"somesocket"</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>f</div><div class="line">&lt;generator object read_wait at <span class="number">0x10200d5c8</span>&gt;</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>f.send(<span class="keyword">None</span>)</div><div class="line">(<span class="string">'read_wait'</span>, <span class="string">'somesocket'</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>f.send(<span class="keyword">None</span>)</div><div class="line">Traceback (most recent call last):</div><div class="line">  File <span class="string">"&lt;stdin&gt;"</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</div><div class="line">StopIteration</div></pre></td></tr></table></figure>
+<p>如果不了解 <figure class="highlight plain"><figcaption><span>与 ```StopIteration``` 作用的话，请参考 ```PEP-0492``` 中相关的描述。</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">接下来继续完善 ```write``` 方法，并且实现我们自己的 ```Loop```。</div><div class="line"></div><div class="line">```python</div><div class="line"># async_yield.py</div><div class="line">from types import coroutine</div><div class="line">from collections import deque</div><div class="line">from selectors import DefaultSelector, EVENT_READ, EVENT_WRITE</div><div class="line"></div><div class="line"></div><div class="line">@coroutine</div><div class="line">def read_wait(sock):</div><div class="line">    yield &quot;read_wait&quot;, sock</div><div class="line"></div><div class="line"></div><div class="line">@coroutine</div><div class="line">def write_wait(sock):</div><div class="line">    yield &quot;write_wait&quot;, sock</div><div class="line"></div><div class="line"></div><div class="line">class Loop(object):</div><div class="line">    def __init__(self):</div><div class="line">        self.ready = deque()</div><div class="line">        self.selector = DefaultSelector()</div><div class="line"></div><div class="line">    async def sock_recv(self, sock, maxbytes):</div><div class="line">        await read_wait(sock)</div><div class="line">        return sock.recv(maxbytes)</div><div class="line"></div><div class="line">    async def sock_accept(self, sock):</div><div class="line">        await read_wait(sock)</div><div class="line">        return sock.accept()</div><div class="line"></div><div class="line">    async def sock_sendall(self, sock, data):</div><div class="line">        while data:</div><div class="line">            await write_wait(sock)</div><div class="line">            n = sock.send(data)</div><div class="line">            data = data[n:]</div><div class="line"></div><div class="line">    def create_task(self, coro):</div><div class="line">        self.ready.append(coro)</div><div class="line"></div><div class="line">    def run_forever(self):</div><div class="line">        while True:</div><div class="line">            while not self.ready:</div><div class="line">                events = self.selector.select()</div><div class="line">                for key, _ in events:</div><div class="line">                    self.ready.append(key.data)</div><div class="line">                    self.selector.unregister(key.fileobj)</div><div class="line">            while self.ready:</div><div class="line">                self.current_task = self.ready.popleft()</div><div class="line">                try:</div><div class="line">                    op, *args = self.current_task.send(None)</div><div class="line">                    getattr(self, op)(*args)</div><div class="line">                except StopIteration:</div><div class="line">                    pass</div><div class="line"></div><div class="line">    def read_wait(self, sock):</div><div class="line">        self.selector.register(sock, EVENT_READ, self.current_task)</div><div class="line"></div><div class="line">    def write_wait(self, sock):</div><div class="line">        self.selector.register(sock, EVENT_WRITE, self.current_task)</div></pre></td></tr></table></figure></p>
+<p>对于之前一节中的 <figure class="highlight plain"><figcaption><span>文件，我们只需要修改一下导入模块与 loop 的获取方法即可：</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">```python</div><div class="line"># pecho.py</div><div class="line">from socket import *</div><div class="line">import async_yield</div><div class="line"></div><div class="line">loop = async_yield.Loop()</div><div class="line"></div><div class="line"></div><div class="line">async def echo_server(address):</div><div class="line">    sock = socket(AF_INET, SOCK_STREAM)</div><div class="line">    sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)</div><div class="line">    sock.bind(address)</div><div class="line">    sock.listen(5)</div><div class="line">    sock.setblocking(False)  # 设置非阻塞模式</div><div class="line">    while True:</div><div class="line">        client, addr = await loop.sock_accept(sock)</div><div class="line">        print(&quot;connect from&quot;, addr)</div><div class="line">        loop.create_task(echo_handler(client))</div><div class="line"></div><div class="line"></div><div class="line">async def echo_handler(client):</div><div class="line">    with client:</div><div class="line">        while True:</div><div class="line">            data = await loop.sock_recv(client, 10000)</div><div class="line">            if not data:</div><div class="line">                break</div><div class="line">            await loop.sock_sendall(client, str.encode(&quot;Got: &quot;) + data)</div><div class="line">    print(&quot;connection closed&quot;)</div><div class="line"></div><div class="line">loop.create_task(echo_server((&apos;&apos;, 25000)))</div><div class="line">loop.run_forever()</div></pre></td></tr></table></figure></p>
+<h2 id="async-yield-发生了什么？"><a href="#async-yield-发生了什么？" class="headerlink" title="async_yield 发生了什么？"></a>async_yield 发生了什么？</h2><p>首先，我们定义了两个协程函数 <code>read_wait</code> 和 <code>write_wait</code>，分别用于相应处理读取操作与写入操作。其中返回了一个 tuple 类型数据，用于在 <code>op, *args = self.current_task.send(None)</code> 中填充方法名和参数，之后在 <code>getattr(self, op)(*args)</code> 中进行分别调用。</p>
+<p>下面 <code>Loop</code> 类实现了在 pecho 中用到的所有异步函数。初始化时的 <code>self.ready</code> 用于存储协程的调用序列。该序列通过 <code>create_task</code> 添加协程到队列中。</p>
+<p>在 <code>run_forever</code> 中，如果目前队列为空，则通过 <code>self.selector.select()</code> 提取一个事件放入队列处理，若队列存在通过 <code>self.current_task.send(None)</code> 通知事件发送，从而调用对应的事件功能。你也可以在 <code>op, *args = self.current_task.send(None)</code> 后添加 <code>print(op)</code> 获取实时的调用情况。</p>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>事实上这篇文章的思路是基于 <a href="https://twitter.com/dabeaz" target="_blank" rel="external">@dabeaz</a> 在 <code>Python Brasil</code> 上的 <a href="https://www.youtube.com/watch?v=ZzfHjytDceU" target="_blank" rel="external">keynote</a> 整理而来。dabeaz 还有另外一个非常不错的基于 select 的异步库，名字叫做<a href="https://github.com/dabeaz/curio" target="_blank" rel="external">curio</a>，是一个了解实现异步库的很好教程。</p>
+<p>最后讲个段子，之前有人开玩笑，蟒爹开发一个功能，之后大家都不会正确使用，直到 dabeaz 站出来告诉大家如何正确使用新功能。在写这篇文章的时候虽然很想找出来出处，但是似乎找不到了…</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="https://ipfans.github.io/2016/01/startup-architecture-language/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -510,7 +650,7 @@
       
         
           
-            <p><a href="https://gopkg.in/mgo.v2" target="_blank" rel="external">mgo 库</a>是一个很好用的 <figure class="highlight plain"><figcaption><span>驱动。对我们来说，主力数据库是 ```MongoDB```，因此这个驱动对我们来说也是非常重要的。但是，mgo 库有些问题算是一些坑，这里我做了一些简单的整理。</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">## 一些关于 bson.ObjectId 的问题</div><div class="line"></div><div class="line">### ObjectId 为空的判断</div><div class="line">如果你看 ```bson.ObjectId``` 定义的话，它是一个 ```string``` 类型的数据。但是如果你直接定义一个结构，并且生成对象时，这个对象并不是这样的。</div><div class="line"></div><div class="line">我们首先定义一个结构体：</div><div class="line"></div><div class="line">```go</div><div class="line">type Home struct &#123;ID   bson.ObjectId `bson:&quot;_id,omitempty&quot;`</div><div class="line">	Name string        `bson:&quot;name&quot;`</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+            <p><a href="https://gopkg.in/mgo.v2" target="_blank" rel="external">mgo 库</a> 是一个很好用的 <figure class="highlight plain"><figcaption><span>驱动。对我们来说，主力数据库是 ```MongoDB```，因此这个驱动对我们来说也是非常重要的。但是，mgo 库有些问题算是一些坑，这里我做了一些简单的整理。</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">## 一些关于 bson.ObjectId 的问题</div><div class="line"></div><div class="line">### ObjectId 为空的判断</div><div class="line">如果你看 ```bson.ObjectId``` 定义的话，它是一个 ```string``` 类型的数据。但是如果你直接定义一个结构，并且生成对象时，这个对象并不是这样的。</div><div class="line"></div><div class="line">我们首先定义一个结构体：</div><div class="line"></div><div class="line">```go</div><div class="line">type Home struct &#123;ID   bson.ObjectId `bson:&quot;_id,omitempty&quot;`</div><div class="line">	Name string        `bson:&quot;name&quot;`</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <p>然后看看一个生成的内容</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">h := Home&#123;Name:<span class="string">"123"</span>&#125;</div><div class="line">fmt.Println(h.ID)</div></pre></td></tr></table></figure>
 <p>结果是 <figure class="highlight plain"><figcaption><span>```ObjectId``` 是否为空，使用 ```h.ID ==""``` 是一定会结果为 ```false``` 的。如果你想判断是否为空，正确的方式应该为：</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">```go</div><div class="line">h := Home&#123;Name:&quot;123&quot;&#125;</div><div class="line">fmt.Println(h.ID)</div><div class="line">fmt.Println(h.ID.Hex() == &quot;&quot;)</div></pre></td></tr></table></figure></p>
@@ -642,13 +782,13 @@
             <p>我们是如何落实 Code Style Guide 的（Python 篇）</p>
 <p>最近年终，总是想谈谈过去一年的感悟和积累。接下来大概有几篇关于项目管理等等一些小方面的介绍，这篇文章主要介绍一下我们如何将 Python 编码规范真正落实到程序的实际开发过程中的。</p>
 <h2 id="编码规范选择"><a href="#编码规范选择" class="headerlink" title="编码规范选择"></a>编码规范选择</h2><p>Python 作为灵活的脚本语言，在格式方面并不存在太多的限制（相对编译语言）。这样会导致一个比较蛋疼的问题：在项目开发过程中，由于个人的习惯和编码风格，导致程序缺少一个统一的标准，每个人的代码表现形式也不同。因此，在实际项目由于新人加入、老人退出过程中会产生比较高的模块维护成本。因此，在实际的项目开发中，选择一个编码标准也是比较重要的。</p>
-<p>面对编码风格选择，比较常见的包括 <a href="https://www.python.org/dev/peps/pep-0008/" target="_blank" rel="external">PEP-8</a> 和<a href="http://zh-google-styleguide.readthedocs.org/en/latest/google-python-styleguide/" target="_blank" rel="external">Google Python Style Guide</a>。在最后，我选择了 <code>PEP-8</code> 作为项目中的实际应用标准，要求程序需要在满足编码要求规范的前提下进行编码。</p>
+<p>面对编码风格选择，比较常见的包括 <a href="https://www.python.org/dev/peps/pep-0008/" target="_blank" rel="external">PEP-8</a> 和 <a href="http://zh-google-styleguide.readthedocs.org/en/latest/google-python-styleguide/" target="_blank" rel="external">Google Python Style Guide</a>。在最后，我选择了 <code>PEP-8</code> 作为项目中的实际应用标准，要求程序需要在满足编码要求规范的前提下进行编码。</p>
 <p>除了对代码编码更个的要求以外，我们还对 import 等具体的细节进行了标准化。</p>
 <h2 id="尽量规范注释"><a href="#尽量规范注释" class="headerlink" title="尽量规范注释"></a>尽量规范注释</h2><p>在降低模块维护成本过程中，另外一个比较好的方式是尽量提供良好的代码注释。尽管这个算是一个和语言无关的老生常谈的问题，我只是想在这里提一下另外一个 PEP：<a href="https://www.python.org/dev/peps/pep-0257/" target="_blank" rel="external">PEP-0257</a>，这里介绍了一种约定的 docstring 编写方法，对于编辑器而言，可以通过插件快速实现注释。</p>
 <p>不过我考虑到对个人习惯的影响较大，这个 PEP 实际项目开发中并未作为实际开发规范，只是鼓励大家在项目中进行执行。</p>
 <h2 id="从规范到执行"><a href="#从规范到执行" class="headerlink" title="从规范到执行"></a>从规范到执行</h2><p>从代码开发最初的规范约定是一回事，当回到开发过程中，开发者难免会因为个人的习惯或者疏忽等各种原因导致程序开发过程中程序编码风格不统一问题。因此在实际开发过程中，我们又需要通过工具保证程序在实际过程中能够帮助规范化或者检查格式错误。</p>
 <p>借助社区的力量，我们最终选择了工具 <code>flake8</code>、<code>yapf</code> 和 <code>isort</code>。其中，<code>flake8</code> 用于检查我们的代码是否正确的执行了标准；<code>yapf</code> 工具用于快速进行 <code>PEP-8</code> 标准化，减少了人工修改的成本；<code>isort</code> 工具则是执行我们之前提到的 import 标准化工作。</p>
-<p><a href="https://github.com/google/yapf" target="_blank" rel="external"><code>yapf</code></a>是 Google 员工开发的一个 Python 格式化工具，它支持 PEP8 与 Google 编码标准，一些具体的使用方式可以查看项目的主页。在实际的项目落地过程中，你应该会遇到的一个问题是关于 <code>flake8</code> 与 <code>yapf</code> 标准不一致导致一个通过另一个无法正常通过的问题。这一个方面，我们选择的方式是统一妥协成 <code>flake8</code> 的标准。对于 <code>yapf</code> 不支持的部分，我们建议活用 <code># yapf: disable</code> 标记。</p>
+<p><a href="https://github.com/google/yapf" target="_blank" rel="external"><code>yapf</code></a> 是 Google 员工开发的一个 Python 格式化工具，它支持 PEP8 与 Google 编码标准，一些具体的使用方式可以查看项目的主页。在实际的项目落地过程中，你应该会遇到的一个问题是关于 <code>flake8</code> 与 <code>yapf</code> 标准不一致导致一个通过另一个无法正常通过的问题。这一个方面，我们选择的方式是统一妥协成 <code>flake8</code> 的标准。对于 <code>yapf</code> 不支持的部分，我们建议活用 <code># yapf: disable</code> 标记。</p>
 <p>还有另一个问题是关于一些 <code>flake8</code> 本身的标准（或者说 PEP－8 标准）问题，比如 <code>flake8</code> 常见问题：<code>E501</code> 程序代码长度超过 79 个字符问题，我们实际编码过程中对这一标准做了适当妥协，允许最大单行字符串长度为 200。但是我们仍然建议缩小至 79 个字符内表示完。</p>
 <h2 id="从执行到检查"><a href="#从执行到检查" class="headerlink" title="从执行到检查"></a>从执行到检查</h2><p>在最后一关，是我们的上线前检查。我们设置了代码质量检查关卡和系统集成测试。</p>
 <p>在代码质量检查过程中，我们会对程序的实际代码质量进行评估。我们对代码质量进行打分，对于分值较低的代码不允许提交进入 <code>master</code> 分支。代码质量的检查，我们同样的采用了 <code>flake8</code> 工具作为统一标准。最后个人的代码质量，通过 Webhook 也会直接反馈在具体的项目管理工具中。</p>
@@ -813,135 +953,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="https://ipfans.github.io/2016/01/golang-vendor/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="ipfans">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/363344?v=3&s=460">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ipfans's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/01/golang-vendor/" itemprop="url">使用 vendor 管理 Golang 项目依赖</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-01-05T23:13:00+08:00">
-                2016-01-05
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2016/01/golang-vendor/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2016/01/golang-vendor/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>我们在项目中除了 <a href="http://ipfans.github.io/2015/12/using-vagrant-development-env/">大量的使用 Python</a> 外，也大量的使用了 Golang 构建高效基础运行服务。在使用 Golang 过程中，我们发现 Golang 程序缺少依赖库版本功能是一个非常令人头大的问题：某些依赖在某个 commit 之后发生了 API 变更之后，如果不修改代码很难兼容，然而开发者之间很有可能因为参与的时间不同，导致执行 <figure class="highlight go"><figcaption><span>get``` 命令获取的版本不同，而导致在不同电脑上出现编译不通过问题。同时，在多个程序中，如果使用的 commit 版本不同，也可能会导致程序编译过程中出现不同的问题。</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">在之前，我们解决这个问题有两个方案，一种是拆解 <span class="string">``</span><span class="string">`go get`</span><span class="string">``</span> 命令的执行，首先创建对应依赖目录，利用 git 命令切换至指定的 commit，然后执行 <span class="string">``</span><span class="string">`go install`</span><span class="string">``</span> 命令。另外一种比较省事的方法是使用 [godep](https:<span class="comment">//github.com/tools/godep) 工具，这里就不做过多介绍了，具体可以参考文档或者搜索中文教程。</span></div><div class="line"></div><div class="line">在 Golang1<span class="number">.5</span> 之后，Go 提供了 <span class="string">``</span><span class="string">`GO15VENDOREXPERIMENT`</span><span class="string">``</span> 环境变量，用于将 <span class="keyword">go</span> build 时的应用路径搜索调整成为 <span class="string">``</span><span class="string">` 当前项目目录 / vendor`</span><span class="string">``</span> 目录方式。通过这种形式，我们可以实现类似于 <span class="string">``</span><span class="string">`godep`</span><span class="string">``</span> 方式的项目依赖管理。不过起码在程序编译过程中，再也无需在其他端部署一个 <span class="string">``</span><span class="string">`godep`</span><span class="string">``</span> 工具。</div><div class="line"></div><div class="line">在使用之前，需要安装一个辅助工具（如果 Golang 自改一个就好了）：<span class="string">``</span><span class="string">`go get -u -v github.com/kardianos/govendor`</span><span class="string">``</span>。</div><div class="line"></div><div class="line">下面，我们用一个例子来说明。首先有一个名为 <span class="string">``</span><span class="string">`vendorproj`</span><span class="string">``</span> 的项目。假如只有一个文件：</div><div class="line"></div><div class="line"><span class="string">``</span><span class="string">`go</span></div><div class="line"><span class="string">package main</span></div><div class="line"><span class="string"></span></div><div class="line"><span class="string">import ("github.com/yeeuu/echoic")</span></div><div class="line"><span class="string"></span></div><div class="line"><span class="string">func main() &#123;e := echoic.New()</span></div><div class="line"><span class="string">	e.SetDebug(true)</span></div><div class="line"><span class="string">	e.Run("127.0.0.1:4321")</span></div><div class="line"><span class="string">&#125;</span></div></pre></td></tr></table></figure></p>
-<p>执行一下命令就可以生成 vendor 文件夹：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ govendor init</div><div class="line">$ ls</div><div class="line">main.go    vendor</div><div class="line">$ <span class="built_in">cd</span> vendor/</div><div class="line">$ ls</div><div class="line">vendor.json</div></pre></td></tr></table></figure>
-<p>这个 <figure class="highlight plain"><figcaption><span>会类似 ```godep``` 工具中的描述文件版本的功能。接下来，需要执行命令将当前应用必须的文件包含进来</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"></div></pre></td></tr></table></figure></p>
-<p>$ govendor add +external<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">如果需要更新或移除，可以参考一下工具的具体文档使用 ```update``` 或者 ```remove``` 命令即可。这样会在 vendor 目录下将必须的编译文件移入进来（注意：测试所需依赖并不包含，依赖项目的测试文件也不会包含）。</div><div class="line"></div><div class="line">```bash</div><div class="line">$ ls</div><div class="line">github.com  golang.org  vendor.json</div><div class="line">$ cat vendor.json</div><div class="line">&#123;&quot;comment&quot;: &quot;&quot;,&quot;ignore&quot;:&quot;test&quot;,&quot;package&quot;: [&#123;&quot;path&quot;:&quot;github.com/yeeuu/echoic&quot;,&quot;revision&quot;:&quot;a7d6994f92e2dc60cff071ae38b204fbd4bd2a3f&quot;,&quot;revisionTime&quot;:&quot;2015-12-18T11:14:29+08:00&quot;&#125;,</div><div class="line">		&#123;&quot;path&quot;: &quot;golang.org/x/net/context&quot;,</div><div class="line">			&quot;revision&quot;: &quot;1d9fd3b8333e891c0e7353e1adcfe8a612573033&quot;,</div><div class="line">			&quot;revisionTime&quot;: &quot;2015-11-13T15:40:13-08:00&quot;</div><div class="line">		&#125;</div><div class="line">	]</div><div class="line">&#125;</div><div class="line">$ cd github.com/yeeuu/echoic</div><div class="line">$ ls</div><div class="line">LICENSE     context.go  group.go    router.go</div><div class="line">README.md   echoic.go   response.go</div></pre></td></tr></table></figure></p>
-<p>通过设置环境变量 <code>GO15VENDOREXPERIMENT=1</code> 使用 vendor 文件夹构建文件。可以选择 <code>export GO15VENDOREXPERIMENT=1</code> 或者干脆 <code>GO15VENDOREXPERIMENT=1 go build</code> 执行编译。</p>
-<p>通过这种方式就可以保证程序能够实现类似 Python 中 Virtualenv 的模式，实现不同程序使用不同版本依赖的目的。</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -992,7 +1003,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">64</span>
+                <span class="site-state-item-count">65</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1005,7 +1016,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-count">46</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
