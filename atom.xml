@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>ipfans&#39;s Blog</title>
+  
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="https://ipfans.github.io/"/>
+  <updated>2017-08-01T05:43:29.000Z</updated>
+  <id>https://ipfans.github.io/</id>
+  
+  <author>
+    <name>ipfans</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>一些 MongoDB 的坑</title>
+    <link href="https://ipfans.github.io/2017/07/mongodb-optimizing/"/>
+    <id>https://ipfans.github.io/2017/07/mongodb-optimizing/</id>
+    <published>2017-07-31T10:45:00.000Z</published>
+    <updated>2017-08-01T05:43:29.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;由于过去的历史原因，我们使用的默认 DB 是 MongoDB 数据库。MongoDB 数据库本身在支持非格式化的数据存储方面有比较大的优势，也不需要额外做很多的 Schema Migration，在我们项目初期，数据存储结构变动频繁时帮助非常大。&lt;/p&gt;
+&lt;p&gt;但是，随着我
+    
+    </summary>
+    
+    
+      <category term="MongoDB" scheme="https://ipfans.github.io/tags/MongoDB/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>gRPC 调用超时控制</title>
+    <link href="https://ipfans.github.io/2017/04/grpc-call-timeout/"/>
+    <id>https://ipfans.github.io/2017/04/grpc-call-timeout/</id>
+    <published>2017-04-06T10:00:00.000Z</published>
+    <updated>2017-08-01T04:50:43.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;我们在进行服务间调用时广泛采用 gRPC 作为主要的调用协议，借助 gRPC 的模块化与语言无关的特性，可以在我们拓展多语言模块之间提供更好的支持。但是我们在使用 gRPC 之中也出现了一些问题，这些问题会做一些记录，希望可以与大家一起沟通与交流。&lt;/p&gt;
+&lt;p&gt;某日，我们
+    
+    </summary>
+    
+    
+      <category term="gRPC" scheme="https://ipfans.github.io/tags/gRPC/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>使用 Python 和 Pandas 分析 Pronto CycleShare 数据</title>
+    <link href="https://ipfans.github.io/2017/02/analyzing-pronto-cycleshare-data-with-python-and-pandas/"/>
+    <id>https://ipfans.github.io/2017/02/analyzing-pronto-cycleshare-data-with-python-and-pandas/</id>
+    <published>2017-02-19T10:00:00.000Z</published>
+    <updated>2017-08-01T04:50:43.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;这是一篇非常不错的 &lt;a href=&quot;https://jakevdp.github.io/blog/2015/10/17/analyzing-pronto-cycleshare-data-with-python-and-pandas/&quot; target=&quot;_blank&quot; re
+    
+    </summary>
+    
+    
+      <category term="Python" scheme="https://ipfans.github.io/tags/Python/"/>
+    
+      <category term="Pandas" scheme="https://ipfans.github.io/tags/Pandas/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>更优雅的 Golang 错误处理</title>
+    <link href="https://ipfans.github.io/2017/02/more-effective-golang-error/"/>
+    <id>https://ipfans.github.io/2017/02/more-effective-golang-error/</id>
+    <published>2017-02-08T10:00:00.000Z</published>
+    <updated>2017-08-01T04:50:43.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Golang 中的错误处理是一个被大家经常拿出来讨论的 &lt;a href=&quot;http://www.infoq.com/cn/news/2012/11/go-error-handle&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;话题&lt;/a&gt;(另外一个是&lt;a 
+    
+    </summary>
+    
+    
+      <category term="Golang" scheme="https://ipfans.github.io/tags/Golang/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>使用 dtrace 跟踪 Python 应用</title>
+    <link href="https://ipfans.github.io/2016/09/tracing-python-program-with-dtrace/"/>
+    <id>https://ipfans.github.io/2016/09/tracing-python-program-with-dtrace/</id>
+    <published>2016-09-15T10:00:00.000Z</published>
+    <updated>2017-08-01T04:50:43.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;今年在 Pycon China 上，来自饿了么的郭浩川分享了 &lt;a href=&quot;http://ocgxshkaw.bkt.clouddn.com/4%20%E3%80%8A%E7%94%A8%E9%AB%98%E9%AD%94%E7%9A%84%E5%A7%BF%E5%8A
+    
+    </summary>
+    
+    
+      <category term="Python" scheme="https://ipfans.github.io/tags/Python/"/>
+    
+      <category term="dtrace" scheme="https://ipfans.github.io/tags/dtrace/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>traefik 简介</title>
+    <link href="https://ipfans.github.io/2016/08/introduce-traefik-load-balance/"/>
+    <id>https://ipfans.github.io/2016/08/introduce-traefik-load-balance/</id>
+    <published>2016-08-01T03:00:00.000Z</published>
+    <updated>2017-08-01T04:50:43.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;traefik(&lt;a href=&quot;https://traefik.io/)是一款开源的反向代理与负载均衡工具。它最大的优点是能够与常见的微服务系统直接整合，可以实现自动化动态配置。目前支持&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://tr
+    
+    </summary>
+    
+    
+      <category term="traefik" scheme="https://ipfans.github.io/tags/traefik/"/>
+    
+      <category term="LoadBalance" scheme="https://ipfans.github.io/tags/LoadBalance/"/>
+    
+      <category term="configure" scheme="https://ipfans.github.io/tags/configure/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>利用 Type Hint 提升 Python 程序开发效率</title>
+    <link href="https://ipfans.github.io/2016/07/type-hint-improve-python-programming/"/>
+    <id>https://ipfans.github.io/2016/07/type-hint-improve-python-programming/</id>
+    <published>2016-07-13T12:00:00.000Z</published>
+    <updated>2017-08-01T04:50:43.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Type Hint（或者叫做 PEP-484）提供了一种针对 Python 程序的类型标注标准。&lt;/p&gt;
+&lt;p&gt;为什么使用 Type Hint？对于动态语言而言，常常出现的情况是当你写了一段代码后，隔段时间你可能忘记这个方法的原型是什么样子的了，你也不清楚具体应该传入什么类
+    
+    </summary>
+    
+    
+      <category term="Python" scheme="https://ipfans.github.io/tags/Python/"/>
+    
+      <category term="TypeHint" scheme="https://ipfans.github.io/tags/TypeHint/"/>
+    
+      <category term="PEP0484" scheme="https://ipfans.github.io/tags/PEP0484/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>CoreOS 折腾笔记（三）了解 Etcd</title>
+    <link href="https://ipfans.github.io/2016/05/learning-coreos-part3/"/>
+    <id>https://ipfans.github.io/2016/05/learning-coreos-part3/</id>
+    <published>2016-05-31T01:13:00.000Z</published>
+    <updated>2017-08-01T04:50:43.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;服务发现是微服务化架构中重要的一环，服务的配置信息需要有一种可靠高效的发现机制，保证服务上线时可以及时被使用，服务失效中断时可以及时切走。服务发现工具 Etcd 就是为了这种需求开发的。&lt;/p&gt;
+&lt;h2 id=&quot;什么是-Etcd？&quot;&gt;&lt;a href=&quot;#什么是-Etcd？&quot;
+    
+    </summary>
+    
+    
+      <category term="Docker" scheme="https://ipfans.github.io/tags/Docker/"/>
+    
+      <category term="CoreOS" scheme="https://ipfans.github.io/tags/CoreOS/"/>
+    
+      <category term="Fleet" scheme="https://ipfans.github.io/tags/Fleet/"/>
+    
+      <category term="Etcd" scheme="https://ipfans.github.io/tags/Etcd/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>CoreOS 折腾笔记（二）Fleet 进阶</title>
+    <link href="https://ipfans.github.io/2016/05/learning-coreos-part2/"/>
+    <id>https://ipfans.github.io/2016/05/learning-coreos-part2/</id>
+    <published>2016-05-28T10:00:00.000Z</published>
+    <updated>2017-08-01T04:50:43.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;如果要说什么样子的分布式集群对用户是最友好的，那无疑是对客户来说，像本地执行命令一样方便的执行集群命令肯定是最舒服的了。这个我们在上一节 &lt;a href=&quot;http://ipfans.github.io/2016/05/learning-coreos-part1/&quot;&gt;集群部
+    
+    </summary>
+    
+    
+      <category term="Docker" scheme="https://ipfans.github.io/tags/Docker/"/>
+    
+      <category term="CoreOS" scheme="https://ipfans.github.io/tags/CoreOS/"/>
+    
+      <category term="Fleet" scheme="https://ipfans.github.io/tags/Fleet/"/>
+    
+      <category term="Etcd" scheme="https://ipfans.github.io/tags/Etcd/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>CoreOS 折腾笔记（一）集群部署</title>
+    <link href="https://ipfans.github.io/2016/05/learning-coreos-part1/"/>
+    <id>https://ipfans.github.io/2016/05/learning-coreos-part1/</id>
+    <published>2016-05-28T09:00:00.000Z</published>
+    <updated>2017-08-01T04:50:43.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;最近在技改完成之后打算进行大量的微服务化改造，而方便进行微服务化的步骤之一，就是将现有的系统移植进入 Docker 环境之中。在标准容器系统的选择上，我把目光放在了 CoreOS 上。实际上，我在 CoreOS 版本还是 2 开头的时候就有简单研究过，但是当时主要作为研究 
+    
+    </summary>
+    
+    
+      <category term="Docker" scheme="https://ipfans.github.io/tags/Docker/"/>
+    
+      <category term="CoreOS" scheme="https://ipfans.github.io/tags/CoreOS/"/>
+    
+      <category term="Fleet" scheme="https://ipfans.github.io/tags/Fleet/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Docker for Mac 尝鲜</title>
+    <link href="https://ipfans.github.io/2016/04/docker-for-mac-beta/"/>
+    <id>https://ipfans.github.io/2016/04/docker-for-mac-beta/</id>
+    <published>2016-04-26T10:00:00.000Z</published>
+    <updated>2017-08-01T04:50:43.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;之前作为 &lt;figure class=&quot;highlight docker&quot;&gt;&lt;figcaption&gt;&lt;span&gt;beta``` 的第一批用户获得了 beta 的授权，但是因为邮件进了垃圾邮件，所以一直没有发现。今天给 Docker 发邮件申请 beta 测试才知道已经通过了
+    
+    </summary>
+    
+    
+      <category term="Golang" scheme="https://ipfans.github.io/tags/Golang/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>编写测试友好的 Golang 代码</title>
+    <link href="https://ipfans.github.io/2016/04/writing-testable-golang-code/"/>
+    <id>https://ipfans.github.io/2016/04/writing-testable-golang-code/</id>
+    <published>2016-04-18T10:40:00.000Z</published>
+    <updated>2017-08-01T04:50:43.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;目前我们有大量的应用采用了 Golang 程序进行构建，但是在执行研发流程里我们会发现一些来自于静态编译程序的不便：相对于我们之前使用的 Python 语言程序而言，我们无法在程序功能的单元测试里大量的使用 Mock 方式来进行高效测试。&lt;/p&gt;
+&lt;p&gt;而这些东西往往可以在
+    
+    </summary>
+    
+    
+      <category term="Golang" scheme="https://ipfans.github.io/tags/Golang/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>利用 cProfile 进行 Python 程序性能调优</title>
+    <link href="https://ipfans.github.io/2016/04/python-profile-using-cprofile/"/>
+    <id>https://ipfans.github.io/2016/04/python-profile-using-cprofile/</id>
+    <published>2016-04-18T10:30:05.000Z</published>
+    <updated>2017-08-01T04:50:43.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;在上一篇文章中，我提到过 cProfile 对 Python 进行调优，但是仅仅只是简单的一笔带过，这篇文章就针对这个内容，单独扩展一下。cProfile 是 Python 的性能测试工具，另外一个同类工具是 python 实现的 profile，不过 cProfile 是
+    
+    </summary>
+    
+    
+      <category term="Python" scheme="https://ipfans.github.io/tags/Python/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Python 中文 UTF-8 编码 base64 报错</title>
+    <link href="https://ipfans.github.io/2016/04/python-base64-encode-utf-8error/"/>
+    <id>https://ipfans.github.io/2016/04/python-base64-encode-utf-8error/</id>
+    <published>2016-04-18T10:30:05.000Z</published>
+    <updated>2017-08-01T04:50:43.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;第一次用 python encode utf-8 的中文，结果发现了一个蛋疼的问题&lt;/p&gt;
+&lt;figure class=&quot;highlight python&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/di
+    
+    </summary>
+    
+    
+      <category term="Python" scheme="https://ipfans.github.io/tags/Python/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>从 asyncio 简单实现看异步是如何工作的</title>
+    <link href="https://ipfans.github.io/2016/02/simple-implement-asyncio-to-understand-how-async-works/"/>
+    <id>https://ipfans.github.io/2016/02/simple-implement-asyncio-to-understand-how-async-works/</id>
+    <published>2016-02-03T07:40:00.000Z</published>
+    <updated>2017-08-01T04:50:43.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;从 asyncio 简单实现看异步是如何工作的&lt;/p&gt;
+&lt;p&gt;by ipfans&lt;/p&gt;
+&lt;p&gt;注：请使用 &lt;figure class=&quot;highlight python&quot;&gt;&lt;figcaption&gt;&lt;span&gt;3.5+``` 版本运行以下代码。&lt;/span&gt;&lt;/figcap
+    
+    </summary>
+    
+    
+      <category term="Python" scheme="https://ipfans.github.io/tags/Python/"/>
+    
+      <category term="async" scheme="https://ipfans.github.io/tags/async/"/>
+    
+      <category term="asyncio" scheme="https://ipfans.github.io/tags/asyncio/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>聊聊初创公司的后端语言选型 (小众语言)</title>
+    <link href="https://ipfans.github.io/2016/01/startup-architecture-language/"/>
+    <id>https://ipfans.github.io/2016/01/startup-architecture-language/</id>
+    <published>2016-01-27T01:48:00.000Z</published>
+    <updated>2017-08-01T04:50:43.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;在创业公司初创伊始，如何选择合适的语言决定了产品后续的技术栈和如何进行合理的业务支撑方向。如果你在读这篇文章之前，更倾向于选择 Java/C#/PHP 常见语言技术栈，我觉得对于你而言，这篇文章帮助不大。因为对你而言，这些技术栈意味着更加方便招人，更方便的故障处理资料等等。
+    
+    </summary>
+    
+    
+      <category term="Others" scheme="https://ipfans.github.io/tags/Others/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Mgo 库的常见坑总结</title>
+    <link href="https://ipfans.github.io/2016/01/something-about-mgo-driver/"/>
+    <id>https://ipfans.github.io/2016/01/something-about-mgo-driver/</id>
+    <published>2016-01-26T13:30:00.000Z</published>
+    <updated>2017-08-01T04:50:43.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;a href=&quot;https://gopkg.in/mgo.v2&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;mgo 库&lt;/a&gt;是一个很好用的 &lt;figure class=&quot;highlight plain&quot;&gt;&lt;figcaption&gt;&lt;span&gt;驱动。对我
+    
+    </summary>
+    
+    
+      <category term="Golang" scheme="https://ipfans.github.io/tags/Golang/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>我们是如何落实 Code Style Guide 的（Python 篇）</title>
+    <link href="https://ipfans.github.io/2016/01/how-we-follow-python-style-guide/"/>
+    <id>https://ipfans.github.io/2016/01/how-we-follow-python-style-guide/</id>
+    <published>2016-01-15T09:30:00.000Z</published>
+    <updated>2017-08-01T04:50:43.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;我们是如何落实 Code Style Guide 的（Python 篇）&lt;/p&gt;
+&lt;p&gt;最近年终，总是想谈谈过去一年的感悟和积累。接下来大概有几篇关于项目管理等等一些小方面的介绍，这篇文章主要介绍一下我们如何将 Python 编码规范真正落实到程序的实际开发过程中的。&lt;/p
+    
+    </summary>
+    
+    
+      <category term="Python" scheme="https://ipfans.github.io/tags/Python/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>一个 Rust HttpClient 例子</title>
+    <link href="https://ipfans.github.io/2016/01/rust-http-client/"/>
+    <id>https://ipfans.github.io/2016/01/rust-http-client/</id>
+    <published>2016-01-06T09:13:00.000Z</published>
+    <updated>2017-08-01T04:50:43.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;在 cargo.toml 文件中添加&lt;/p&gt;
+&lt;figure class=&quot;highlight ini&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div
+    
+    </summary>
+    
+    
+      <category term="Rust" scheme="https://ipfans.github.io/tags/Rust/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>使用 vendor 管理 Golang 项目依赖</title>
+    <link href="https://ipfans.github.io/2016/01/golang-vendor/"/>
+    <id>https://ipfans.github.io/2016/01/golang-vendor/</id>
+    <published>2016-01-05T15:13:00.000Z</published>
+    <updated>2017-08-01T04:50:43.000Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;我们在项目中除了 &lt;a href=&quot;http://ipfans.github.io/2015/12/using-vagrant-development-env/&quot;&gt;大量的使用 Python&lt;/a&gt; 外，也大量的使用了 Golang 构建高效基础运行服务。在使用 Golang
+    
+    </summary>
+    
+    
+      <category term="Golang" scheme="https://ipfans.github.io/tags/Golang/"/>
+    
+      <category term="vendor" scheme="https://ipfans.github.io/tags/vendor/"/>
+    
+  </entry>
+  
+</feed>

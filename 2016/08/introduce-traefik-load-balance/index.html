@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="traefik,LoadBalance,configure," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="ipfans's Blog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="traefik(https://traefik.io/)是一款开源的反向代理与负载均衡工具。它最大的优点是能够与常见的微服务系统直接整合，可以实现自动化动态配置。目前支持 Docker, Swarm, Mesos/Marathon, Mesos, Kubernetes, Consul, Etcd, Zookeeper, BoltDB, Rest API 等等后端模型。 traefik 的具体模型如">
+<meta name="keywords" content="traefik,LoadBalance,configure">
+<meta property="og:type" content="article">
+<meta property="og:title" content="traefik 简介">
+<meta property="og:url" content="https://ipfans.github.io/2016/08/introduce-traefik-load-balance/index.html">
+<meta property="og:site_name" content="ipfans&#39;s Blog">
+<meta property="og:description" content="traefik(https://traefik.io/)是一款开源的反向代理与负载均衡工具。它最大的优点是能够与常见的微服务系统直接整合，可以实现自动化动态配置。目前支持 Docker, Swarm, Mesos/Marathon, Mesos, Kubernetes, Consul, Etcd, Zookeeper, BoltDB, Rest API 等等后端模型。 traefik 的具体模型如">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://github.com/containous/traefik/raw/master/docs/img/architecture.png">
+<meta property="og:updated_time" content="2017-08-01T04:50:43.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="traefik 简介">
+<meta name="twitter:description" content="traefik(https://traefik.io/)是一款开源的反向代理与负载均衡工具。它最大的优点是能够与常见的微服务系统直接整合，可以实现自动化动态配置。目前支持 Docker, Swarm, Mesos/Marathon, Mesos, Kubernetes, Consul, Etcd, Zookeeper, BoltDB, Rest API 等等后端模型。 traefik 的具体模型如">
+<meta name="twitter:image" content="https://github.com/containous/traefik/raw/master/docs/img/architecture.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://ipfans.github.io/2016/08/introduce-traefik-load-balance/"/>
+
+
+
+
+
+  <title>traefik 简介 | ipfans's Blog</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?b9862358b198078f40d7e1596b7c5968";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">ipfans's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            站点地图
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://ipfans.github.io/2016/08/introduce-traefik-load-balance/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ipfans">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/363344?v=3&s=460">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ipfans's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">traefik 简介</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-08-01T11:00:00+08:00">
+                2016-08-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/08/introduce-traefik-load-balance/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2016/08/introduce-traefik-load-balance/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>traefik(<a href="https://traefik.io/)是一款开源的反向代理与负载均衡工具。它最大的优点是能够与常见的微服务系统直接整合，可以实现自动化动态配置。目前支持" target="_blank" rel="external">https://traefik.io/)是一款开源的反向代理与负载均衡工具。它最大的优点是能够与常见的微服务系统直接整合，可以实现自动化动态配置。目前支持</a> Docker, Swarm, Mesos/Marathon, Mesos, Kubernetes, Consul, Etcd, Zookeeper, BoltDB, Rest API 等等后端模型。</p>
+<p>traefik 的具体模型如下：<br><img src="https://github.com/containous/traefik/raw/master/docs/img/architecture.png" alt="traefik"></p>
+<h2 id="为什么选择-traefik？"><a href="#为什么选择-traefik？" class="headerlink" title="为什么选择 traefik？"></a>为什么选择 traefik？</h2><p>事实上在之前我对 LB 的选择一直更倾向于使用<a href="http://www.haproxy.org" target="_blank" rel="external">HAProxy</a>。但是选择 traefik 主要是有以下特点让我们决定使用：</p>
+<ul>
+<li>Golang 编写，单文件部署，与系统无关，同时也提供小尺寸 Docker 镜像。</li>
+<li>支持 Docker/Etcd 后端，天然连接我们的微服务集群。</li>
+<li>内置 Web UI，管理相对方便。</li>
+<li>自动配置 ACME(Let’s Encrypt)证书功能。</li>
+<li>性能尚可，我们也没有到压榨 LB 性能的阶段，易用性更重要。</li>
+</ul>
+<p>除了这些以外，traefik 还有以下特点：</p>
+<ul>
+<li>Restful API 支持。</li>
+<li>支持后端健康状态检查，根据状态自动配置。</li>
+<li>支持动态加载配置文件和 graceful 重启。</li>
+<li>支持 WebSocket 和 HTTP/2。</li>
+</ul>
+<p>除了上面提到的微服务化集群支持，一些 AB 测试阶段也可以通过 frontend 的路由特性进行动态分配，当然这些对 HAProxy 等软件都是标准支持的。</p>
+<h2 id="traefik-的配置"><a href="#traefik-的配置" class="headerlink" title="traefik 的配置"></a>traefik 的配置</h2><p>traefik 支持的配置方式支持文件方式进行配置，这个也是比较常见的配置方式，我们这里简单介绍一下。</p>
+<p>traefik 支持的 toml 方式进行配置，官方提供了一个 <a href="https://docs.traefik.io/toml/" target="_blank" rel="external">示例的 traefik.toml 文件</a> 用于演示配置。除此之外，后端服务一般是采用单独文件进行存储，比如演示配置中指定的 rules.toml。</p>
+<p>具体一个例子，如果我们有两个后端，127.0.0.1:7727，127.0.0.1:7728，我们希望所有的 Chrome 用户都可以访问 127.0.0.1:7727，其它人都访问 127.0.0.1:7728，这样这个 rules.toml 应该如何配置呢？</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># rules.toml</span></div><div class="line"><span class="section">[backends]</span></div><div class="line"><span class="section">  [backends.backend1]</span></div><div class="line"><span class="section">    [backends.backend1.servers.server1]</span></div><div class="line">    url = "http://127.0.0.1:7727"</div><div class="line"><span class="section">  [backends.backend2]</span></div><div class="line"><span class="section">    [backends.backend2.servers.server1]</span></div><div class="line">    url = "http://127.0.0.1:7728"</div><div class="line"></div><div class="line"></div><div class="line"><span class="section">[frontends]</span></div><div class="line"><span class="section">  [frontends.frontend1]</span></div><div class="line">  entrypoints = ["http"]</div><div class="line">  backend = "backend1"</div><div class="line"><span class="section">    [frontends.frontend1.routes.test_1]</span></div><div class="line">    rule = "HeadersRegexp: User-Agent, Chrome"</div><div class="line"><span class="section">  [frontends.frontend2]</span></div><div class="line">  entrypoints = ["http"]</div><div class="line">  backend = "backend2"</div></pre></td></tr></table></figure>
+<p>首先定义两个后端服务，每个后端服务可以支持多个服务单元，这里我们只有一个。前端 frontends 用于匹配请求落到哪个后端服务中。我们这里定义一个规则 test_1，设置规则为根据 HTTP 请求头部正则进行分配：如果 UserAgent 中包含 Chrome 字样，则访问到 127.0.0.1:7727。匹配的规则方式包含了以下几种方式:</p>
+<ul>
+<li><code>Headers</code>/<code>HeaderRegexp</code>: 头部匹配方式，分别对应按值和正则表达式两种方式。</li>
+<li><code>Host</code>/<code>HostRegexp</code>: 按照请求主机名进行匹配，与头部信息相似。</li>
+<li><code>Method</code>: 按照请求方式区分。</li>
+<li><code>Path</code>/<code>PathStrip</code>/<code>PathPrefix</code>/<code>PathPrefixStrip</code>: 按照路径区分后端。</li>
+</ul>
+<h2 id="traefik-与微服务集群"><a href="#traefik-与微服务集群" class="headerlink" title="traefik 与微服务集群"></a>traefik 与微服务集群</h2><p>这个有人已经写过相关的文章了，我在这里简单推荐一下： <a href="http://blog.hypriot.com/post/microservices-bliss-with-docker-and-traefik/" target="_blank" rel="external">Microservices Bliss with Docker and Traefik</a>（<a href="http://dockone.io/article/1418" target="_blank" rel="external">中文译文</a>）。我就不做额外的描述了。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/traefik/" rel="tag"># traefik</a>
+          
+            <a href="/tags/LoadBalance/" rel="tag"># LoadBalance</a>
+          
+            <a href="/tags/configure/" rel="tag"># configure</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/07/type-hint-improve-python-programming/" rel="next" title="利用 Type Hint 提升 Python 程序开发效率">
+                <i class="fa fa-chevron-left"></i> 利用 Type Hint 提升 Python 程序开发效率
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/09/tracing-python-program-with-dtrace/" rel="prev" title="使用 dtrace 跟踪 Python 应用">
+                使用 dtrace 跟踪 Python 应用 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars0.githubusercontent.com/u/363344?v=3&s=460"
+               alt="ipfans" />
+          <p class="site-author-name" itemprop="name">ipfans</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">64</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/ipfans" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/janxin" target="_blank" title="Tw1tter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Tw1tter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Links
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.yeeuu.com" title="杭州云柚科技" target="_blank">杭州云柚科技</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么选择-traefik？"><span class="nav-number">1.</span> <span class="nav-text">为什么选择 traefik？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#traefik-的配置"><span class="nav-number">2.</span> <span class="nav-text">traefik 的配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#traefik-与微服务集群"><span class="nav-number">3.</span> <span class="nav-text">traefik 与微服务集群</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ipfans</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://s1mbily.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'https://ipfans.github.io/2016/08/introduce-traefik-load-balance/';
+          this.page.identifier = '2016/08/introduce-traefik-load-balance/';
+          this.page.title = 'traefik 简介';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://s1mbily.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

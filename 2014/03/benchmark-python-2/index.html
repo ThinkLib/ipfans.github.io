@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Python," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="ipfans's Blog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="本来还想继续翻译：https://wiki.python.org/moin/PythonSpeed/PerformanceTips，但是事情太多真的没时间，那么就简单的总结一下吧。 字符串拼接应该避免使用： 123s = &quot;&quot;for substring in list:    s += substring 选择使用： 1s = &quot;&quot;.join(list) 对于大字符串列表，避免使用： 123s =">
+<meta name="keywords" content="Python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python 性能技巧 (二)">
+<meta property="og:url" content="https://ipfans.github.io/2014/03/benchmark-python-2/index.html">
+<meta property="og:site_name" content="ipfans&#39;s Blog">
+<meta property="og:description" content="本来还想继续翻译：https://wiki.python.org/moin/PythonSpeed/PerformanceTips，但是事情太多真的没时间，那么就简单的总结一下吧。 字符串拼接应该避免使用： 123s = &quot;&quot;for substring in list:    s += substring 选择使用： 1s = &quot;&quot;.join(list) 对于大字符串列表，避免使用： 123s =">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-08-01T04:50:43.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Python 性能技巧 (二)">
+<meta name="twitter:description" content="本来还想继续翻译：https://wiki.python.org/moin/PythonSpeed/PerformanceTips，但是事情太多真的没时间，那么就简单的总结一下吧。 字符串拼接应该避免使用： 123s = &quot;&quot;for substring in list:    s += substring 选择使用： 1s = &quot;&quot;.join(list) 对于大字符串列表，避免使用： 123s =">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://ipfans.github.io/2014/03/benchmark-python-2/"/>
+
+
+
+
+
+  <title>Python 性能技巧 (二) | ipfans's Blog</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?b9862358b198078f40d7e1596b7c5968";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">ipfans's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            站点地图
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://ipfans.github.io/2014/03/benchmark-python-2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ipfans">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/363344?v=3&s=460">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ipfans's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Python 性能技巧 (二)</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-03-03T20:30:00+08:00">
+                2014-03-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2014/03/benchmark-python-2/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2014/03/benchmark-python-2/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本来还想继续翻译：<a href="https://wiki.python.org/moin/PythonSpeed/PerformanceTips" target="_blank" rel="external">https://wiki.python.org/moin/PythonSpeed/PerformanceTips</a>，但是事情太多真的没时间，那么就简单的总结一下吧。</p>
+<h2 id="字符串拼接"><a href="#字符串拼接" class="headerlink" title="字符串拼接"></a>字符串拼接</h2><p>应该避免使用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">s = <span class="string">""</span></div><div class="line"><span class="keyword">for</span> substring <span class="keyword">in</span> list:</div><div class="line">    s += substring</div></pre></td></tr></table></figure>
+<p>选择使用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">s = <span class="string">""</span>.join(list)</div></pre></td></tr></table></figure>
+<p>对于大字符串列表，避免使用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">s = <span class="string">""</span></div><div class="line"><span class="keyword">for</span> x <span class="keyword">in</span> list:</div><div class="line">    s += some_function(x)</div></pre></td></tr></table></figure>
+<p>使用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">slist = [some_function(elt) <span class="keyword">for</span> elt <span class="keyword">in</span> somelist]</div><div class="line">s = <span class="string">""</span>.join(slist)</div></pre></td></tr></table></figure>
+<p>避免使用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">out = <span class="string">"&lt;html&gt;"</span> + head + prologue + query + tail + <span class="string">"&lt;/html&gt;"</span></div></pre></td></tr></table></figure>
+<p>使用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">out = <span class="string">"&lt;html&gt;%s%s%s%s&lt;/html&gt;"</span> % (head, prologue, query, tail)</div></pre></td></tr></table></figure>
+<p>当然了，这种更容易读：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">out = <span class="string">"&lt;html&gt;%(head)s%(prologue)s%(query)s%(tail)s&lt;/html&gt;"</span> % locals()</div></pre></td></tr></table></figure>
+<h2 id="循环"><a href="#循环" class="headerlink" title="循环"></a>循环</h2><p>列表里面的每个字符串都变成大写？</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">newlist = []</div><div class="line"><span class="keyword">for</span> word <span class="keyword">in</span> oldlist:</div><div class="line">    newlist.append(word.upper())</div></pre></td></tr></table></figure>
+<p>试试这种方法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">newlist = map(str.upper, oldlist))</div></pre></td></tr></table></figure>
+<p>或者是：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">iterator = (s.upper() <span class="keyword">for</span> s <span class="keyword">in</span> oldlist)</div></pre></td></tr></table></figure>
+<h2 id="避免点号"><a href="#避免点号" class="headerlink" title="避免点号"></a>避免点号</h2><p>比如说我们想把一个列表一个大写之后到一个新列表，试试下面的：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">upper = str.upper</div><div class="line">newlist = []</div><div class="line">append = newlist.append</div><div class="line"><span class="keyword">for</span> word <span class="keyword">in</span> oldlist:</div><div class="line">    append(upper(word))</div></pre></td></tr></table></figure>
+<h2 id="本地变量"><a href="#本地变量" class="headerlink" title="本地变量"></a>本地变量</h2><p>Python 在访问本地变量时的速度要比全局变量速度更快，比如：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">func</span><span class="params">()</span>:</span></div><div class="line">    upper = str.upper</div><div class="line">    newlist = []</div><div class="line">    append = newlist.append</div><div class="line">    <span class="keyword">for</span> word <span class="keyword">in</span> oldlist:</div><div class="line">        append(upper(word))</div><div class="line">    <span class="keyword">return</span> newlist</div></pre></td></tr></table></figure>
+<h2 id="初始化字典元素"><a href="#初始化字典元素" class="headerlink" title="初始化字典元素"></a>初始化字典元素</h2><p>比如你在初始化一个字典，字典中每个元素是单词和标号：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">wdict = &#123;&#125;</div><div class="line"><span class="keyword">for</span> word <span class="keyword">in</span> words:</div><div class="line">    <span class="keyword">if</span> word <span class="keyword">not</span> <span class="keyword">in</span> wdict:</div><div class="line">        wdict[word] = <span class="number">0</span></div><div class="line">    wdict[word] += <span class="number">1</span></div></pre></td></tr></table></figure>
+<p>那么试试 try-except 吧：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">wdict = &#123;&#125;</div><div class="line"><span class="keyword">for</span> word <span class="keyword">in</span> words:</div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        wdict[word] += <span class="number">1</span></div><div class="line">    <span class="keyword">except</span> KeyError:</div><div class="line">        wdict[word] = <span class="number">1</span></div></pre></td></tr></table></figure>
+<p>或者再换一种方式：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">wdict = &#123;&#125;</div><div class="line">get = wdict.get</div><div class="line"><span class="keyword">for</span> word <span class="keyword">in</span> words:</div><div class="line">    wdict[word] = get(word, <span class="number">0</span>) + <span class="number">1</span></div></pre></td></tr></table></figure>
+<h2 id="头部引入"><a href="#头部引入" class="headerlink" title="头部引入"></a>头部引入</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">doit1</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">import</span> string <span class="comment">###### import statement inside function</span></div><div class="line">    string.lower(<span class="string">'Python'</span>)</div><div class="line"></div><div class="line"><span class="keyword">for</span> num <span class="keyword">in</span> range(<span class="number">100000</span>):</div><div class="line">    doit1()</div><div class="line"></div><div class="line"><span class="keyword">import</span> string <span class="comment">###### import statement outside function</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">doit2</span><span class="params">()</span>:</span></div><div class="line">    string.lower(<span class="string">'Python'</span>)</div><div class="line"></div><div class="line"><span class="keyword">for</span> num <span class="keyword">in</span> range(<span class="number">100000</span>):</div><div class="line">    doit2()</div></pre></td></tr></table></figure>
+<p>doit2 要快一些。</p>
+<h2 id="数据聚合"><a href="#数据聚合" class="headerlink" title="数据聚合"></a>数据聚合</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> time</div><div class="line">x = <span class="number">0</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">doit1</span><span class="params">(i)</span>:</span></div><div class="line">    <span class="keyword">global</span> x</div><div class="line">    x = x + i</div><div class="line"></div><div class="line">list = range(<span class="number">100000</span>)</div><div class="line">t = time.time()</div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> list:</div><div class="line">    doit1(i)</div><div class="line"></div><div class="line"><span class="keyword">print</span> <span class="string">"%.3f"</span> % (time.time()-t)</div><div class="line"></div><div class="line">vs</div><div class="line"></div><div class="line"><span class="keyword">import</span> time</div><div class="line">x = <span class="number">0</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">doit2</span><span class="params">(list)</span>:</span></div><div class="line">    <span class="keyword">global</span> x</div><div class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> list:</div><div class="line">        x = x + i</div><div class="line"></div><div class="line">list = range(<span class="number">100000</span>)</div><div class="line">t = time.time()</div><div class="line">doit2(list)</div><div class="line"><span class="keyword">print</span> <span class="string">"%.3f"</span> % (time.time()-t)</div></pre></td></tr></table></figure>
+<p>对比一下性能，第二种方法要更快一点</p>
+<h2 id="xrange-替代-range"><a href="#xrange-替代-range" class="headerlink" title="xrange 替代 range"></a>xrange 替代 range</h2><p>恩，xrage 更快一些。</p>
+<h2 id="善用-cProfile"><a href="#善用-cProfile" class="headerlink" title="善用 cProfile"></a>善用 cProfile</h2><p>性能诊断的好工具</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Python/" rel="tag"># Python</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/02/benchmark-python/" rel="next" title="Python 性能技巧(一)">
+                <i class="fa fa-chevron-left"></i> Python 性能技巧(一)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/03/python-celery-queue-first-step/" rel="prev" title="初识 Celery">
+                初识 Celery <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars0.githubusercontent.com/u/363344?v=3&s=460"
+               alt="ipfans" />
+          <p class="site-author-name" itemprop="name">ipfans</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">64</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/ipfans" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/janxin" target="_blank" title="Tw1tter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Tw1tter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Links
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.yeeuu.com" title="杭州云柚科技" target="_blank">杭州云柚科技</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#字符串拼接"><span class="nav-number">1.</span> <span class="nav-text">字符串拼接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#循环"><span class="nav-number">2.</span> <span class="nav-text">循环</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#避免点号"><span class="nav-number">3.</span> <span class="nav-text">避免点号</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#本地变量"><span class="nav-number">4.</span> <span class="nav-text">本地变量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#初始化字典元素"><span class="nav-number">5.</span> <span class="nav-text">初始化字典元素</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#头部引入"><span class="nav-number">6.</span> <span class="nav-text">头部引入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据聚合"><span class="nav-number">7.</span> <span class="nav-text">数据聚合</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#xrange-替代-range"><span class="nav-number">8.</span> <span class="nav-text">xrange 替代 range</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#善用-cProfile"><span class="nav-number">9.</span> <span class="nav-text">善用 cProfile</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ipfans</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://s1mbily.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'https://ipfans.github.io/2014/03/benchmark-python-2/';
+          this.page.identifier = '2014/03/benchmark-python-2/';
+          this.page.title = 'Python 性能技巧 (二)';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://s1mbily.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

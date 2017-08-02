@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Python,async," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="ipfans's Blog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="在新版 Python3.5 中，引入了两个新关键字 async 和 await，用于解决在 Python 异步编程中无法有效区分 yield 生成器与异步的关系的问题。 异步是一个什么东西异步的作用在于，对于 Python 这种拥有 GIL 的语言，某个线程在处理单个耗时较长的任务时（如 I/O读取，RESTful API 调用）等操作时，不能有效的释放 CPU 资源，导致其他线程的等待时间随之增">
+<meta name="keywords" content="Python,async">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python async&#x2F;await 入门">
+<meta property="og:url" content="https://ipfans.github.io/2015/08/introduction-to-async-and-await/index.html">
+<meta property="og:site_name" content="ipfans&#39;s Blog">
+<meta property="og:description" content="在新版 Python3.5 中，引入了两个新关键字 async 和 await，用于解决在 Python 异步编程中无法有效区分 yield 生成器与异步的关系的问题。 异步是一个什么东西异步的作用在于，对于 Python 这种拥有 GIL 的语言，某个线程在处理单个耗时较长的任务时（如 I/O读取，RESTful API 调用）等操作时，不能有效的释放 CPU 资源，导致其他线程的等待时间随之增">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-08-01T04:50:43.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Python async&#x2F;await 入门">
+<meta name="twitter:description" content="在新版 Python3.5 中，引入了两个新关键字 async 和 await，用于解决在 Python 异步编程中无法有效区分 yield 生成器与异步的关系的问题。 异步是一个什么东西异步的作用在于，对于 Python 这种拥有 GIL 的语言，某个线程在处理单个耗时较长的任务时（如 I/O读取，RESTful API 调用）等操作时，不能有效的释放 CPU 资源，导致其他线程的等待时间随之增">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://ipfans.github.io/2015/08/introduction-to-async-and-await/"/>
+
+
+
+
+
+  <title>Python async/await 入门 | ipfans's Blog</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?b9862358b198078f40d7e1596b7c5968";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">ipfans's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            站点地图
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://ipfans.github.io/2015/08/introduction-to-async-and-await/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ipfans">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/363344?v=3&s=460">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ipfans's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Python async/await 入门</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-08-14T18:11:15+08:00">
+                2015-08-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2015/08/introduction-to-async-and-await/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2015/08/introduction-to-async-and-await/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在新版 Python3.5 中，引入了两个新关键字 async 和 await，用于解决在 Python 异步编程中无法有效<br>区分 yield 生成器与异步的关系的问题。</p>
+<h2 id="异步是一个什么东西"><a href="#异步是一个什么东西" class="headerlink" title="异步是一个什么东西"></a>异步是一个什么东西</h2><p>异步的作用在于，对于 Python 这种拥有 GIL 的语言，某个线程在处理单个耗时较长的任务时（如 I/O<br>读取，RESTful API 调用）等操作时，不能有效的释放 CPU 资源，导致其他线程的等待时间随之增加。<br>异步的作用是，在等待这种花费大量时间的操作数，允许释放 CPU 资源执行其他的线程任务，从而提<br>高程序的执行效率。</p>
+<h2 id="3-4-之前如何实现异步"><a href="#3-4-之前如何实现异步" class="headerlink" title="3.4 之前如何实现异步"></a>3.4 之前如何实现异步</h2><p>在 3.5 版本以前的程序中，Python 程序通常是使用 yield 作为一个判断是否进入异步操作的关键词。<br>比如在 3.4.x 版本中，我们可以用这样的一个例子来看一下(或者你也可以用一个 Tornado 的例子，这<br>样你的程序就也可以运行在 2.7.x 版本的 Python 中了)：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> time</div><div class="line"><span class="keyword">import</span> asyncio</div><div class="line"></div><div class="line"><span class="meta">@asyncio.coroutine</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">slow_operation</span><span class="params">(n)</span>:</span></div><div class="line">    <span class="keyword">yield</span> <span class="keyword">from</span> asyncio.sleep(<span class="number">1</span>)</div><div class="line">    print(<span class="string">"Slow operation &#123;&#125; complete"</span>.format(n))</div><div class="line"></div><div class="line"></div><div class="line"><span class="meta">@asyncio.coroutine</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">()</span>:</span></div><div class="line">    start = time.time()</div><div class="line">    <span class="keyword">yield</span> <span class="keyword">from</span> asyncio.wait([slow_operation(<span class="number">1</span>),</div><div class="line">        slow_operation(<span class="number">2</span>),</div><div class="line">        slow_operation(<span class="number">3</span>),</div><div class="line">    ])</div><div class="line">    end = time.time()</div><div class="line">    print(<span class="string">'Complete in &#123;&#125; second(s)'</span>.format(end-start))</div><div class="line"></div><div class="line"></div><div class="line">loop = asyncio.get_event_loop()</div><div class="line">loop.run_until_complete(main())</div></pre></td></tr></table></figure>
+<p>执行结果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">➜  Desktop  pyenv shell 3.4.3</div><div class="line">➜  Desktop  python 3.4_asyncio.py</div><div class="line">➜  Desktop  python 3.4_asyncio.py</div><div class="line">Slow operation 2 complete</div><div class="line">Slow operation 1 complete</div><div class="line">Slow operation 3 complete</div><div class="line">Complete in 1.0008249282836914 second(s)</div></pre></td></tr></table></figure>
+<p>如果你了解过 yield，你会知道 yield 其实作用是用来生成一个生成器，而生成器的作用是用于输出一系列的结果。比如计算斐波那契数列：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">fab</span><span class="params">(max)</span>:</span></div><div class="line">    n, a, b = <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span></div><div class="line">    <span class="keyword">while</span> n &lt; max:</div><div class="line">        <span class="keyword">yield</span> b</div><div class="line">        a, b = b, a + b</div><div class="line">        n = n + <span class="number">1</span></div><div class="line"></div><div class="line"><span class="keyword">for</span> n <span class="keyword">in</span> fab(<span class="number">5</span>):</div><div class="line">    <span class="keyword">print</span> n</div></pre></td></tr></table></figure>
+<p>其实这个在实际执行过程中，生成器并未实际执行，只有当调用. next()时才开始执行，并返回当前的迭代值。最后执行完成之后，则会抛出 StopIteration 异常，表示迭代完成。当然，这个异常在大多数循环情况下 (比如 for) 并不需要手工处理。当然，你也可以选择使用下面手工的方法（注意：next 是 Python3 中的内置函数，如果是 Python2，请使用 f.next()）:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">➜  Desktop  python</div><div class="line">Python 3.4.3 (default, Aug 14 2015, 11:21:11)</div><div class="line">[GCC 4.2.1 Compatible Apple LLVM 6.1.0 (clang-602.0.53)] on darwin</div><div class="line">Type &quot;help&quot;, &quot;copyright&quot;, &quot;credits&quot; or &quot;license&quot; for more information.</div><div class="line">&gt;&gt;&gt; def fab(max):</div><div class="line">...     n, a, b = 0, 0, 1</div><div class="line">...     while n &lt; max:</div><div class="line">...         yield b</div><div class="line">...         a, b = b, a + b</div><div class="line">...         n = n + 1</div><div class="line">...</div><div class="line">&gt;&gt;&gt; f = fab(5)</div><div class="line">&gt;&gt;&gt; next(f)</div><div class="line">1</div><div class="line">&gt;&gt;&gt; next(f)</div><div class="line">1</div><div class="line">&gt;&gt;&gt; next(f)</div><div class="line">2</div><div class="line">&gt;&gt;&gt; next(f)</div><div class="line">3</div><div class="line">&gt;&gt;&gt; next(f)</div><div class="line">5</div><div class="line">&gt;&gt;&gt; next(f)</div><div class="line">Traceback (most recent call last):</div><div class="line">  File &quot;&lt;stdin&gt;&quot;, line 1, in &lt;module&gt;</div><div class="line">StopIteration</div></pre></td></tr></table></figure>
+<p>上面的方法如果不使用 yield，则换成一个支持 iterable 的可能更直观理解一点：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Fab</span><span class="params">(object)</span>:</span></div><div class="line"></div><div class="line">   <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, max)</span>:</span></div><div class="line">       self.max = max</div><div class="line">       self.n, self.a, self.b = <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span></div><div class="line"></div><div class="line">   <span class="function"><span class="keyword">def</span> <span class="title">__iter__</span><span class="params">(self)</span>:</span></div><div class="line">       <span class="keyword">return</span> self</div><div class="line"></div><div class="line">   <span class="function"><span class="keyword">def</span> <span class="title">next</span><span class="params">(self)</span>:</span></div><div class="line">       <span class="keyword">if</span> self.n &lt; self.max:</div><div class="line">           r = self.b</div><div class="line">           self.a, self.b = self.b, self.a + self.b</div><div class="line">           self.n = self.n + <span class="number">1</span></div><div class="line">           <span class="keyword">return</span> r</div><div class="line">       <span class="keyword">raise</span> StopIteration()</div></pre></td></tr></table></figure>
+<p>在异步中，程序的 ioloop 会自动处理这一类的生成器，这一个样例可以参考一下 Tornado 的处理方式: <a href="http://www.tornadoweb.org/en/stable/_modules/tornado/gen.html#coroutine" target="_blank" rel="external">tornado.gen.coroutine</a>。</p>
+<h2 id="3-5-版本异步功能"><a href="#3-5-版本异步功能" class="headerlink" title="3.5 版本异步功能"></a>3.5 版本异步功能</h2><p>在 3.5 之后的版本里，程序提供了 async 和 await 关键字，这两个关键字可以替代类似 tornado 中的 gen.coroutine/yield 或者是 asyncio.coroutine/yield 的作用。</p>
+<p>比如在上一节中的例子改造成为:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">import asyncio</div><div class="line">import time</div><div class="line"></div><div class="line">async def slow_operation(n):</div><div class="line">    await asyncio.sleep(1)</div><div class="line">    print(&quot;Slow operation &#123;&#125; complete&quot;.format(n))</div><div class="line"></div><div class="line"></div><div class="line">async def main():</div><div class="line">    start = time.time()</div><div class="line">    await asyncio.wait([slow_operation(1),</div><div class="line">        slow_operation(2),</div><div class="line">        slow_operation(3),</div><div class="line">    ])</div><div class="line">    end = time.time()</div><div class="line">    print(&apos;Complete in &#123;&#125; second(s)&apos;.format(end-start))</div><div class="line"></div><div class="line"></div><div class="line">loop = asyncio.get_event_loop()</div><div class="line">loop.run_until_complete(main())</div></pre></td></tr></table></figure>
+<p>新的关键字会让我们的程序看上去更加清晰。不过从执行效率上看，现在还是相较 3.4.3 有一些退步：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">➜  Desktop  pyenv shell 3.5.0rc1</div><div class="line">➜  Desktop  python 3.5_asyncio.py</div><div class="line">Slow operation 1 complete</div><div class="line">Slow operation 3 complete</div><div class="line">Slow operation 2 complete</div><div class="line">Complete in 1.0012218952178955 second(s)</div><div class="line">➜  Desktop  python 3.4_asyncio.py</div><div class="line">Slow operation 1 complete</div><div class="line">Slow operation 3 complete</div><div class="line">Slow operation 2 complete</div><div class="line">Complete in 1.0060911178588867 second(s)</div></pre></td></tr></table></figure>
+<p>不过现在还只是 RC 版本，相信之后还是会有一些性能调优的可能性。</p>
+<h2 id="更多的开发场景"><a href="#更多的开发场景" class="headerlink" title="更多的开发场景"></a>更多的开发场景</h2><p>现在 Tornado 正在开发的 4.3 版本已经支持了 Python3.5 的 async/await 关键字，在之后的开发中，可以替代 @gen.coroutine 和 yield 用于开发。根据作者的描述，如果是运行在 3.5 版本的 Python 上，建议使用关键字而不是 yield 方式，这样可以有更好的执行效率。当然，如果 3.5 只是一个可选版本，相信在相当长的一段时间之内，你还是需要使用原有的执行方式。</p>
+<h2 id="潜在的坑"><a href="#潜在的坑" class="headerlink" title="潜在的坑"></a>潜在的坑</h2><p>async 和 await 在 Python 3.5 与 3.6 版本中并不是关键字，Python 3.7 中会作为关键字。因此需要在现有的程序中替代掉已有的可能导致冲突的关键字。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Python/" rel="tag"># Python</a>
+          
+            <a href="/tags/async/" rel="tag"># async</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/08/jwt-basic/" rel="next" title="JWT 介绍">
+                <i class="fa fa-chevron-left"></i> JWT 介绍
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/10/write-aio-python-redis-client-as-dummy-1/" rel="prev" title="零基础编写 Python Redis Client（一）">
+                零基础编写 Python Redis Client（一） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars0.githubusercontent.com/u/363344?v=3&s=460"
+               alt="ipfans" />
+          <p class="site-author-name" itemprop="name">ipfans</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">64</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/ipfans" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/janxin" target="_blank" title="Tw1tter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Tw1tter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Links
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.yeeuu.com" title="杭州云柚科技" target="_blank">杭州云柚科技</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#异步是一个什么东西"><span class="nav-number">1.</span> <span class="nav-text">异步是一个什么东西</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4-之前如何实现异步"><span class="nav-number">2.</span> <span class="nav-text">3.4 之前如何实现异步</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-5-版本异步功能"><span class="nav-number">3.</span> <span class="nav-text">3.5 版本异步功能</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#更多的开发场景"><span class="nav-number">4.</span> <span class="nav-text">更多的开发场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#潜在的坑"><span class="nav-number">5.</span> <span class="nav-text">潜在的坑</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ipfans</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://s1mbily.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'https://ipfans.github.io/2015/08/introduction-to-async-and-await/';
+          this.page.identifier = '2015/08/introduction-to-async-and-await/';
+          this.page.title = 'Python async/await 入门';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://s1mbily.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

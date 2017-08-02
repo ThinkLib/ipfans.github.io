@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Python,async,Redis,asyncio," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="ipfans's Blog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="什么是 AIOAIO 是 Asynchronous Input/Output 的简写，也就是异步 IO。不过在谈什么是 AIO 之前，我们可能要先介绍一下 BIO。那么什么是 BIO 呢？简单的说，BIO 是 Blocking Input/Output，也就是阻塞 IO，他实现的通常是在线程池中找出一个线程处理 IO，在 IO 过程中，其他线程都需要等待 IO 完成后才可以从中选取一个线程占用 I">
+<meta name="keywords" content="Python,async,Redis,asyncio">
+<meta property="og:type" content="article">
+<meta property="og:title" content="零基础编写 Python Redis Client（一）">
+<meta property="og:url" content="https://ipfans.github.io/2015/10/write-aio-python-redis-client-as-dummy-1/index.html">
+<meta property="og:site_name" content="ipfans&#39;s Blog">
+<meta property="og:description" content="什么是 AIOAIO 是 Asynchronous Input/Output 的简写，也就是异步 IO。不过在谈什么是 AIO 之前，我们可能要先介绍一下 BIO。那么什么是 BIO 呢？简单的说，BIO 是 Blocking Input/Output，也就是阻塞 IO，他实现的通常是在线程池中找出一个线程处理 IO，在 IO 过程中，其他线程都需要等待 IO 完成后才可以从中选取一个线程占用 I">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-08-01T04:50:43.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="零基础编写 Python Redis Client（一）">
+<meta name="twitter:description" content="什么是 AIOAIO 是 Asynchronous Input/Output 的简写，也就是异步 IO。不过在谈什么是 AIO 之前，我们可能要先介绍一下 BIO。那么什么是 BIO 呢？简单的说，BIO 是 Blocking Input/Output，也就是阻塞 IO，他实现的通常是在线程池中找出一个线程处理 IO，在 IO 过程中，其他线程都需要等待 IO 完成后才可以从中选取一个线程占用 I">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://ipfans.github.io/2015/10/write-aio-python-redis-client-as-dummy-1/"/>
+
+
+
+
+
+  <title>零基础编写 Python Redis Client（一） | ipfans's Blog</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?b9862358b198078f40d7e1596b7c5968";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">ipfans's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            站点地图
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://ipfans.github.io/2015/10/write-aio-python-redis-client-as-dummy-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ipfans">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/363344?v=3&s=460">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ipfans's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">零基础编写 Python Redis Client（一）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-10-10T18:11:15+08:00">
+                2015-10-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2015/10/write-aio-python-redis-client-as-dummy-1/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2015/10/write-aio-python-redis-client-as-dummy-1/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="什么是-AIO"><a href="#什么是-AIO" class="headerlink" title="什么是 AIO"></a>什么是 AIO</h2><p>AIO 是 Asynchronous Input/Output 的简写，也就是异步 IO。不过在谈什么是 AIO 之前，我们可能要先介绍一下 BIO。那么什么是 BIO 呢？简单的说，BIO 是 Blocking Input/Output，也就是阻塞 IO，他实现的通常是在线程池中找出一个线程处理 IO，在 IO 过程中，其他线程都需要等待 IO 完成后才可以从中选取一个线程占用 IO。这样最大的问题是，当线程数量较多，并且需要大量的 IO 操作时，就会造成一个大量的阻塞，因为实际上每次只有一个线程在处理 IO。</p>
+<p>那么如何解决这个时候的问题呢？这时候就提出了 AIO 的概念。通常在 IO 处理过程中也会伴有一些其他的处理操作，假如把所有的操作都浪费在了等待 IO 释放上，线程池中的线程利用率也太低了，因此我们需要一种方式，在申请 IO 处理之后，就去继续做其他的事情，等 IO 操作完成了，然后通知我们已经 OK，我们可以继续处理了。这也就是我们常说的 AIO 的原型。</p>
+<p>AIO 的情况也说明了它适用的场景：长连接场景，或者重度的 IO 操作等等的情况。</p>
+<p>如果找软件来做案例，我们可以找一个可能大家熟知的：NGINX。正如我们所知，NGINX 采用了<a href="http://nginx.com/blog/inside-nginx-how-we-designed-for-performance-scale/" target="_blank" rel="external">异步、事件驱动的方法来处理连接</a>。这种处理方式无需（像使用传统架构的服务器一样）为每个请求创建额外的专用进程或者线程，而是在一个工作进程中处理多个连接和请求。为此，NGINX 工作在非阻塞的 socket 模式下，并使用了 epoll 和 kqueue 这样有效的方法。</p>
+<p>这部分的内容，在 <a href="http://www.infoq.com/cn/articles/thread-pools-boost-performance-9x" target="_blank" rel="external">NGINX 引入线程池 性能提升 9 倍</a> 中进行了详细的介绍，包含了 NGINX 的异步应用经验，同时介绍了 NGINX 中引入了阻塞的线程池用于解决某些特定场景问题下的效率。</p>
+<h2 id="如何实现-Python-的异步-IO"><a href="#如何实现-Python-的异步-IO" class="headerlink" title="如何实现 Python 的异步 IO"></a>如何实现 Python 的异步 IO</h2><p>这篇文章会以最新的 Python 3.5 为基础来介绍实现一个异步的 Python Redis Client。不过在此之前，我们先来看一下，怎么实现 Python 的 aio。</p>
+<p>Python 的 aio 官方封装了一个比较合适的基础库 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">从一个例子开始简单认识一下如何实现一个异步的 aio client。这里以官方文档中的例子为例：</div><div class="line"></div><div class="line">```python</div><div class="line">import asyncio</div><div class="line"></div><div class="line">async def tcp_echo_client(message, loop):</div><div class="line">    reader, writer = await asyncio.open_connection(&apos;127.0.0.1&apos;, 8888,</div><div class="line">                                                   loop=loop)</div><div class="line"></div><div class="line">    print(&apos;Send: %r&apos; % message)</div><div class="line">    writer.write(message.encode())</div><div class="line"></div><div class="line">    data = await reader.read(100)</div><div class="line">    print(&apos;Received: %r&apos; % data.decode())</div><div class="line"></div><div class="line">    print(&apos;Close the socket&apos;)</div><div class="line">    writer.close()</div><div class="line"></div><div class="line">message = &apos;Hello World!&apos;</div><div class="line">loop = asyncio.get_event_loop()</div><div class="line">loop.run_until_complete(tcp_echo_client(message, loop))</div><div class="line">loop.close()</div></pre></td></tr></table></figure></p>
+<p>这里面用到的 Python 3.5 中引入的 <figure class="highlight plain"><figcaption><span>关键字，还有 ```asyncio``` 库。这里面 ```asyncio.open_connection``` 会返回一个 coroutine，这个可以使用 await 进行一个 aio 的调用，即，在收到返回信号之前，程序可以继续去处理其他的任务。这里面真正核心的就是 ```EventLoop```，它负责监视发送这些信号，并且返回数据，它可以通过 ```asyncio.get_event_loop``` 获取到。然后他会真正返回的数据是一个读取 ```StreamReader``` 和写入 ```StreamWriter``` 的对象。</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">接下来，就可以通过这个 ```reader``` 和 ```writer``` 进行数据的读取和写入。```writer``` 是可以直接写入的，如果是 ```reader``` 的话，就需要 aio 的方式等待受到数据后返回。这样看起来更接近于普通的 socket 编程。不过关闭连接时，仅仅需要关闭 ```writer``` 就足够了。</div><div class="line"></div><div class="line">从 socket 通讯到 redis 通讯</div><div class="line">---</div><div class="line"></div><div class="line">本质上来说，所有的网络请求都可以看成是 SocketIO 的请求，因此，我们可以把 Redis 的请求当做是一个 socket 的通讯来进行，这样就很方便了。</div><div class="line"></div><div class="line">不过先等一等，那么通讯的数据格式怎么办？没关系，这里我们使用 ```hiredis-py``` 来解决协议解析的问题。不过，从库设计的角度来说，我们需要封装一个 RedisConnection 的类出来解决 Redis 的通讯协议。它可能传入的参数包含，一个 ```StreamReader```、一个 ```StreamWriter```，一个 ```EventLoop```，哦，别忘记还有编码 ```encoding```。其他的我们就用一个 ```*``` 来表示好了。</div><div class="line"></div><div class="line">```python</div><div class="line">class RedisConnection(object):</div><div class="line">    &apos;&apos;&apos;Redis Connection&apos;&apos;&apos;</div><div class="line">    def __init__(self, reader, writer, *, encoding=None, loop=None):</div><div class="line">        if loop is None:</div><div class="line">            loop = asyncio.get_event_loop()</div><div class="line">        self._reader = reader</div><div class="line">        self._writer = writer</div><div class="line">        self._encoding = encoding</div><div class="line">        self._loop = loop</div><div class="line">        self._db = 0</div><div class="line"></div><div class="line">    def __repr__(self):</div><div class="line">        return &apos;&lt;RedisConnection [db:&#123;&#125;]&gt;&apos;.format(self._db)</div></pre></td></tr></table></figure></p>
+<p>记得加上 <figure class="highlight plain"><figcaption><span>用来描述这个对象，这个可是一个好习惯。接下来就需要完善这个类了，比如，我们需要添加一个关闭连接的方法，这需要至少一个参数用于标记连接是否关闭，一个用于执行关闭操作，比如我们需要这样子的：</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">```python</div><div class="line">    def close(self):</div><div class="line">        &quot;&quot;&quot;Close connection.&quot;&quot;&quot;</div><div class="line">        self._do_close(None)</div><div class="line"></div><div class="line">    def _do_close(self, exc):</div><div class="line">        if self._closed:</div><div class="line">            return</div><div class="line">        self._closed = True</div><div class="line">        self._closing = False</div><div class="line">        # 关闭写入</div><div class="line">        self._writer.transport.close()</div><div class="line">        # 取消读取任务</div><div class="line">        self._reader_task.cancel()</div><div class="line">        self._reader_task = None</div><div class="line">        self._writer = None</div><div class="line">        self._reader = None</div><div class="line"></div><div class="line">    @property</div><div class="line">    def closed(self):</div><div class="line">        &quot;&quot;&quot;True if connection is closed.&quot;&quot;&quot;</div><div class="line">        closed = self._closing or self._closed</div><div class="line">        if not closed and self._reader and self._reader.at_eof():</div><div class="line">            self._closing = closed = True</div><div class="line">            self._loop.call_soon(self._do_close, None)</div><div class="line">        return closed</div></pre></td></tr></table></figure></p>
+<p>连接这类的方法已经处理完了，接下来就应该是执行 Redis 命令了，我们可以叫它 <figure class="highlight plain"><figcaption><span>```command```，一个是指令参数 ```*args```，还有一些其他的，比如编码 ```encoding```。这里为了节省时间，只是考虑一些 Set 和 Get 的基本操作。哦，不过等等，那么 Redis 的数据结构是什么样子的呢？我们还需要先把它编译成 Redis-server 可以识别的形式，那么需要一个 ```encode_command``` 方法。</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">```python</div><div class="line">_converters = &#123;</div><div class="line">    bytes: lambda val: val,</div><div class="line">    bytearray: lambda val: val,</div><div class="line">    str: lambda val: val.encode(&apos;utf-8&apos;),</div><div class="line">    int: lambda val: str(val).encode(&apos;utf-8&apos;),</div><div class="line">    float: lambda val: str(val).encode(&apos;utf-8&apos;),</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line">def encode_command(*args):</div><div class="line">    &quot;&quot;&quot;Encodes arguments into redis bulk-strings array.</div><div class="line">    Raises TypeError if any of args not of bytes, str, int or float type.</div><div class="line">    &quot;&quot;&quot;buf = bytearray()</div><div class="line"></div><div class="line">    def add(data):</div><div class="line">        return buf.extend(data + b&apos;\r\n&apos;)</div><div class="line"></div><div class="line">    add(b&apos;*&apos;+ _bytes_len(args))</div><div class="line">    for arg in args:</div><div class="line">        if type(arg) in _converters:</div><div class="line">            barg = _converters[type(arg)](arg)</div><div class="line">            add(b&apos;$&apos;+ _bytes_len(barg))</div><div class="line">            add(barg)</div><div class="line">        else:</div><div class="line">            raise TypeError(&quot;Argument &#123;!r&#125; expected to be of bytes,&quot;&quot; str, int or float type&quot;.format(arg))</div><div class="line">    return buf</div></pre></td></tr></table></figure></p>
+<p>这样可以转化为可以识别的形式了，接下来还有一个问题，那么怎么让程序可以等待信号的生效呢？这里介绍一下 <figure class="highlight plain"><figcaption><span>```asyncio.Future``` 类是用于封装回调函数的类，包含了一些更加方便使用的方法。通过这个类，可以实现 aio 的通知机制，也就是回调。这个类实例可以通过 ```await``` 返回我们需要的结果。不过这样就还需要在项目中添加一些更多的变量，比如所有等待返回的 ```self._waiters```。</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">```python</div><div class="line">    def execute(self, command, *args, encoding=None):</div><div class="line">        &quot;&quot;&quot;Executes redis command and returns Future waiting for the answer.</div><div class="line">        Raises:</div><div class="line">        * TypeError if any of args can not be encoded as bytes.</div><div class="line">        * ReplyError on redis &apos;-ERR&apos; resonses.</div><div class="line">        * ProtocolError when response can not be decoded meaning connection</div><div class="line">          is broken.</div><div class="line">        &quot;&quot;&quot;assert self._reader and not self._reader.at_eof(), (&quot;Connection closed or corrupted&quot;)</div><div class="line">        if command is None:</div><div class="line">            raise TypeError(&quot;command must not be None&quot;)</div><div class="line">        if None in set(args):</div><div class="line">            raise TypeError(&quot;args must not contain None&quot;)</div><div class="line">        # 这样小写也没有问题了</div><div class="line">        command = command.upper().strip()</div><div class="line">        if encoding is None:</div><div class="line">            encoding = self._encoding</div><div class="line">        fut = asyncio.Future(loop=self._loop)</div><div class="line">        self._writer.write(encode_command(command, *args))</div><div class="line">        self._waiters.append((fut, encoding, cb))</div><div class="line">        return fut</div></pre></td></tr></table></figure></p>
+<p>现在所有的命令都已经发送到了 redis-server，接下来就需要读取对应的结果了。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">def</span> <span class="title">_read_data</span><span class="params">(self)</span>:</span></div><div class="line">    <span class="string">"""Response reader task."""</span></div><div class="line">    <span class="keyword">while</span> <span class="keyword">not</span> self._reader.at_eof():</div><div class="line">        <span class="keyword">try</span>:</div><div class="line">            data = <span class="keyword">await</span> self._reader.read(<span class="number">65536</span>)</div><div class="line">        <span class="keyword">except</span> asyncio.CancelledError:</div><div class="line">            <span class="keyword">break</span></div><div class="line">        <span class="keyword">except</span> Exception <span class="keyword">as</span> exc:</div><div class="line">            <span class="comment"># <span class="doctag">XXX:</span> for QUIT command connection error can be received</span></div><div class="line">            <span class="comment">#       before response</span></div><div class="line">            logger.error(<span class="string">"Exception on data read %r"</span>, exc, exc_info=<span class="keyword">True</span>)</div><div class="line">            <span class="keyword">break</span></div><div class="line">        self._parser.feed(data)</div><div class="line">        <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">            <span class="keyword">try</span>:</div><div class="line">                obj = self._parser.gets()</div><div class="line">            <span class="keyword">except</span> ProtocolError <span class="keyword">as</span> exc:</div><div class="line">                <span class="comment"># ProtocolError is fatal</span></div><div class="line">                <span class="comment"># so connection must be closed</span></div><div class="line">                self._closing = <span class="keyword">True</span></div><div class="line">                self._loop.call_soon(self._do_close, exc)</div><div class="line">                <span class="keyword">if</span> self._in_transaction:</div><div class="line">                    self._transaction_error = exc</div><div class="line">                <span class="keyword">return</span></div><div class="line">            <span class="keyword">else</span>:</div><div class="line">                <span class="keyword">if</span> obj <span class="keyword">is</span> <span class="keyword">False</span>:</div><div class="line">                    <span class="keyword">break</span></div><div class="line">                <span class="keyword">else</span>:</div><div class="line">                    self._process_data(obj)</div><div class="line">    self._closing = <span class="keyword">True</span></div><div class="line">    self._loop.call_soon(self._do_close, <span class="keyword">None</span>)</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">_process_data</span><span class="params">(self, obj)</span>:</span></div><div class="line">    <span class="string">"""Processes command results."""</span></div><div class="line">    waiter, encoding, cb = self._waiters.popleft()</div><div class="line">    <span class="keyword">if</span> waiter.done():</div><div class="line">        logger.debug(<span class="string">"Waiter future is already done %r"</span>, waiter)</div><div class="line">        <span class="keyword">assert</span> waiter.cancelled(), (<span class="string">"waiting future is in wrong state"</span>, waiter, obj)</div><div class="line">        <span class="keyword">return</span></div><div class="line">    <span class="keyword">if</span> isinstance(obj, RedisError):</div><div class="line">        waiter.set_exception(obj)</div><div class="line">        <span class="keyword">if</span> self._in_transaction:</div><div class="line">            self._transaction_error = obj</div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        <span class="keyword">if</span> encoding <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</div><div class="line">            <span class="keyword">try</span>:</div><div class="line">                obj = decode(obj, encoding)</div><div class="line">            <span class="keyword">except</span> Exception <span class="keyword">as</span> exc:</div><div class="line">                waiter.set_exception(exc)</div><div class="line">                <span class="keyword">return</span></div><div class="line">        waiter.set_result(obj)</div><div class="line">        <span class="keyword">if</span> cb <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</div><div class="line">            cb(obj)</div></pre></td></tr></table></figure>
+<p>有了这些之后，我们就可以简单创建一个连接了：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">def</span> <span class="title">create_connection</span><span class="params">(address, *, db=None, password=None,</span></span></div><div class="line"><span class="function"><span class="params">                      encoding=None, loop=None)</span>:</span></div><div class="line">    <span class="string">"""Creates redis connection.</span></div><div class="line"><span class="string">    Opens connection to Redis server specified by address argument.</span></div><div class="line"><span class="string">    Address argument is similar to socket address argument, ie:</span></div><div class="line"><span class="string">    * when address is a tuple it represents (host, port) pair;</span></div><div class="line"><span class="string">    * when address is a str it represents unix domain socket path.</span></div><div class="line"><span class="string">    (no other address formats supported)</span></div><div class="line"><span class="string">    Encoding argument can be used to decode byte-replies to strings.</span></div><div class="line"><span class="string">    By default no decoding is done.</span></div><div class="line"><span class="string">    Return value is RedisConnection instance.</span></div><div class="line"><span class="string">    This function is a coroutine.</span></div><div class="line"><span class="string">    """</span><span class="keyword">assert</span> isinstance(address, (tuple, list, str)), <span class="string">"tuple or str expected"</span></div><div class="line"></div><div class="line">    <span class="keyword">if</span> isinstance(address, (list, tuple)):</div><div class="line">        host, port = address</div><div class="line">        reader, writer = <span class="keyword">await</span> asyncio.open_connection(host, port, loop=loop)</div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        reader, writer = <span class="keyword">await</span> asyncio.open_unix_connection(address, loop=loop)</div><div class="line">    conn = RedisConnection(reader, writer, encoding=encoding, loop=loop)</div><div class="line"></div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        <span class="keyword">if</span> password <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</div><div class="line">            <span class="keyword">yield</span> <span class="keyword">from</span> conn.auth(password)</div><div class="line">        <span class="keyword">if</span> db <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</div><div class="line">            <span class="keyword">yield</span> <span class="keyword">from</span> conn.select(db)</div><div class="line">    <span class="keyword">except</span> Exception:</div><div class="line">        conn.close()</div><div class="line">    <span class="keyword">return</span> conn</div></pre></td></tr></table></figure>
+<p>这样，连接部分的代码基本上已经处理完成了，接下来要做的就是实现基于这个连接的命令执行了，下面的内容会下一个文章中继续介绍，敬请期待。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Python/" rel="tag"># Python</a>
+          
+            <a href="/tags/async/" rel="tag"># async</a>
+          
+            <a href="/tags/Redis/" rel="tag"># Redis</a>
+          
+            <a href="/tags/asyncio/" rel="tag"># asyncio</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/08/introduction-to-async-and-await/" rel="next" title="Python async/await 入门">
+                <i class="fa fa-chevron-left"></i> Python async/await 入门
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/10/write-aio-python-redis-client-as-dummy-2/" rel="prev" title="从零实现一个 Redis 客户端（二）">
+                从零实现一个 Redis 客户端（二） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars0.githubusercontent.com/u/363344?v=3&s=460"
+               alt="ipfans" />
+          <p class="site-author-name" itemprop="name">ipfans</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">64</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">99</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/ipfans" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/janxin" target="_blank" title="Tw1tter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Tw1tter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              Links
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.yeeuu.com" title="杭州云柚科技" target="_blank">杭州云柚科技</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是-AIO"><span class="nav-number">1.</span> <span class="nav-text">什么是 AIO</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如何实现-Python-的异步-IO"><span class="nav-number">2.</span> <span class="nav-text">如何实现 Python 的异步 IO</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ipfans</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://s1mbily.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'https://ipfans.github.io/2015/10/write-aio-python-redis-client-as-dummy-1/';
+          this.page.identifier = '2015/10/write-aio-python-redis-client-as-dummy-1/';
+          this.page.title = '零基础编写 Python Redis Client（一）';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://s1mbily.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
